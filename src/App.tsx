@@ -8,6 +8,7 @@ import { AppSidebar } from "./components/AppSidebar";
 import Profile from "./pages/Profile";
 import GymInfo from "./pages/GymInfo";
 import Classes from "./pages/Classes";
+import ClassDetail from "./pages/ClassDetail";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +59,14 @@ const App = () => (
             element={
               <AppLayout>
                 <Classes />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/classes/:id"
+            element={
+              <AppLayout>
+                <ClassDetail />
               </AppLayout>
             }
           />

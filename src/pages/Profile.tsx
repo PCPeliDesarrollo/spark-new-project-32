@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -164,11 +164,6 @@ export default function Profile() {
     );
   }
 
-  const getInitials = () => {
-    const names = profile.full_name.split(' ');
-    return names[0]?.charAt(0).toUpperCase() || '?';
-  };
-
   return (
     <div className="container max-w-2xl py-8">
       <Card>
@@ -180,12 +175,11 @@ export default function Profile() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center mb-6">
-            <Avatar className="h-24 w-24 mb-4">
-              <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-              <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              avatarUrl={profile.avatar_url}
+              fullName={profile.full_name}
+              size="lg"
+            />
             <input
               ref={fileInputRef}
               type="file"
