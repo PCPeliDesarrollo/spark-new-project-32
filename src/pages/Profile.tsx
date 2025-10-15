@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -19,7 +20,10 @@ export default function Profile() {
     fecha_nacimiento: "",
     peso: "",
     estatura: "",
+    avatar_url: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -54,6 +58,7 @@ export default function Profile() {
           fecha_nacimiento: profileData.fecha_nacimiento || "",
           peso: profileData.peso?.toString() || "",
           estatura: profileData.estatura?.toString() || "",
+          avatar_url: profileData.avatar_url || "",
         });
       }
     } catch (error) {
@@ -83,6 +88,7 @@ export default function Profile() {
           fecha_nacimiento: profile.fecha_nacimiento || null,
           peso: profile.peso ? parseFloat(profile.peso) : null,
           estatura: profile.estatura ? parseFloat(profile.estatura) : null,
+          avatar_url: profile.avatar_url,
         })
         .eq("id", user.id);
 
@@ -103,6 +109,53 @@ export default function Profile() {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+
+      const file = e.target.files[0];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setUploading(true);
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setProfile({ ...profile, avatar_url: publicUrl });
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Avatar actualizado",
+        description: "Tu foto de perfil se ha guardado correctamente",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo subir la imagen",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -110,6 +163,11 @@ export default function Profile() {
       </div>
     );
   }
+
+  const getInitials = () => {
+    const names = profile.full_name.split(' ');
+    return names[0]?.charAt(0).toUpperCase() || '?';
+  };
 
   return (
     <div className="container max-w-2xl py-8">
@@ -121,6 +179,41 @@ export default function Profile() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-col items-center mb-6">
+            <Avatar className="h-24 w-24 mb-4">
+              <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+              <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Subiendo...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Cambiar foto
+                </>
+              )}
+            </Button>
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">

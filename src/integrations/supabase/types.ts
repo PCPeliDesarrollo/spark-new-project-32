@@ -14,23 +14,145 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
+      class_bookings: {
         Row: {
           created_at: string
-          full_name: string | null
           id: string
+          schedule_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          schedule_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          schedule_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_bookings_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "class_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_bookings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_schedules: {
+        Row: {
+          class_id: string
+          created_at: string
+          day_of_week: number
+          duration_minutes: number
+          id: string
+          max_capacity: number
+          start_time: string
+          updated_at: string
+          week_start_date: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          day_of_week: number
+          duration_minutes: number
+          id?: string
+          max_capacity?: number
+          start_time: string
+          updated_at?: string
+          week_start_date: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          day_of_week?: number
+          duration_minutes?: number
+          id?: string
+          max_capacity?: number
+          start_time?: string
+          updated_at?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_schedules_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          full_name?: string | null
-          id: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          apellidos: string | null
+          avatar_url: string | null
+          created_at: string
+          estatura: number | null
+          fecha_nacimiento: string | null
+          full_name: string | null
+          id: string
+          peso: number | null
+          updated_at: string
+        }
+        Insert: {
+          apellidos?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          estatura?: number | null
+          fecha_nacimiento?: string | null
+          full_name?: string | null
+          id: string
+          peso?: number | null
+          updated_at?: string
+        }
+        Update: {
+          apellidos?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          estatura?: number | null
+          fecha_nacimiento?: string | null
           full_name?: string | null
           id?: string
+          peso?: number | null
           updated_at?: string
         }
         Relationships: []
