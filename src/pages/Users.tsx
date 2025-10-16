@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { RegisterUserDialog } from "@/components/RegisterUserDialog";
 
 interface UserWithRole {
   id: string;
@@ -93,14 +94,54 @@ export default function Users() {
     return null;
   }
 
+  const handleUserCreated = () => {
+    // Refetch users after creating a new one
+    const fetchUsers = async () => {
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (profilesError) {
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los usuarios",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: rolesData } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      const usersWithRoles = profilesData.map((profile) => {
+        const userRole = rolesData?.find((r) => r.user_id === profile.id);
+        return {
+          ...profile,
+          role: userRole?.role || "standard",
+        };
+      });
+
+      setUsers(usersWithRoles);
+    };
+
+    fetchUsers();
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <Card>
         <CardHeader>
-          <CardTitle>Usuarios Registrados</CardTitle>
-          <CardDescription>
-            Listado de todos los usuarios registrados en Panthera Fitness Alburquerque
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Usuarios Registrados</CardTitle>
+              <CardDescription>
+                Listado de todos los usuarios registrados en Panthera Fitness Alburquerque
+              </CardDescription>
+            </div>
+            <RegisterUserDialog onUserCreated={handleUserCreated} />
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
