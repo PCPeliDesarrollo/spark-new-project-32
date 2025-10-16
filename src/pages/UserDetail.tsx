@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake, UserCog } from "lucide-react";
 
 interface UserProfile {
   id: string;
@@ -28,6 +29,7 @@ export default function UserDetail() {
   const { isAdmin, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [updatingRole, setUpdatingRole] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -79,6 +81,33 @@ export default function UserDetail() {
       fetchUserDetail();
     }
   }, [isAdmin, id, toast]);
+
+  const handleRoleChange = async (newRole: string) => {
+    if (!id || !user) return;
+
+    setUpdatingRole(true);
+    
+    const { error } = await supabase
+      .from("user_roles")
+      .update({ role: newRole as "admin" | "vip" | "standard" })
+      .eq("user_id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el rol del usuario",
+        variant: "destructive",
+      });
+    } else {
+      setUser({ ...user, role: newRole });
+      toast({
+        title: "Rol actualizado",
+        description: `El usuario ahora es ${newRole}`,
+      });
+    }
+
+    setUpdatingRole(false);
+  };
 
   if (roleLoading || loading) {
     return (
@@ -133,6 +162,28 @@ export default function UserDetail() {
             <CardTitle>Información del Usuario</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Role Selector - Only for non-admin users */}
+            {user.role !== "admin" && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
+                <UserCog className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-2">Tipo de Cliente</p>
+                  <Select
+                    value={user.role}
+                    onValueChange={handleRoleChange}
+                    disabled={updatingRole}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Seleccionar rol" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="standard">Estándar</SelectItem>
+                      <SelectItem value="vip">VIP</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
               <Calendar className="h-5 w-5 text-muted-foreground" />
               <div>
