@@ -9,6 +9,8 @@ import Profile from "./pages/Profile";
 import GymInfo from "./pages/GymInfo";
 import Classes from "./pages/Classes";
 import ClassDetail from "./pages/ClassDetail";
+import Users from "./pages/Users";
+import UserDetail from "./pages/UserDetail";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -67,6 +69,22 @@ const App = () => (
             element={
               <AppLayout>
                 <ClassDetail />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <AppLayout>
+                <Users />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <AppLayout>
+                <UserDetail />
               </AppLayout>
             }
           />

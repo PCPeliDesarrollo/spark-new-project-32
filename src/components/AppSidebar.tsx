@@ -1,4 +1,4 @@
-import { User, Building2, Calendar, LogOut } from "lucide-react";
+import { User, Building2, Calendar, LogOut, Users as UsersIcon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const menuItems = [
   { title: "Mi Perfil", url: "/", icon: User },
@@ -22,10 +23,15 @@ const menuItems = [
   { title: "Clases", url: "/classes", icon: Calendar },
 ];
 
+const adminMenuItems = [
+  { title: "Usuarios", url: "/users", icon: UsersIcon },
+];
+
 export function AppSidebar() {
   const { open } = useSidebar();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAdmin } = useUserRole();
 
   const handleLogout = async () => {
     try {
@@ -49,11 +55,28 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-lg font-bold text-primary">
-            FitGym
+            Panthera Fitness
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : ""
+                      }
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {open && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              {isAdmin && adminMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
