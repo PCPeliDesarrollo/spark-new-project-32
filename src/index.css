@@ -99,5 +99,23 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background-image: url('@/assets/pantera.png');
+    background-size: 40%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-blend-mode: soft-light;
+  }
+  
+  @media (max-width: 768px) {
+    body {
+      background-size: 70%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    body {
+      background-size: 90%;
+    }
   }
 }

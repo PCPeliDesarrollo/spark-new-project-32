@@ -1,5 +1,6 @@
 import { User, Building2, Calendar, LogOut, Users as UsersIcon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
+import panteraLogo from "@/assets/pantera.png";
 import {
   Sidebar,
   SidebarContent,
@@ -54,8 +55,9 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-bold text-primary">
-            Panthera Fitness
+          <SidebarGroupLabel className="flex items-center gap-2 text-base md:text-lg font-bold text-primary">
+            <img src={panteraLogo} alt="Panthera" className="w-6 h-6 md:w-8 md:h-8" />
+            {open && <span>Panthera Fitness</span>}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

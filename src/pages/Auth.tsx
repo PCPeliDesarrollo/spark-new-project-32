@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Dumbbell } from "lucide-react";
 import { z } from "zod";
+import panteraLogo from "@/assets/pantera.png";
 
 const authSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
@@ -143,10 +143,10 @@ const Auth = () => {
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-primary/10 rounded-full">
-              <Dumbbell className="w-12 h-12 text-primary" />
+              <img src={panteraLogo} alt="Panthera Fitness" className="w-12 h-12 md:w-16 md:h-16" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold">
+          <CardTitle className="text-2xl md:text-3xl font-bold">
             {isLogin ? "Bienvenido" : "Únete"}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
