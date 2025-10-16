@@ -19,10 +19,12 @@ export function useUserRole() {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         setRole(data.role);
+      } else if (!data) {
+        setRole("standard"); // default role if none found
       }
       
       setLoading(false);
