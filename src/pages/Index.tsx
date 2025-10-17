@@ -107,8 +107,8 @@ const Index = () => {
           <div className="inline-block mb-6 md:mb-8 p-3 md:p-4 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.3)] backdrop-blur-sm border border-primary/20">
             <img src={panteraLogo} alt="Panthera Fitness" className="w-16 h-16 md:w-24 md:h-24" />
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 md:mb-8 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight">
-            Bienvenido a Panthera Fitness
+          <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-6 md:mb-8 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+            BIENVENIDO A PANTHERA FITNESS
           </h1>
           <p className="text-lg md:text-2xl text-foreground/80 mb-8 md:mb-10 max-w-3xl mx-auto px-4 leading-relaxed">
             Transforma tu cuerpo, supera tus límites. <br className="hidden md:block" />
@@ -133,7 +133,7 @@ const Index = () => {
               <div className="inline-block p-4 md:p-5 bg-gradient-to-br from-primary/20 to-primary-glow/10 rounded-2xl mb-4 md:mb-5 shadow-lg group-hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-500 group-hover:scale-110">
                 <Calendar className="w-8 h-8 md:w-10 md:h-10 text-primary" />
               </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">Clases Programadas</h3>
+              <h3 className="font-bebas text-2xl md:text-3xl tracking-wide mb-3 text-foreground">CLASES PROGRAMADAS</h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                 Próximamente podrás ver y reservar todas las clases disponibles
               </p>
@@ -146,7 +146,7 @@ const Index = () => {
               <div className="inline-block p-4 md:p-5 bg-gradient-to-br from-primary/20 to-primary-glow/10 rounded-2xl mb-4 md:mb-5 shadow-lg group-hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-500 group-hover:scale-110">
                 <img src={panteraLogo} alt="Entrena" className="w-8 h-8 md:w-10 md:h-10" />
               </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">Entrena con Nosotros</h3>
+              <h3 className="font-bebas text-2xl md:text-3xl tracking-wide mb-3 text-foreground">ENTRENA CON NOSOTROS</h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                 Accede a entrenamientos personalizados y seguimiento de progreso
               </p>
@@ -159,7 +159,7 @@ const Index = () => {
               <div className="inline-block p-4 md:p-5 bg-gradient-to-br from-primary/20 to-primary-glow/10 rounded-2xl mb-4 md:mb-5 shadow-lg group-hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-500 group-hover:scale-110">
                 <Users className="w-8 h-8 md:w-10 md:h-10 text-primary" />
               </div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground">Comunidad</h3>
+              <h3 className="font-bebas text-2xl md:text-3xl tracking-wide mb-3 text-foreground">COMUNIDAD</h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                 Conecta con otros miembros y comparte tu progreso
               </p>
@@ -174,8 +174,8 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary-glow/5"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px]"></div>
           <CardContent className="p-8 md:p-12 lg:p-16 text-center relative z-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 md:mb-6 bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
-              ¿Listo para comenzar?
+            <h2 className="font-bebas text-4xl md:text-5xl lg:text-6xl tracking-wider mb-4 md:mb-6 bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+              ¿LISTO PARA COMENZAR?
             </h2>
             <p className="text-base md:text-lg lg:text-xl text-foreground/70 mb-6 md:mb-8 max-w-3xl mx-auto px-2 leading-relaxed">
               Estamos construyendo las mejores funcionalidades para tu experiencia fitness. 
