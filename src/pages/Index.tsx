@@ -107,11 +107,13 @@ const Index = () => {
           <div className="inline-block mb-6 md:mb-8 p-3 md:p-4 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.3)] backdrop-blur-sm border border-primary/20">
             <img src={panteraLogo} alt="Panthera Fitness" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
           </div>
-          <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-6 md:mb-8 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight drop-shadow-[0_4px_20px_rgba(59,130,246,0.8)] [text-shadow:_0_0_40px_rgba(59,130,246,0.6)]">
+          <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 md:mb-6 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight drop-shadow-[0_4px_20px_rgba(59,130,246,0.8)] [text-shadow:_0_0_40px_rgba(59,130,246,0.6)]">
             BIENVENIDO A PANTHERA FITNESS
           </h1>
+          <p className="text-xl md:text-3xl font-bold text-foreground/90 mb-6 md:mb-8 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] [text-shadow:_0_2px_20px_rgba(59,130,246,0.5)]">
+            🔥 TRANSFORMA TU CUERPO, SUPERA TUS LÍMITES 🔥
+          </p>
           <p className="text-lg md:text-2xl text-foreground/80 mb-8 md:mb-10 max-w-3xl mx-auto px-4 leading-relaxed">
-            Transforma tu cuerpo, supera tus límites. <br className="hidden md:block" />
             <span className="text-primary font-semibold">Gestiona tus clases y alcanza tus objetivos de fitness.</span>
           </p>
           {user && (
