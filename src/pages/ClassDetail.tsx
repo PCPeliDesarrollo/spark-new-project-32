@@ -183,37 +183,42 @@ export default function ClassDetail() {
   }
 
   return (
-    <div className="container py-8">
+    <div className="container py-4 md:py-8 px-4">
       <Button
         variant="ghost"
         onClick={() => navigate("/classes")}
         className="mb-4"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Volver a clases
+        Volver
       </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2">
-          <Card>
-            <div className="aspect-video w-full overflow-hidden">
+          <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+            <div className="aspect-video w-full overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
               <img
                 src={classData.image_url || "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800"}
                 alt={classData.name}
                 className="w-full h-full object-cover"
               />
             </div>
-            <CardHeader>
-              <CardTitle className="text-3xl">{classData.name}</CardTitle>
+            <CardHeader className="text-center">
+              <CardTitle className="font-bebas text-3xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+                {classData.name}
+              </CardTitle>
               <CardDescription className="text-base">
                 {classData.description}
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Horarios de la semana</CardTitle>
+          <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+            <CardHeader className="text-center">
+              <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                HORARIOS DE LA SEMANA
+              </CardTitle>
               <CardDescription>
                 Selecciona un horario para apuntarte
               </CardDescription>
@@ -230,19 +235,19 @@ export default function ClassDetail() {
                   return (
                     <div
                       key={schedule.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                      className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 border border-primary/20 rounded-lg hover:bg-accent hover:border-primary/40 transition-all"
                     >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-4 mb-2">
-                          <Badge variant="outline">
+                      <div className="flex-1 mb-3 md:mb-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs">
                             <Calendar className="mr-1 h-3 w-3" />
                             {DAYS[schedule.day_of_week]}
                           </Badge>
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             <Clock className="mr-1 h-3 w-3" />
                             {schedule.start_time.slice(0, 5)}
                           </Badge>
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             <Users className="mr-1 h-3 w-3" />
                             {bookedCount}/{schedule.max_capacity}
                           </Badge>
@@ -260,11 +265,13 @@ export default function ClassDetail() {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full md:w-auto">
                         <Button
                           variant={isBooked ? "destructive" : "default"}
                           onClick={() => handleBooking(schedule.id)}
                           disabled={!isBooked && isFull}
+                          className="flex-1 md:flex-none text-sm bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300"
+                          size="sm"
                         >
                           {isBooked ? "Cancelar" : isFull ? "Completo" : "Apuntarse"}
                         </Button>
@@ -274,8 +281,9 @@ export default function ClassDetail() {
                           onClick={() => setSelectedSchedule(
                             selectedSchedule === schedule.id ? null : schedule.id
                           )}
+                          className="text-xs"
                         >
-                          {selectedSchedule === schedule.id ? "Ocultar" : "Ver inscritos"}
+                          {selectedSchedule === schedule.id ? "Ocultar" : "Ver"}
                         </Button>
                       </div>
                     </div>
@@ -286,22 +294,24 @@ export default function ClassDetail() {
           </Card>
         </div>
 
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Información</CardTitle>
+        <div className="lg:sticky lg:top-4">
+          <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+            <CardHeader className="text-center">
+              <CardTitle className="font-bebas text-2xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                INFORMACIÓN
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+              <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                 <p className="text-sm font-medium mb-1">Duración</p>
-                <p className="text-sm text-muted-foreground">
-                  {schedules[0]?.duration_minutes || 60} minutos
+                <p className="font-bebas text-2xl text-primary">
+                  {schedules[0]?.duration_minutes || 60} MIN
                 </p>
               </div>
-              <div>
+              <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                 <p className="text-sm font-medium mb-1">Capacidad máxima</p>
-                <p className="text-sm text-muted-foreground">
-                  {schedules[0]?.max_capacity || 20} personas
+                <p className="font-bebas text-2xl text-primary">
+                  {schedules[0]?.max_capacity || 20} PERSONAS
                 </p>
               </div>
             </CardContent>

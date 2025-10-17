@@ -43,12 +43,12 @@ export default function Classes() {
   }
 
   return (
-    <div className="container py-8 md:py-12">
-      <div className="mb-12">
-        <h1 className="font-bebas text-6xl md:text-8xl tracking-wider mb-4 bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+    <div className="container py-8 md:py-12 px-4">
+      <div className="mb-12 text-center md:text-left">
+        <h1 className="font-bebas text-5xl sm:text-6xl md:text-8xl tracking-wider mb-4 bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_4px_20px_rgba(59,130,246,0.8)] [text-shadow:_0_0_40px_rgba(59,130,246,0.6)]">
           CLASES
         </h1>
-        <div className="h-1 w-32 bg-gradient-to-r from-primary to-primary-glow rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
+        <div className="h-1 w-32 bg-gradient-to-r from-primary to-primary-glow rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)] mx-auto md:mx-0"></div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">

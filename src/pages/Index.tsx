@@ -76,17 +76,17 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-primary/20 bg-card/30 backdrop-blur-md sticky top-0 z-50 shadow-lg shadow-primary/5 relative">
         <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-2 md:gap-3 flex-1 justify-center md:justify-start">
             <div className="relative p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105">
-              <img src={panteraLogo} alt="Panthera Fitness" className="w-5 h-5 md:w-7 md:h-7" />
+              <img src={panteraLogo} alt="Panthera Fitness" className="w-5 h-5 md:w-7 md:h-7 object-contain" />
             </div>
-            <span className="text-base md:text-xl font-bold bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">Panthera Fitness</span>
+            <span className="font-bebas text-base md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">PANTHERA FITNESS</span>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={handleLogout}
-            className="border-primary/30 bg-card/50 backdrop-blur-sm hover:bg-destructive/20 hover:text-destructive hover:border-destructive/50 text-xs md:text-sm transition-all duration-300 hover:scale-105"
+            className="border-primary/30 bg-card/50 backdrop-blur-sm hover:bg-destructive/20 hover:text-destructive hover:border-destructive/50 text-xs md:text-sm transition-all duration-300 hover:scale-105 absolute md:relative right-4 md:right-0"
           >
             <LogOut className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
             <span className="hidden sm:inline">Cerrar Sesión</span>
@@ -105,9 +105,9 @@ const Index = () => {
         
         <div className="container mx-auto px-4 py-16 md:py-24 text-center relative z-10">
           <div className="inline-block mb-6 md:mb-8 p-3 md:p-4 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.3)] backdrop-blur-sm border border-primary/20">
-            <img src={panteraLogo} alt="Panthera Fitness" className="w-16 h-16 md:w-24 md:h-24" />
+            <img src={panteraLogo} alt="Panthera Fitness" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
           </div>
-          <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-6 md:mb-8 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+          <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-6 md:mb-8 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight drop-shadow-[0_4px_20px_rgba(59,130,246,0.8)] [text-shadow:_0_0_40px_rgba(59,130,246,0.6)]">
             BIENVENIDO A PANTHERA FITNESS
           </h1>
           <p className="text-lg md:text-2xl text-foreground/80 mb-8 md:mb-10 max-w-3xl mx-auto px-4 leading-relaxed">

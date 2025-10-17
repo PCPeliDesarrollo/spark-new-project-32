@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Lock } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
+import { z } from "zod";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -24,6 +25,11 @@ export default function Profile() {
   });
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -156,6 +162,52 @@ export default function Profile() {
     }
   };
 
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const passwordSchema = z.object({
+      newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+      confirmPassword: z.string(),
+    }).refine((data) => data.newPassword === data.confirmPassword, {
+      message: "Las contraseñas no coinciden",
+      path: ["confirmPassword"],
+    });
+
+    try {
+      passwordSchema.parse(passwordData);
+      setChangingPassword(true);
+
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Contraseña actualizada",
+        description: "Tu contraseña se ha cambiado correctamente",
+      });
+
+      setPasswordData({ newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Error de validación",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo cambiar la contraseña",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -165,10 +217,12 @@ export default function Profile() {
   }
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="container max-w-2xl py-4 md:py-8 px-4">
       <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Mi Perfil</CardTitle>
+        <CardHeader className="text-center">
+          <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+            MI PERFIL
+          </CardTitle>
           <CardDescription className="text-base">
             Actualiza tus datos personales
           </CardDescription>
@@ -283,6 +337,67 @@ export default function Profile() {
                 </>
               ) : (
                 "Guardar cambios"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Card para cambiar contraseña */}
+      <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+        <CardHeader className="text-center">
+          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+            CAMBIAR CONTRASEÑA
+          </CardTitle>
+          <CardDescription className="text-base">
+            Actualiza tu contraseña de acceso
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nueva contraseña</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, newPassword: e.target.value })
+                }
+                placeholder="••••••••"
+                minLength={6}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                }
+                placeholder="••••••••"
+                minLength={6}
+                required
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]" 
+              disabled={changingPassword}
+            >
+              {changingPassword ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cambiando...
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-2 h-4 w-4" />
+                  Cambiar contraseña
+                </>
               )}
             </Button>
           </form>
