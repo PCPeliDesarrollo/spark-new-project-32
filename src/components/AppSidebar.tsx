@@ -30,10 +30,16 @@ const adminMenuItems = [
 ];
 
 export function AppSidebar() {
-  const { open } = useSidebar();
+  const { open, setOpenMobile, isMobile } = useSidebar();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAdmin } = useUserRole();
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -67,6 +73,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         isActive
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
@@ -84,6 +91,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         isActive
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"

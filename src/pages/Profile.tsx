@@ -246,6 +246,15 @@ export default function Profile() {
 
   return (
     <div className="container max-w-2xl py-4 md:py-8 px-4">
+      <div className="text-center mb-6">
+        <h1 className="font-bebas text-5xl md:text-6xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(59,130,246,0.8)] mb-3">
+          BIENVENIDO/A {profile.full_name && `, ${profile.full_name.toUpperCase()}`}
+        </h1>
+        <p className="text-lg md:text-xl font-semibold text-foreground/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+          🔥 TRANSFORMA TU CUERPO, SUPERA TUS LÍMITES 🔥
+        </p>
+      </div>
+      
       <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader className="text-center">
           <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
