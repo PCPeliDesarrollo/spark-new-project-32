@@ -11,6 +11,7 @@ import Classes from "./pages/Classes";
 import ClassDetail from "./pages/ClassDetail";
 import Users from "./pages/Users";
 import UserDetail from "./pages/UserDetail";
+import Calculator from "./pages/Calculator";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -85,6 +86,14 @@ const App = () => (
             element={
               <AppLayout>
                 <UserDetail />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/calculator"
+            element={
+              <AppLayout>
+                <Calculator />
               </AppLayout>
             }
           />

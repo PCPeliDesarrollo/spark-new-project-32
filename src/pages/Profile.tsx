@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, Lock } from "lucide-react";
+import { Loader2, Upload, Lock, Download } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { z } from "zod";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export default function Profile() {
     newPassword: "",
     confirmPassword: "",
   });
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -47,6 +49,8 @@ export default function Profile() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      setUserId(user.id);
 
       const { data, error } = await supabase
         .from("profiles")
@@ -76,6 +80,30 @@ export default function Profile() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const downloadQR = () => {
+    const svg = document.getElementById("user-qr-code");
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx?.drawImage(img, 0, 0);
+      const pngFile = canvas.toDataURL("image/png");
+
+      const downloadLink = document.createElement("a");
+      downloadLink.download = `qr-acceso-${profile.full_name || "usuario"}.png`;
+      downloadLink.href = pngFile;
+      downloadLink.click();
+    };
+
+    img.src = "data:image/svg+xml;base64," + btoa(svgData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -340,6 +368,40 @@ export default function Profile() {
               )}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Card para el QR de acceso */}
+      <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+        <CardHeader className="text-center">
+          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+            MI CÓDIGO QR
+          </CardTitle>
+          <CardDescription className="text-base">
+            Este es tu código QR único para acceder al gimnasio
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <QRCodeSVG
+              id="user-qr-code"
+              value={userId}
+              size={200}
+              level="H"
+              includeMargin={true}
+            />
+          </div>
+          <p className="text-sm text-muted-foreground text-center max-w-md">
+            Presenta este código QR al entrar al gimnasio para registrar tu acceso
+          </p>
+          <Button
+            onClick={downloadQR}
+            variant="outline"
+            className="w-full md:w-auto"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Descargar QR
+          </Button>
         </CardContent>
       </Card>
 

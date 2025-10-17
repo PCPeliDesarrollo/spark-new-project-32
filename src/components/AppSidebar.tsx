@@ -1,4 +1,4 @@
-import { User, Building2, Calendar, LogOut, Users as UsersIcon } from "lucide-react";
+import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import panteraLogo from "@/assets/pantera.png";
 import {
@@ -22,6 +22,7 @@ const menuItems = [
   { title: "Mi Perfil", url: "/", icon: User },
   { title: "Datos del Centro", url: "/gym-info", icon: Building2 },
   { title: "Clases", url: "/classes", icon: Calendar },
+  { title: "Calculadoras", url: "/calculator", icon: Calculator },
 ];
 
 const adminMenuItems = [
