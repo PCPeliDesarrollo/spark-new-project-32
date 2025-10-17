@@ -63,9 +63,18 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Fondo con logo de pantera */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
+        <img 
+          src={panteraLogo} 
+          alt="" 
+          className="w-[1000px] h-[1000px] object-contain"
+        />
+      </div>
+
       {/* Header */}
-      <header className="border-b border-primary/20 bg-card/30 backdrop-blur-md sticky top-0 z-50 shadow-lg shadow-primary/5">
+      <header className="border-b border-primary/20 bg-card/30 backdrop-blur-md sticky top-0 z-50 shadow-lg shadow-primary/5 relative">
         <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="relative p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105">
@@ -88,7 +97,7 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[100px] animate-pulse"></div>
           <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-primary-glow/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }}></div>
