@@ -133,23 +133,24 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-primary-glow/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <Card className="w-full max-w-md relative z-10 border-primary/20 bg-card/80 backdrop-blur-sm">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <img src={panteraLogo} alt="Panthera Fitness" className="w-12 h-12 md:w-16 md:h-16" />
+      <Card className="w-full max-w-md relative z-10 border-primary/30 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-xl shadow-[0_0_60px_rgba(59,130,246,0.2)]">
+        <CardHeader className="space-y-1 text-center pb-6">
+          <div className="flex justify-center mb-6">
+            <div className="p-4 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.4)] border border-primary/30">
+              <img src={panteraLogo} alt="Panthera Fitness" className="w-14 h-14 md:w-20 md:h-20" />
             </div>
           </div>
-          <CardTitle className="text-2xl md:text-3xl font-bold">
+          <CardTitle className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
             {isLogin ? "Bienvenido" : "Únete"}
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
+          <CardDescription className="text-muted-foreground text-base">
             {isLogin
               ? "Ingresa tus credenciales para continuar"
               : "Crea tu cuenta para comenzar"}
@@ -197,7 +198,7 @@ const Auth = () => {
             </div>
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary text-primary-foreground font-bold text-base py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-[1.02]"
               disabled={loading}
             >
               {loading ? "Cargando..." : isLogin ? "Iniciar Sesión" : "Registrarse"}

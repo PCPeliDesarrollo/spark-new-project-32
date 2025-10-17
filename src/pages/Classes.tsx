@@ -43,10 +43,13 @@ export default function Classes() {
   }
 
   return (
-    <div className="container py-8">
-      <h1 className="text-4xl font-bold mb-8 text-primary">Clases</h1>
+    <div className="container py-8 md:py-12">
+      <div className="mb-10">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">Clases</h1>
+        <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-primary-glow rounded-full"></div>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {classes.map((cls) => (
           <ClassCard
             key={cls.id}

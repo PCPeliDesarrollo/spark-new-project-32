@@ -166,10 +166,10 @@ export default function Profile() {
 
   return (
     <div className="container max-w-2xl py-8">
-      <Card>
+      <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader>
-          <CardTitle>Mi Perfil</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Mi Perfil</CardTitle>
+          <CardDescription className="text-base">
             Actualiza tus datos personales
           </CardDescription>
         </CardHeader>
