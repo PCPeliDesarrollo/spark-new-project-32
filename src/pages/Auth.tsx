@@ -157,8 +157,8 @@ const Auth = () => {
               <img src={panteraLogo} alt="Panthera Fitness" className="w-14 h-14 md:w-20 md:h-20 object-contain" />
             </div>
           </div>
-          <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
-            {isLogin ? "BIENVENIDO" : "ÚNETE"}
+          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+            DESPIERTA TU FUERZA INTERIOR
           </CardTitle>
           <CardDescription className="text-muted-foreground text-base">
             {isLogin
