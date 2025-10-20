@@ -150,8 +150,17 @@ const Auth = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <Card className="w-full max-w-md relative z-10 border-primary/30 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-xl shadow-[0_0_60px_rgba(59,130,246,0.2)]">
-        <CardHeader className="space-y-1 text-center pb-6">
+      <Card className="w-full max-w-md relative z-10 border-primary/30 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-xl shadow-[0_0_60px_rgba(59,130,246,0.2)] overflow-hidden">
+        {/* Logo de pantera dentro del card */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.08]">
+          <img 
+            src={panteraLogo} 
+            alt="" 
+            className="w-[400px] h-[400px] object-contain"
+          />
+        </div>
+        
+        <CardHeader className="space-y-1 text-center pb-6 relative z-10">
           <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
             DESPIERTA TU FUERZA INTERIOR
           </CardTitle>
