@@ -11,10 +11,10 @@ import pan6 from "@/assets/pan6.jpeg";
 
 export default function GymInfo() {
   const gymLocation = "CF El prado 3, 06510 Alburquerque Badajoz";
-  const gymCoordinates = "40.4168,-3.7038";
+  const gymCoordinates = "39.2194,-5.7994"; // Coordenadas de Alburquerque, Badajoz
 
   const handleOpenMaps = () => {
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gymLocation)}`;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(gymLocation)}`;
     window.open(mapsUrl, "_blank");
   };
 
@@ -117,7 +117,7 @@ export default function GymInfo() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">pantherafitnessalburquerque@gmail.com</p>
+            <p className="text-sm text-muted-foreground break-all">pantherafitnessalburquerque@gmail.com</p>
           </CardContent>
         </Card>
 
