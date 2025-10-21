@@ -26,6 +26,8 @@ interface Schedule {
 
 interface Booking {
   user_id: string;
+  status: 'confirmed' | 'waitlist';
+  position: number | null;
   profiles: {
     full_name: string;
     avatar_url: string;
@@ -86,12 +88,16 @@ export default function ClassDetail() {
             .from("class_bookings")
             .select(`
               user_id,
+              status,
+              position,
               profiles:user_id (
                 full_name,
                 avatar_url
               )
             `)
-            .eq("schedule_id", schedule.id);
+            .eq("schedule_id", schedule.id)
+            .order("status", { ascending: true })
+            .order("position", { ascending: true, nullsFirst: false });
 
           if (!error && data) {
             bookingsData[schedule.id] = data as any;
@@ -228,64 +234,110 @@ export default function ClassDetail() {
                 <p className="text-muted-foreground">No hay horarios disponibles</p>
               ) : (
                 schedules.map((schedule) => {
-                  const isBooked = bookings[schedule.id]?.some(b => b.user_id === userId);
-                  const bookedCount = bookings[schedule.id]?.length || 0;
-                  const isFull = bookedCount >= schedule.max_capacity;
+                  const userBooking = bookings[schedule.id]?.find(b => b.user_id === userId);
+                  const confirmedBookings = bookings[schedule.id]?.filter(b => b.status === 'confirmed') || [];
+                  const waitlistBookings = bookings[schedule.id]?.filter(b => b.status === 'waitlist') || [];
+                  const confirmedCount = confirmedBookings.length;
+                  const isFull = confirmedCount >= schedule.max_capacity;
+                  const isBooked = !!userBooking;
+                  const isOnWaitlist = userBooking?.status === 'waitlist';
 
                   return (
                     <div
                       key={schedule.id}
-                      className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 border border-primary/20 rounded-lg hover:bg-accent hover:border-primary/40 transition-all"
+                      className="flex flex-col p-3 md:p-4 border border-primary/20 rounded-lg hover:bg-accent/50 hover:border-primary/40 transition-all"
                     >
-                      <div className="flex-1 mb-3 md:mb-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-xs">
-                            <Calendar className="mr-1 h-3 w-3" />
-                            {DAYS[schedule.day_of_week]}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {schedule.start_time.slice(0, 5)}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            <Users className="mr-1 h-3 w-3" />
-                            {bookedCount}/{schedule.max_capacity}
-                          </Badge>
-                        </div>
-                        {selectedSchedule === schedule.id && bookings[schedule.id] && (
-                          <div className="flex gap-2 mt-3 flex-wrap">
-                            {bookings[schedule.id].map((booking, idx) => (
-                              <UserAvatar
-                                key={idx}
-                                avatarUrl={booking.profiles.avatar_url}
-                                fullName={booking.profiles.full_name}
-                                size="sm"
-                              />
-                            ))}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs">
+                              <Calendar className="mr-1 h-3 w-3" />
+                              {DAYS[schedule.day_of_week]}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              <Clock className="mr-1 h-3 w-3" />
+                              {schedule.start_time.slice(0, 5)}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              <Users className="mr-1 h-3 w-3" />
+                              {confirmedCount}/{schedule.max_capacity}
+                            </Badge>
+                            {waitlistBookings.length > 0 && (
+                              <Badge variant="secondary" className="text-xs bg-primary/20">
+                                +{waitlistBookings.length} en espera
+                              </Badge>
+                            )}
+                            {isOnWaitlist && (
+                              <Badge variant="secondary" className="text-xs bg-accent">
+                                Posición {userBooking.position}
+                              </Badge>
+                            )}
                           </div>
-                        )}
+                        </div>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                          <Button
+                            variant={isBooked ? "destructive" : "default"}
+                            onClick={() => handleBooking(schedule.id)}
+                            className="flex-1 sm:flex-none text-xs sm:text-sm bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300"
+                            size="sm"
+                          >
+                            {isBooked ? "Cancelar" : isFull ? "Lista de espera" : "Apuntarse"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedSchedule(
+                              selectedSchedule === schedule.id ? null : schedule.id
+                            )}
+                            className="text-xs"
+                          >
+                            {selectedSchedule === schedule.id ? "Ocultar" : "Ver"}
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2 w-full md:w-auto">
-                        <Button
-                          variant={isBooked ? "destructive" : "default"}
-                          onClick={() => handleBooking(schedule.id)}
-                          disabled={!isBooked && isFull}
-                          className="flex-1 md:flex-none text-sm bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300"
-                          size="sm"
-                        >
-                          {isBooked ? "Cancelar" : isFull ? "Completo" : "Apuntarse"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedSchedule(
-                            selectedSchedule === schedule.id ? null : schedule.id
+                      
+                      {selectedSchedule === schedule.id && bookings[schedule.id] && (
+                        <div className="space-y-3 pt-3 border-t border-primary/10">
+                          {confirmedBookings.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                CONFIRMADOS ({confirmedBookings.length})
+                              </p>
+                              <div className="flex gap-2 flex-wrap">
+                                {confirmedBookings.map((booking, idx) => (
+                                  <UserAvatar
+                                    key={idx}
+                                    avatarUrl={booking.profiles.avatar_url}
+                                    fullName={booking.profiles.full_name}
+                                    size="sm"
+                                  />
+                                ))}
+                              </div>
+                            </div>
                           )}
-                          className="text-xs"
-                        >
-                          {selectedSchedule === schedule.id ? "Ocultar" : "Ver"}
-                        </Button>
-                      </div>
+                          {waitlistBookings.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                LISTA DE ESPERA ({waitlistBookings.length})
+                              </p>
+                              <div className="flex gap-2 flex-wrap">
+                                {waitlistBookings.map((booking, idx) => (
+                                  <div key={idx} className="relative">
+                                    <UserAvatar
+                                      avatarUrl={booking.profiles.avatar_url}
+                                      fullName={booking.profiles.full_name}
+                                      size="sm"
+                                    />
+                                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] bg-accent">
+                                      {booking.position}
+                                    </Badge>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })

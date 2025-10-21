@@ -122,27 +122,27 @@ export default function UserDetail() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-4 sm:py-8 px-4">
       <Button
         variant="ghost"
         onClick={() => navigate("/users")}
-        className="mb-6"
+        className="mb-4 sm:mb-6"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Volver a usuarios
       </Button>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Avatar and Basic Info */}
-        <Card className="md:col-span-1">
+        <Card className="lg:col-span-1">
           <CardHeader className="text-center">
-            <Avatar className="h-32 w-32 mx-auto mb-4">
+            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 mx-auto mb-4">
               {user.avatar_url && <AvatarImage src={user.avatar_url} />}
-              <AvatarFallback className="text-4xl">
+              <AvatarFallback className="text-2xl sm:text-4xl">
                 {user.full_name?.charAt(0).toUpperCase() || "?"}
               </AvatarFallback>
             </Avatar>
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-xl sm:text-2xl">
               {user.full_name || "Sin nombre"} {user.apellidos || ""}
             </CardTitle>
             <CardDescription>
@@ -157,38 +157,41 @@ export default function UserDetail() {
         </Card>
 
         {/* Detailed Info */}
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Información del Usuario</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Información del Usuario</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
             {/* Role Selector - Only for non-admin users */}
             {user.role !== "admin" && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
-                <UserCog className="h-5 w-5 text-muted-foreground" />
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg bg-accent/50">
+                <UserCog className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <div className="flex-1 w-full">
                   <p className="text-sm text-muted-foreground mb-2">Tipo de Cliente</p>
-                  <Select
-                    value={user.role}
-                    onValueChange={handleRoleChange}
-                    disabled={updatingRole}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Seleccionar rol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="standard">Estándar</SelectItem>
-                      <SelectItem value="vip">VIP</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Select
+                      value={user.role}
+                      onValueChange={handleRoleChange}
+                      disabled={updatingRole}
+                    >
+                      <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectValue placeholder="Seleccionar rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="standard">Estándar</SelectItem>
+                        <SelectItem value="vip">VIP</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-              <div>
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+              <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground">Fecha de Registro</p>
-                <p className="font-medium">
+                <p className="font-medium text-sm sm:text-base break-words">
                   {new Date(user.created_at).toLocaleDateString("es-ES", {
                     year: "numeric",
                     month: "long",
@@ -199,11 +202,11 @@ export default function UserDetail() {
             </div>
 
             {user.fecha_nacimiento && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
-                <Cake className="h-5 w-5 text-muted-foreground" />
-                <div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+                <Cake className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground">Fecha de Nacimiento</p>
-                  <p className="font-medium">
+                  <p className="font-medium text-sm sm:text-base">
                     {new Date(user.fecha_nacimiento).toLocaleDateString("es-ES")}
                   </p>
                 </div>
@@ -211,21 +214,21 @@ export default function UserDetail() {
             )}
 
             {user.peso && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
-                <Weight className="h-5 w-5 text-muted-foreground" />
-                <div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+                <Weight className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground">Peso</p>
-                  <p className="font-medium">{user.peso} kg</p>
+                  <p className="font-medium text-sm sm:text-base">{user.peso} kg</p>
                 </div>
               </div>
             )}
 
             {user.estatura && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/50">
-                <Ruler className="h-5 w-5 text-muted-foreground" />
-                <div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+                <Ruler className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground">Estatura</p>
-                  <p className="font-medium">{user.estatura} cm</p>
+                  <p className="font-medium text-sm sm:text-base">{user.estatura} cm</p>
                 </div>
               </div>
             )}
