@@ -35,7 +35,9 @@ export default function Profile() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
         return;
@@ -47,16 +49,14 @@ export default function Profile() {
 
   const loadProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       setUserId(user.id);
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
 
       if (error) throw error;
 
@@ -111,7 +111,9 @@ export default function Profile() {
     setSaving(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       const { error } = await supabase
@@ -148,23 +150,23 @@ export default function Profile() {
       if (!e.target.files || e.target.files.length === 0) return;
 
       const file = e.target.files[0];
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       setUploading(true);
 
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
       setProfile({ ...profile, avatar_url: publicUrl });
 
@@ -192,21 +194,23 @@ export default function Profile() {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const passwordSchema = z.object({
-      newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-      confirmPassword: z.string(),
-    }).refine((data) => data.newPassword === data.confirmPassword, {
-      message: "Las contraseñas no coinciden",
-      path: ["confirmPassword"],
-    });
+
+    const passwordSchema = z
+      .object({
+        newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+        confirmPassword: z.string(),
+      })
+      .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Las contraseñas no coinciden",
+        path: ["confirmPassword"],
+      });
 
     try {
       passwordSchema.parse(passwordData);
       setChangingPassword(true);
 
       const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword
+        password: passwordData.newPassword,
       });
 
       if (error) throw error;
@@ -251,24 +255,12 @@ export default function Profile() {
           <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
             MI PERFIL
           </CardTitle>
-          <CardDescription className="text-base">
-            Actualiza tus datos personales
-          </CardDescription>
+          <CardDescription className="text-base">Actualiza tus datos personales</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center mb-6">
-            <UserAvatar
-              avatarUrl={profile.avatar_url}
-              fullName={profile.full_name}
-              size="lg"
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              className="hidden"
-            />
+            <UserAvatar avatarUrl={profile.avatar_url} fullName={profile.full_name} size="lg" />
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             <Button
               type="button"
               variant="outline"
@@ -289,7 +281,7 @@ export default function Profile() {
               )}
             </Button>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -297,9 +289,7 @@ export default function Profile() {
                 <Input
                   id="full_name"
                   value={profile.full_name}
-                  onChange={(e) =>
-                    setProfile({ ...profile, full_name: e.target.value })
-                  }
+                  onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
                   placeholder="Tu nombre"
                 />
               </div>
@@ -308,9 +298,7 @@ export default function Profile() {
                 <Input
                   id="apellidos"
                   value={profile.apellidos}
-                  onChange={(e) =>
-                    setProfile({ ...profile, apellidos: e.target.value })
-                  }
+                  onChange={(e) => setProfile({ ...profile, apellidos: e.target.value })}
                   placeholder="Tus apellidos"
                 />
               </div>
@@ -322,9 +310,7 @@ export default function Profile() {
                 id="fecha_nacimiento"
                 type="date"
                 value={profile.fecha_nacimiento}
-                onChange={(e) =>
-                  setProfile({ ...profile, fecha_nacimiento: e.target.value })
-                }
+                onChange={(e) => setProfile({ ...profile, fecha_nacimiento: e.target.value })}
               />
             </div>
 
@@ -336,9 +322,7 @@ export default function Profile() {
                   type="number"
                   step="0.1"
                   value={profile.peso}
-                  onChange={(e) =>
-                    setProfile({ ...profile, peso: e.target.value })
-                  }
+                  onChange={(e) => setProfile({ ...profile, peso: e.target.value })}
                   placeholder="70.5"
                 />
               </div>
@@ -349,9 +333,7 @@ export default function Profile() {
                   type="number"
                   step="0.1"
                   value={profile.estatura}
-                  onChange={(e) =>
-                    setProfile({ ...profile, estatura: e.target.value })
-                  }
+                  onChange={(e) => setProfile({ ...profile, estatura: e.target.value })}
                   placeholder="175"
                 />
               </div>
@@ -377,28 +359,16 @@ export default function Profile() {
           <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
             MI CÓDIGO QR
           </CardTitle>
-          <CardDescription className="text-base">
-            Este es tu código QR único para acceder al gimnasio
-          </CardDescription>
+          <CardDescription className="text-base">Este es tu código QR único</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <QRCodeSVG
-              id="user-qr-code"
-              value={userId}
-              size={200}
-              level="H"
-              includeMargin={true}
-            />
+            <QRCodeSVG id="user-qr-code" value={userId} size={200} level="H" includeMargin={true} />
           </div>
           <p className="text-sm text-muted-foreground text-center max-w-md">
             Presenta este código QR al entrar al gimnasio para registrar tu acceso
           </p>
-          <Button
-            onClick={downloadQR}
-            variant="outline"
-            className="w-full md:w-auto"
-          >
+          <Button onClick={downloadQR} variant="outline" className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Descargar QR
           </Button>
@@ -411,9 +381,7 @@ export default function Profile() {
           <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
             CAMBIAR CONTRASEÑA
           </CardTitle>
-          <CardDescription className="text-base">
-            Actualiza tu contraseña de acceso
-          </CardDescription>
+          <CardDescription className="text-base">Actualiza tu contraseña de acceso</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -423,9 +391,7 @@ export default function Profile() {
                 id="newPassword"
                 type="password"
                 value={passwordData.newPassword}
-                onChange={(e) =>
-                  setPasswordData({ ...passwordData, newPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                 placeholder="••••••••"
                 minLength={6}
                 required
@@ -437,17 +403,15 @@ export default function Profile() {
                 id="confirmPassword"
                 type="password"
                 value={passwordData.confirmPassword}
-                onChange={(e) =>
-                  setPasswordData({ ...passwordData, confirmPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                 placeholder="••••••••"
                 minLength={6}
                 required
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]" 
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
               disabled={changingPassword}
             >
               {changingPassword ? (
