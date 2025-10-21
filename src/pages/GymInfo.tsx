@@ -1,13 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, MapPin, Phone, Mail, Users, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import pan1 from "@/assets/pan1.jpeg";
 import pan2 from "@/assets/pan2.jpeg";
 import pan3 from "@/assets/pan3.jpeg";
@@ -16,21 +10,21 @@ import pan5 from "@/assets/pan5.jpeg";
 import pan6 from "@/assets/pan6.jpeg";
 
 export default function GymInfo() {
-  const gymLocation = "Calle Fitness, 123, 28001 Madrid, España";
-  const gymCoordinates = "40.4168,-3.7038"; // Coordenadas de Madrid centro (ejemplo)
-  
+  const gymLocation = "CF El Prado, 3 06510, Alburquerque (Badajoz) España";
+  const gymCoordinates = "40.4168,-3.7038";
+
   const handleOpenMaps = () => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gymLocation)}`;
-    window.open(mapsUrl, '_blank');
+    window.open(mapsUrl, "_blank");
   };
 
   const gymImages = [
-    { src: pan1, alt: "Pantera Alburquerque - Sala Principal" },
-    { src: pan2, alt: "Pantera Alburquerque - Equipamiento" },
-    { src: pan3, alt: "Pantera Alburquerque - Zona de Entrenamiento" },
-    { src: pan4, alt: "Pantera Alburquerque - Máquinas de Remo" },
-    { src: pan5, alt: "Pantera Alburquerque - Detalles" },
-    { src: pan6, alt: "Pantera Alburquerque - Discos y Pesas" },
+    { src: pan1, alt: "Panthera Alburquerque - Sala Principal" },
+    { src: pan2, alt: "Panthera Alburquerque - Equipamiento" },
+    { src: pan3, alt: "Panthera Alburquerque - Zona de Entrenamiento" },
+    { src: pan4, alt: "Panthera Alburquerque - Máquinas" },
+    { src: pan5, alt: "Panthera Alburquerque - Detalles" },
+    { src: pan6, alt: "Panthera Alburquerque - Discos y Pesas" },
   ];
 
   return (
@@ -38,7 +32,7 @@ export default function GymInfo() {
       <h1 className="font-bebas text-5xl md:text-6xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(59,130,246,0.8)] mb-8 text-center">
         DATOS DEL CENTRO
       </h1>
-      
+
       {/* Carrusel de imágenes */}
       <Card className="mb-8 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader>
@@ -52,11 +46,7 @@ export default function GymInfo() {
               {gymImages.map((image, index) => (
                 <CarouselItem key={index}>
                   <div className="relative aspect-video rounded-lg overflow-hidden">
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                       <p className="text-white font-bebas text-2xl tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                         {image.alt}
@@ -71,7 +61,7 @@ export default function GymInfo() {
           </Carousel>
         </CardContent>
       </Card>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
           <CardHeader>
@@ -81,10 +71,8 @@ export default function GymInfo() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-muted-foreground">
-              {gymLocation}
-            </p>
-            <Button 
+            <p className="text-muted-foreground">{gymLocation}</p>
+            <Button
               onClick={handleOpenMaps}
               className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary"
             >
@@ -98,14 +86,13 @@ export default function GymInfo() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-bebas text-2xl tracking-wider">
               <Clock className="h-5 w-5 text-primary" />
-              Horario
+              Horario Provisional
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-1 text-muted-foreground">
-              <p>Lunes - Viernes: 6:00 - 23:00</p>
-              <p>Sábados: 8:00 - 21:00</p>
-              <p>Domingos: 9:00 - 15:00</p>
+              <p>Mañanas: 9:00 - 14:00</p>
+              <p>Tardes: 17:00 - 22:00</p>
             </div>
           </CardContent>
         </Card>
@@ -118,7 +105,7 @@ export default function GymInfo() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">+34 910 123 456</p>
+            <p className="text-muted-foreground">+34 623616950</p>
           </CardContent>
         </Card>
 
@@ -130,7 +117,7 @@ export default function GymInfo() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">info@fitgym.es</p>
+            <p className="text-muted-foreground">pantherafitnessalburquerque@gmail.com</p>
           </CardContent>
         </Card>
 
@@ -140,9 +127,7 @@ export default function GymInfo() {
               <Users className="h-5 w-5 text-primary" />
               Instalaciones
             </CardTitle>
-            <CardDescription>
-              Todo lo que necesitas para entrenar
-            </CardDescription>
+            <CardDescription>Todo lo que necesitas para entrenar</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-muted-foreground">
@@ -166,9 +151,10 @@ export default function GymInfo() {
                 <h3 className="font-semibold text-foreground mb-2">Clases Dirigidas</h3>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Spinning</li>
-                  <li>Yoga</li>
-                  <li>Pilates</li>
-                  <li>Zumba</li>
+                  <li>Yoga/Pilates</li>
+                  <li>Musculación</li>
+                  <li>Crosstrainning/Hyrox</li>
+                  <li>Quemagrasa/GAP</li>
                 </ul>
               </div>
               <div>
