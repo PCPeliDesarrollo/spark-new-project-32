@@ -8,9 +8,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import gymCardio from "@/assets/gym-cardio.jpg";
-import gymWeights from "@/assets/gym-weights.jpg";
-import gymClass from "@/assets/gym-class.jpg";
+import pan1 from "@/assets/pan1.jpeg";
+import pan2 from "@/assets/pan2.jpeg";
+import pan3 from "@/assets/pan3.jpeg";
+import pan4 from "@/assets/pan4.jpeg";
+import pan5 from "@/assets/pan5.jpeg";
+import pan6 from "@/assets/pan6.jpeg";
 
 export default function GymInfo() {
   const gymLocation = "Calle Fitness, 123, 28001 Madrid, España";
@@ -22,9 +25,12 @@ export default function GymInfo() {
   };
 
   const gymImages = [
-    { src: gymCardio, alt: "Zona de Cardio" },
-    { src: gymWeights, alt: "Zona de Pesas" },
-    { src: gymClass, alt: "Clases Dirigidas" },
+    { src: pan1, alt: "Pantera Alburquerque - Sala Principal" },
+    { src: pan2, alt: "Pantera Alburquerque - Equipamiento" },
+    { src: pan3, alt: "Pantera Alburquerque - Zona de Entrenamiento" },
+    { src: pan4, alt: "Pantera Alburquerque - Máquinas de Remo" },
+    { src: pan5, alt: "Pantera Alburquerque - Detalles" },
+    { src: pan6, alt: "Pantera Alburquerque - Discos y Pesas" },
   ];
 
   return (
