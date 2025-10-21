@@ -31,7 +31,7 @@ interface Booking {
   profiles: {
     full_name: string;
     avatar_url: string;
-  };
+  } | null;
 }
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -307,8 +307,8 @@ export default function ClassDetail() {
                                 {confirmedBookings.map((booking, idx) => (
                                   <UserAvatar
                                     key={idx}
-                                    avatarUrl={booking.profiles.avatar_url}
-                                    fullName={booking.profiles.full_name}
+                                    avatarUrl={booking.profiles?.avatar_url || null}
+                                    fullName={booking.profiles?.full_name || "Usuario"}
                                     size="sm"
                                   />
                                 ))}
@@ -324,8 +324,8 @@ export default function ClassDetail() {
                                 {waitlistBookings.map((booking, idx) => (
                                   <div key={idx} className="relative">
                                     <UserAvatar
-                                      avatarUrl={booking.profiles.avatar_url}
-                                      fullName={booking.profiles.full_name}
+                                      avatarUrl={booking.profiles?.avatar_url || null}
+                                      fullName={booking.profiles?.full_name || "Usuario"}
                                       size="sm"
                                     />
                                     <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] bg-accent">
