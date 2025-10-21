@@ -36,7 +36,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
   full_name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
-  role: z.enum(["standard", "vip"], {
+  role: z.enum(["standard", "vip", "admin"], {
     required_error: "Selecciona un tipo de cliente",
   }),
 });
@@ -185,6 +185,7 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                     <SelectContent>
                       <SelectItem value="standard">Estándar</SelectItem>
                       <SelectItem value="vip">VIP</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
