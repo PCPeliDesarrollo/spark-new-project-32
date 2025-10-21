@@ -10,7 +10,7 @@ import pan5 from "@/assets/pan5.jpeg";
 import pan6 from "@/assets/pan6.jpeg";
 
 export default function GymInfo() {
-  const gymLocation = "CF El Prado, 3 06510, Alburquerque (Badajoz) España";
+  const gymLocation = "CF El prado 3, 06510 Alburquerque Badajoz";
   const gymCoordinates = "40.4168,-3.7038";
 
   const handleOpenMaps = () => {
