@@ -183,8 +183,8 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="standard">Estándar</SelectItem>
-                      <SelectItem value="vip">VIP</SelectItem>
+                      <SelectItem value="standard">Estándar (sin acceso a clases)</SelectItem>
+                      <SelectItem value="vip">VIP (12 clases/mes)</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>

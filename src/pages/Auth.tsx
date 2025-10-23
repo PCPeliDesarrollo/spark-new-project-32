@@ -1,28 +1,24 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
-import panteraLogo from "@/assets/pantera.png";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import * as z from "zod";
 
 const authSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
-  fullName: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }).optional(),
 });
 
-const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -47,84 +43,37 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate input
-      const validationData = isLogin 
-        ? { email, password }
-        : { email, password, fullName };
-      
-      authSchema.parse(validationData);
+      authSchema.parse({ email, password });
 
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast({
-              title: "Error",
-              description: "Email o contraseña incorrectos",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: error.message,
-              variant: "destructive",
-            });
-          }
-          return;
-        }
-
+      if (error) {
         toast({
-          title: "¡Bienvenido!",
-          description: "Has iniciado sesión correctamente",
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
         });
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              full_name: fullName,
-            },
-          },
-        });
-
-        if (error) {
-          if (error.message.includes("User already registered")) {
-            toast({
-              title: "Error",
-              description: "Este email ya está registrado. Intenta iniciar sesión.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: error.message,
-              variant: "destructive",
-            });
-          }
-          return;
-        }
-
         toast({
-          title: "¡Registro exitoso!",
-          description: "Tu cuenta ha sido creada. Ya puedes iniciar sesión.",
+          title: "¡Éxito!",
+          description: "Has iniciado sesión correctamente",
         });
-        
-        // Auto-switch to login after successful signup
-        setIsLogin(true);
-        setPassword("");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
+          variant: "destructive",
           title: "Error de validación",
           description: error.errors[0].message,
+        });
+      } else {
+        toast({
           variant: "destructive",
+          title: "Error",
+          description: "Ocurrió un error inesperado",
         });
       }
     } finally {
@@ -133,106 +82,64 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Fondo con logo de pantera */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.15]">
-        <img 
-          src={panteraLogo} 
-          alt="" 
-          className="w-[600px] h-[600px] object-contain"
-        />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-[url('/pantera.png')] bg-cover bg-center opacity-5" />
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-glow/20 rounded-full blur-3xl animate-pulse delay-1000" />
       
-      {/* Efectos de luz */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-primary-glow/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <Card className="w-full max-w-md relative z-10 border-primary/30 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-xl shadow-[0_0_60px_rgba(59,130,246,0.2)] overflow-hidden">
-        {/* Logo de pantera dentro del card */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.08]">
-          <img 
-            src={panteraLogo} 
-            alt="" 
-            className="w-[400px] h-[400px] object-contain"
-          />
-        </div>
-        
-        <CardHeader className="space-y-1 text-center pb-6 relative z-10">
-          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
-            DESPIERTA TU FUERZA INTERIOR
+      <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-card/95 border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.3)]">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bebas tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
+            INICIAR SESIÓN
           </CardTitle>
-          <CardDescription className="text-muted-foreground text-base">
-            {isLogin
-              ? "Ingresa tus credenciales para continuar"
-              : "Crea tu cuenta para comenzar"}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nombre completo</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Tu nombre"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                  className="bg-background border-border"
-                />
-              </div>
-            )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <label className="text-sm font-medium">Email</label>
               <Input
-                id="email"
                 type="email"
-                placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
                 required
-                className="bg-background border-border"
+                className="border-primary/30 focus:border-primary"
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <label className="text-sm font-medium">Contraseña</label>
               <Input
-                id="password"
                 type="password"
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
                 required
-                className="bg-background border-border"
+                className="border-primary/30 focus:border-primary"
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary text-primary-foreground font-bold text-base py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-[1.02]"
+
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300"
               disabled={loading}
             >
-              {loading ? "Cargando..." : isLogin ? "Iniciar Sesión" : "Registrarse"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Iniciando sesión...
+                </>
+              ) : (
+                "Iniciar sesión"
+              )}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isLogin
-                ? "¿No tienes cuenta? Regístrate"
-                : "¿Ya tienes cuenta? Inicia sesión"}
-            </button>
+
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>Si necesitas una cuenta, contacta con el administrador</p>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default Auth;
+}

@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserRole } from "@/hooks/useUserRole";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { RegisterUserDialog } from "@/components/RegisterUserDialog";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface UserWithRole {
   id: string;
@@ -21,9 +22,10 @@ interface UserWithRole {
 export default function Users() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const { isAdmin, loading: roleLoading } = useUserRole();
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -37,50 +39,76 @@ export default function Users() {
   }, [isAdmin, roleLoading, navigate, toast]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (!isAdmin) return;
-
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (profilesError) {
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar los usuarios",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Fetch roles for all users
-      const { data: rolesData, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-
-      if (rolesError) {
-        console.error("Error fetching roles:", rolesError);
-      }
-
-      // Combine profiles with roles
-      const usersWithRoles = profilesData.map((profile) => {
-        const userRole = rolesData?.find((r) => r.user_id === profile.id);
-        return {
-          ...profile,
-          role: userRole?.role || "standard",
-        };
-      });
-
-      setUsers(usersWithRoles);
-      setLoading(false);
-    };
-
     if (isAdmin) {
       fetchUsers();
     }
-  }, [isAdmin, toast]);
+  }, [isAdmin]);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+
+    const { data: profilesData, error: profilesError } = await supabase
+      .from("profiles")
+      .select(`
+        id,
+        full_name,
+        avatar_url,
+        created_at
+      `)
+      .order("created_at", { ascending: false });
+
+    if (profilesError) {
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los usuarios",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const { data: rolesData } = await supabase
+      .from("user_roles")
+      .select("user_id, role");
+
+    const usersWithRoles = profilesData?.map((profile) => {
+      const roleRecord = rolesData?.find((r) => r.user_id === profile.id);
+      return {
+        ...profile,
+        role: roleRecord?.role || "standard",
+      };
+    }) || [];
+
+    setUsers(usersWithRoles);
+    setLoading(false);
+  };
+
+  const handleUserCreated = () => {
+    fetchUsers();
+  };
+
+  // Filter users by search query
+  const filteredUsers = users.filter(user => 
+    user.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Group users by month
+  const groupedByMonth = filteredUsers.reduce((acc, user) => {
+    const date = new Date(user.created_at);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const monthName = date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    
+    if (!acc[monthKey]) {
+      acc[monthKey] = {
+        name: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+        users: []
+      };
+    }
+    acc[monthKey].users.push(user);
+    return acc;
+  }, {} as Record<string, { name: string; users: UserWithRole[] }>);
+
+  const sortedMonths = Object.entries(groupedByMonth).sort(([a], [b]) => b.localeCompare(a));
 
   if (roleLoading || loading) {
     return (
@@ -94,107 +122,104 @@ export default function Users() {
     return null;
   }
 
-  const handleUserCreated = () => {
-    // Refetch users after creating a new one
-    const fetchUsers = async () => {
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (profilesError) {
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar los usuarios",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { data: rolesData } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-
-      const usersWithRoles = profilesData.map((profile) => {
-        const userRole = rolesData?.find((r) => r.user_id === profile.id);
-        return {
-          ...profile,
-          role: userRole?.role || "standard",
-        };
-      });
-
-      setUsers(usersWithRoles);
-    };
-
-    fetchUsers();
-  };
-
   return (
     <div className="container mx-auto py-8 px-4">
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Usuarios Registrados</CardTitle>
-              <CardDescription>
-                Listado de todos los usuarios registrados en Panthera Fitness Alburquerque
-              </CardDescription>
-            </div>
-            <RegisterUserDialog onUserCreated={handleUserCreated} />
-          </div>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardTitle>Usuarios Registrados</CardTitle>
+          <RegisterUserDialog onUserCreated={handleUserCreated} />
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead>Fecha de Registro</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No hay usuarios registrados
-                  </TableCell>
-                </TableRow>
-              ) : (
-                users.map((user) => (
-                  <TableRow
-                    key={user.id}
-                    className="cursor-pointer hover:bg-accent/50"
-                    onClick={() => navigate(`/users/${user.id}`)}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          {user.avatar_url && <AvatarImage src={user.avatar_url} />}
-                          <AvatarFallback>
-                            {user.full_name?.charAt(0).toUpperCase() || "?"}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {user.full_name || "Sin nombre"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={user.role === "admin" ? "default" : user.role === "vip" ? "secondary" : "outline"}
-                      >
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(user.created_at).toLocaleDateString("es-ES")}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <div className="mb-6 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <div className="space-y-4">
+            {sortedMonths.map(([monthKey, { name, users: monthUsers }]) => (
+              <Collapsible key={monthKey} defaultOpen={true}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-accent/50 rounded-lg transition-colors">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-lg">{name}</h3>
+                    <Badge variant="outline">{monthUsers.length}</Badge>
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="overflow-x-auto mt-2">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4">Usuario</th>
+                          <th className="text-left py-3 px-4">Rol</th>
+                          <th className="text-left py-3 px-4">Fecha de registro</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {monthUsers.map((user) => (
+                          <tr
+                            key={user.id}
+                            onClick={() => navigate(`/users/${user.id}`)}
+                            className="border-b hover:bg-accent/50 cursor-pointer transition-colors"
+                          >
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10">
+                                  <AvatarImage src={user.avatar_url || undefined} />
+                                  <AvatarFallback>
+                                    {user.full_name
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .toUpperCase() || "U"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="font-medium">{user.full_name || "Sin nombre"}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <Badge
+                                variant={
+                                  user.role === "admin" 
+                                    ? "default" 
+                                    : user.role === "vip"
+                                    ? "secondary"
+                                    : "outline"
+                                }
+                              >
+                                {user.role === "admin" 
+                                  ? "Administrador" 
+                                  : user.role === "vip"
+                                  ? "VIP"
+                                  : "Estándar"}
+                              </Badge>
+                            </td>
+                            <td className="py-3 px-4 text-muted-foreground">
+                              {new Date(user.created_at).toLocaleDateString("es-ES", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            ))}
+          </div>
+
+          {filteredUsers.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No se encontraron usuarios
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
