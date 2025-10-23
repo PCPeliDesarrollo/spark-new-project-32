@@ -112,34 +112,34 @@ export default function Auth() {
       
       <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-card/95 border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.3)] overflow-hidden">
         <div className="absolute inset-0 bg-[url('/pantera-logo.png')] bg-contain bg-center bg-no-repeat opacity-[0.05] pointer-events-none" />
-        <CardHeader className="space-y-1 text-center relative z-10">
-          <CardTitle className="text-3xl font-bebas tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
-            INICIAR SESIÓN
+        <CardHeader className="space-y-1 text-center relative z-10 px-4">
+          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bebas tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent leading-tight">
+            PANTHERA FITNESS ALBURQUERQUE
           </CardTitle>
         </CardHeader>
-        <CardContent className="relative z-10">
+        <CardContent className="relative z-10 px-4 md:px-6">
           <form onSubmit={handleAuth} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-xs md:text-sm font-medium">Email</label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 required
-                className="border-primary/30 focus:border-primary"
+                className="border-primary/30 focus:border-primary text-sm md:text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Contraseña</label>
+              <label className="text-xs md:text-sm font-medium">Contraseña</label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="border-primary/30 focus:border-primary"
+                className="border-primary/30 focus:border-primary text-sm md:text-base"
               />
             </div>
 
@@ -149,21 +149,21 @@ export default function Auth() {
                 id="rememberMe"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-primary/30 text-primary focus:ring-primary"
+                className="h-3.5 w-3.5 md:h-4 md:w-4 rounded border-primary/30 text-primary focus:ring-primary flex-shrink-0"
               />
-              <label htmlFor="rememberMe" className="text-sm font-medium cursor-pointer">
+              <label htmlFor="rememberMe" className="text-xs md:text-sm font-medium cursor-pointer">
                 Recordar mis datos
               </label>
             </div>
 
             <Button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300"
+              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 text-sm md:text-base"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4 animate-spin" />
                   Iniciando sesión...
                 </>
               ) : (
@@ -172,7 +172,7 @@ export default function Auth() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-6 text-center text-xs md:text-sm text-muted-foreground px-2">
             <p>Si necesitas una cuenta, contacta con el administrador</p>
           </div>
         </CardContent>
