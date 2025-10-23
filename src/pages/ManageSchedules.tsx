@@ -319,12 +319,17 @@ export default function ManageSchedules() {
             </div>
           ) : (
             <div className="space-y-6">
-              {[1, 2, 3, 4, 5, 6, 0].map((dayNum, index) => {
-                const daySchedules = schedulesByDay[dayNum] || [];
-                const dayDate = weekDates[index];
+              {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
+                 const daySchedules = schedulesByDay[dayNum] || [];
+                // Map day_of_week (0=Sunday, 1=Monday, ..., 6=Saturday) to weekDates index
+                const weekDateIndex = dayNum === 0 ? 6 : dayNum - 1;
+                const dayDate = weekDates[weekDateIndex];
+                
+                if (!dayDate) return null;
+                
                 const dateStr = dayDate.toLocaleDateString('es-ES', { 
                   day: 'numeric', 
-                  month: 'long' 
+                  month: 'long'
                 });
 
                 return (
