@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, Calendar, Clock, Users } from "lucide-react";
+import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock } from "lucide-react";
+import { useBlockedStatus } from "@/hooks/useBlockedStatus";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface ClassData {
   id: string;
@@ -40,6 +42,7 @@ export default function ClassDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isBlocked } = useBlockedStatus();
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,6 +130,15 @@ export default function ClassDetail() {
       return;
     }
 
+    if (isBlocked) {
+      toast({
+        title: "Cuenta bloqueada",
+        description: "Tu cuenta ha sido bloqueada. Contacta con el administrador.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const isBooked = bookings[scheduleId]?.some(b => b.user_id === userId);
 
@@ -198,6 +210,16 @@ export default function ClassDetail() {
         <ArrowLeft className="mr-2 h-4 w-4" />
         Volver
       </Button>
+
+      {isBlocked && (
+        <Alert variant="destructive" className="mb-4 border-destructive/50 bg-destructive/10">
+          <Lock className="h-4 w-4" />
+          <AlertTitle>Cuenta bloqueada</AlertTitle>
+          <AlertDescription>
+            Tu cuenta ha sido bloqueada por el administrador. No puedes reservar clases.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2">
@@ -280,6 +302,7 @@ export default function ClassDetail() {
                             onClick={() => handleBooking(schedule.id)}
                             className="flex-1 sm:flex-none text-xs sm:text-sm bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300"
                             size="sm"
+                            disabled={isBlocked}
                           >
                             {isBooked ? "Cancelar" : isFull ? "Lista de espera" : "Apuntarse"}
                           </Button>

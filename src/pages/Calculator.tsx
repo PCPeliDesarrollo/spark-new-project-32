@@ -4,11 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator as CalculatorIcon } from "lucide-react";
+import { Calculator as CalculatorIcon, Lock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBlockedStatus } from "@/hooks/useBlockedStatus";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Calculator() {
+  const { isBlocked, loading } = useBlockedStatus();
+  
   // IMC Calculator State
   const [peso, setPeso] = useState("");
   const [altura, setAltura] = useState("");
@@ -66,6 +70,21 @@ export default function Calculator() {
       setCalorias(Math.round(caloriasCalculadas));
     }
   };
+
+  if (isBlocked) {
+    return (
+      <div className="container max-w-4xl py-4 md:py-8 px-4">
+        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+          <Lock className="h-4 w-4" />
+          <AlertTitle>Cuenta bloqueada</AlertTitle>
+          <AlertDescription>
+            Tu cuenta ha sido bloqueada por el administrador. No puedes acceder a esta funcionalidad. 
+            Por favor, contacta con el gimnasio para más información.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl py-4 md:py-8 px-4">

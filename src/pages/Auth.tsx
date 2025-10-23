@@ -45,7 +45,7 @@ export default function Auth() {
     try {
       authSchema.parse({ email, password });
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -56,37 +56,12 @@ export default function Auth() {
           title: "Error",
           description: error.message,
         });
-        return;
+      } else {
+        toast({
+          title: "¡Éxito!",
+          description: "Has iniciado sesión correctamente",
+        });
       }
-
-      // Check if user is blocked
-      if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("blocked")
-          .eq("id", data.user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Error checking blocked status:", profileError);
-        }
-
-        if (profile?.blocked) {
-          // Sign out the user immediately
-          await supabase.auth.signOut();
-          toast({
-            variant: "destructive",
-            title: "Acceso denegado",
-            description: "Tu cuenta ha sido bloqueada. Contacta con el administrador.",
-          });
-          return;
-        }
-      }
-
-      toast({
-        title: "¡Éxito!",
-        description: "Has iniciado sesión correctamente",
-      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({

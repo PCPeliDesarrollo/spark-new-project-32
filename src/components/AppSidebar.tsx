@@ -1,4 +1,4 @@
-import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator } from "lucide-react";
+import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import panteraLogo from "@/assets/pantera.png";
 import {
@@ -27,6 +27,7 @@ const menuItems = [
 
 const adminMenuItems = [
   { title: "Usuarios", url: "/users", icon: UsersIcon },
+  { title: "Horarios Semanales", url: "/manage-schedules", icon: CalendarDays },
 ];
 
 export function AppSidebar() {

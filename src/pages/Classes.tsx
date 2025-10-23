@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ClassCard } from "@/components/ClassCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
+import { useBlockedStatus } from "@/hooks/useBlockedStatus";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface Class {
   id: string;
@@ -11,6 +13,7 @@ interface Class {
 }
 
 export default function Classes() {
+  const { isBlocked } = useBlockedStatus();
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +41,21 @@ export default function Classes() {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isBlocked) {
+    return (
+      <div className="container py-8 md:py-12 px-4">
+        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+          <Lock className="h-4 w-4" />
+          <AlertTitle>Cuenta bloqueada</AlertTitle>
+          <AlertDescription>
+            Tu cuenta ha sido bloqueada por el administrador. No puedes acceder a las clases. 
+            Por favor, contacta con el gimnasio para más información.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
