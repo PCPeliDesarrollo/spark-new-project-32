@@ -109,13 +109,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="mt-auto sticky bottom-0 bg-sidebar border-t pt-2 pb-2">
         <Button
-          variant="ghost"
-          className="w-full justify-start"
+          variant="destructive"
+          className="w-full justify-start bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           onClick={handleLogout}
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4 shrink-0" />
           {open && <span className="ml-2">Cerrar Sesión</span>}
         </Button>
       </SidebarFooter>
