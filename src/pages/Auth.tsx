@@ -83,7 +83,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-[url('/pantera.png')] bg-cover bg-center opacity-5" />
+      <div className="absolute inset-0 bg-[url('/pantera-logo.png')] bg-contain bg-center bg-no-repeat opacity-[0.03] scale-150" />
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-glow/20 rounded-full blur-3xl animate-pulse delay-1000" />
       
