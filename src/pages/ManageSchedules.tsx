@@ -65,6 +65,22 @@ export default function ManageSchedules() {
     }
   }, [isAdmin]);
 
+  const getWeekDates = () => {
+    const today = new Date();
+    const currentDay = today.getDay();
+    const diff = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days, else go to Monday
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff);
+    
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      weekDates.push(date);
+    }
+    return weekDates;
+  };
+
   const loadData = async () => {
     setLoading(true);
     
@@ -207,6 +223,8 @@ export default function ManageSchedules() {
     return acc;
   }, {} as Record<number, Schedule[]>);
 
+  const weekDates = getWeekDates();
+
   return (
     <div className="container mx-auto py-8 px-4">
       <Card>
@@ -301,62 +319,70 @@ export default function ManageSchedules() {
             </div>
           ) : (
             <div className="space-y-6">
-              {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
+              {[1, 2, 3, 4, 5, 6, 0].map((dayNum, index) => {
                 const daySchedules = schedulesByDay[dayNum] || [];
-                if (daySchedules.length === 0) return null;
+                const dayDate = weekDates[index];
+                const dateStr = dayDate.toLocaleDateString('es-ES', { 
+                  day: 'numeric', 
+                  month: 'long' 
+                });
 
                 return (
                   <div key={dayNum} className="space-y-3">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
                       <Calendar className="h-5 w-5" />
-                      {DAYS[dayNum]}
+                      {DAYS[dayNum]} - {dateStr}
                     </h3>
-                    <div className="space-y-2">
-                      {daySchedules.map((schedule) => {
-                        const bookingCount = schedule.bookings[0]?.count || 0;
-                        return (
-                          <div
-                            key={schedule.id}
-                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50"
-                          >
-                            <div className="flex-1 space-y-1">
-                              <p className="font-medium">{schedule.classes?.name}</p>
-                              <div className="flex gap-2 text-sm text-muted-foreground">
-                                <Badge variant="outline" className="text-xs">
-                                  <Clock className="mr-1 h-3 w-3" />
-                                  {schedule.start_time.slice(0, 5)} ({schedule.duration_minutes} min)
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <Users className="mr-1 h-3 w-3" />
-                                  {bookingCount}/{schedule.max_capacity}
-                                </Badge>
+                    {daySchedules.length === 0 ? (
+                      <p className="text-sm text-muted-foreground pl-7">No hay clases programadas</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {daySchedules.map((schedule) => {
+                          const bookingCount = schedule.bookings[0]?.count || 0;
+                          return (
+                            <div
+                              key={schedule.id}
+                              className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50"
+                            >
+                              <div className="flex-1 space-y-1">
+                                <p className="font-medium">{schedule.classes?.name}</p>
+                                <div className="flex gap-2 text-sm text-muted-foreground">
+                                  <Badge variant="outline" className="text-xs">
+                                    <Clock className="mr-1 h-3 w-3" />
+                                    {schedule.start_time.slice(0, 5)} ({schedule.duration_minutes} min)
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    <Users className="mr-1 h-3 w-3" />
+                                    {bookingCount}/{schedule.max_capacity}
+                                  </Badge>
+                                </div>
                               </div>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción eliminará el horario y todas las reservas asociadas.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteSchedule(schedule.id)}>
+                                      Eliminar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Esta acción eliminará el horario y todas las reservas asociadas.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteSchedule(schedule.id)}>
-                                    Eliminar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })}

@@ -16,11 +16,23 @@ const authSchema = z.object({
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load saved credentials if "remember me" was checked
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+    const wasRemembered = localStorage.getItem("rememberMe") === "true";
+    
+    if (wasRemembered && savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -57,6 +69,17 @@ export default function Auth() {
           description: error.message,
         });
       } else {
+        // Save credentials if remember me is checked
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", email);
+          localStorage.setItem("rememberedPassword", password);
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.removeItem("rememberedPassword");
+          localStorage.removeItem("rememberMe");
+        }
+        
         toast({
           title: "¡Éxito!",
           description: "Has iniciado sesión correctamente",
@@ -118,6 +141,19 @@ export default function Auth() {
                 required
                 className="border-primary/30 focus:border-primary"
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-primary/30 text-primary focus:ring-primary"
+              />
+              <label htmlFor="rememberMe" className="text-sm font-medium cursor-pointer">
+                Recordar mis datos
+              </label>
             </div>
 
             <Button 
