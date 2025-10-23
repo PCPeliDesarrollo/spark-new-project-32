@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, Lock, Download } from "lucide-react";
+import { Loader2, Upload, Lock, Download, AlertCircle } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { z } from "zod";
 import { QRCodeSVG } from "qrcode.react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ export default function Profile() {
     confirmPassword: "",
   });
   const [userId, setUserId] = useState<string>("");
+  const { isBlocked, loading: blockLoading } = useBlockedStatus();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -362,16 +365,27 @@ export default function Profile() {
           <CardDescription className="text-base">Este es tu código QR único</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <QRCodeSVG id="user-qr-code" value={userId} size={200} level="H" includeMargin={true} />
-          </div>
-          <p className="text-sm text-muted-foreground text-center max-w-md">
-            Presenta este código QR al entrar al gimnasio para registrar tu acceso
-          </p>
-          <Button onClick={downloadQR} variant="outline" className="w-full md:w-auto">
-            <Download className="mr-2 h-4 w-4" />
-            Descargar QR
-          </Button>
+          {isBlocked ? (
+            <Alert variant="destructive" className="w-full">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Tu cuenta está bloqueada. No puedes acceder al gimnasio ni usar el código QR hasta que un administrador la desbloquee.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <QRCodeSVG id="user-qr-code" value={userId} size={200} level="H" includeMargin={true} />
+              </div>
+              <p className="text-sm text-muted-foreground text-center max-w-md">
+                Presenta este código QR al entrar al gimnasio para registrar tu acceso
+              </p>
+              <Button onClick={downloadQR} variant="outline" className="w-full md:w-auto">
+                <Download className="mr-2 h-4 w-4" />
+                Descargar QR
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
 
