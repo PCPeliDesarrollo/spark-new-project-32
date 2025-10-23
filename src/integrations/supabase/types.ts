@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_logs: {
+        Row: {
+          access_type: string
+          created_at: string
+          id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          access_type?: string
+          created_at?: string
+          id?: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          created_at?: string
+          id?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       class_bookings: {
         Row: {
           created_at: string

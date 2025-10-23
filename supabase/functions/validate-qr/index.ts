@@ -35,8 +35,8 @@ serve(async (req) => {
     // Get user by ID from QR code
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('*, user_id')
-      .eq('user_id', qrCode)
+      .select('*')
+      .eq('id', qrCode)
       .single();
 
     if (profileError || !profile) {
@@ -53,7 +53,7 @@ serve(async (req) => {
     }
 
     // Check if user is blocked
-    if (profile.is_blocked) {
+    if (profile.blocked) {
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -70,7 +70,7 @@ serve(async (req) => {
     const { error: logError } = await supabase
       .from('access_logs')
       .insert({
-        user_id: profile.user_id,
+        user_id: profile.id,
         access_type: 'door_entry',
         timestamp: new Date().toISOString()
       });
@@ -84,7 +84,7 @@ serve(async (req) => {
         success: true, 
         message: 'Acceso permitido',
         user: {
-          name: profile.full_name,
+          name: `${profile.full_name} ${profile.apellidos || ''}`.trim(),
           email: profile.email
         }
       }),
