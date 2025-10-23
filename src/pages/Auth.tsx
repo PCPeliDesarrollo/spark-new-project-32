@@ -87,13 +87,14 @@ export default function Auth() {
       <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-glow/20 rounded-full blur-3xl animate-pulse delay-1000" />
       
-      <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-card/95 border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.3)]">
-        <CardHeader className="space-y-1 text-center">
+      <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-card/95 border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.3)] overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/pantera-logo.png')] bg-contain bg-center bg-no-repeat opacity-[0.05] pointer-events-none" />
+        <CardHeader className="space-y-1 text-center relative z-10">
           <CardTitle className="text-3xl font-bebas tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent">
             INICIAR SESIÓN
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           <form onSubmit={handleAuth} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Email</label>
