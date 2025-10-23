@@ -131,7 +131,9 @@ export type Database = {
         Row: {
           apellidos: string | null
           avatar_url: string | null
+          blocked: boolean
           created_at: string
+          email: string | null
           estatura: number | null
           fecha_nacimiento: string | null
           full_name: string | null
@@ -142,7 +144,9 @@ export type Database = {
         Insert: {
           apellidos?: string | null
           avatar_url?: string | null
+          blocked?: boolean
           created_at?: string
+          email?: string | null
           estatura?: number | null
           fecha_nacimiento?: string | null
           full_name?: string | null
@@ -153,7 +157,9 @@ export type Database = {
         Update: {
           apellidos?: string | null
           avatar_url?: string | null
+          blocked?: boolean
           created_at?: string
+          email?: string | null
           estatura?: number | null
           fecha_nacimiento?: string | null
           full_name?: string | null
@@ -201,6 +207,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "standard" | "vip"
