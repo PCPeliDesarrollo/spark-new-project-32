@@ -17,6 +17,7 @@ interface UserWithRole {
   avatar_url: string | null;
   created_at: string;
   role: string;
+  blocked: boolean;
 }
 
 export default function Users() {
@@ -53,7 +54,8 @@ export default function Users() {
         id,
         full_name,
         avatar_url,
-        created_at
+        created_at,
+        blocked
       `)
       .order("created_at", { ascending: false });
 
@@ -164,7 +166,11 @@ export default function Users() {
                           <tr
                             key={user.id}
                             onClick={() => navigate(`/users/${user.id}`)}
-                            className="border-b hover:bg-accent/50 cursor-pointer transition-colors"
+                            className={`border-b cursor-pointer transition-colors ${
+                              user.blocked 
+                                ? "bg-destructive/10 hover:bg-destructive/20 border-destructive/30" 
+                                : "hover:bg-accent/50"
+                            }`}
                           >
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-3">
@@ -182,21 +188,28 @@ export default function Users() {
                               </div>
                             </td>
                             <td className="py-3 px-4">
-                              <Badge
-                                variant={
-                                  user.role === "admin" 
-                                    ? "default" 
+                              <div className="flex gap-2">
+                                <Badge
+                                  variant={
+                                    user.role === "admin" 
+                                      ? "default" 
+                                      : user.role === "vip"
+                                      ? "secondary"
+                                      : "outline"
+                                  }
+                                >
+                                  {user.role === "admin" 
+                                    ? "Administrador" 
                                     : user.role === "vip"
-                                    ? "secondary"
-                                    : "outline"
-                                }
-                              >
-                                {user.role === "admin" 
-                                  ? "Administrador" 
-                                  : user.role === "vip"
-                                  ? "VIP"
-                                  : "Estándar"}
-                              </Badge>
+                                    ? "VIP"
+                                    : "Estándar"}
+                                </Badge>
+                                {user.blocked && (
+                                  <Badge variant="destructive">
+                                    Bloqueado
+                                  </Badge>
+                                )}
+                              </div>
                             </td>
                             <td className="py-3 px-4 text-muted-foreground">
                               {new Date(user.created_at).toLocaleDateString("es-ES", {
