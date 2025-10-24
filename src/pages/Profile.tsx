@@ -171,11 +171,14 @@ export default function Profile() {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-      setProfile({ ...profile, avatar_url: publicUrl });
+      // Add timestamp to force browser to reload the image
+      const avatarUrlWithTimestamp = `${publicUrl}?t=${Date.now()}`;
+
+      setProfile({ ...profile, avatar_url: avatarUrlWithTimestamp });
 
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: avatarUrlWithTimestamp })
         .eq("id", user.id);
 
       if (updateError) throw updateError;
