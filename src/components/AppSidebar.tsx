@@ -44,11 +44,22 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      // Clear localStorage first
+      localStorage.removeItem("rememberedEmail");
+      localStorage.removeItem("rememberedPassword");
+      localStorage.removeItem("rememberMe");
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) throw error;
+      
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión correctamente",
       });
+      
+      // Navigate after successful logout
       navigate("/auth");
     } catch (error) {
       toast({

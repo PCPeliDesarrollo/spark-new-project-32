@@ -22,28 +22,37 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load saved credentials if "remember me" was checked
-    const savedEmail = localStorage.getItem("rememberedEmail");
-    const savedPassword = localStorage.getItem("rememberedPassword");
-    const wasRemembered = localStorage.getItem("rememberMe") === "true";
-    
-    if (wasRemembered && savedEmail && savedPassword) {
-      setEmail(savedEmail);
-      setPassword(savedPassword);
-      setRememberMe(true);
-    }
-
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check if user is already logged in first
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       if (session) {
         navigate("/");
+        return;
       }
-    });
+      
+      // Only load saved credentials if no active session
+      const savedEmail = localStorage.getItem("rememberedEmail");
+      const savedPassword = localStorage.getItem("rememberedPassword");
+      const wasRemembered = localStorage.getItem("rememberMe") === "true";
+      
+      if (wasRemembered && savedEmail && savedPassword) {
+        setEmail(savedEmail);
+        setPassword(savedPassword);
+        setRememberMe(true);
+      }
+    };
+
+    checkSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/");
+      } else if (event === 'SIGNED_OUT') {
+        setEmail("");
+        setPassword("");
+        setRememberMe(false);
       }
     });
 
