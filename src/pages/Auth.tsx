@@ -22,24 +22,28 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+
     // Check if user is already logged in first
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (session) {
+      if (session && mounted) {
         navigate("/");
         return;
       }
       
       // Only load saved credentials if no active session
-      const savedEmail = localStorage.getItem("rememberedEmail");
-      const savedPassword = localStorage.getItem("rememberedPassword");
-      const wasRemembered = localStorage.getItem("rememberMe") === "true";
-      
-      if (wasRemembered && savedEmail && savedPassword) {
-        setEmail(savedEmail);
-        setPassword(savedPassword);
-        setRememberMe(true);
+      if (mounted) {
+        const savedEmail = localStorage.getItem("rememberedEmail");
+        const savedPassword = localStorage.getItem("rememberedPassword");
+        const wasRemembered = localStorage.getItem("rememberMe") === "true";
+        
+        if (wasRemembered && savedEmail && savedPassword) {
+          setEmail(savedEmail);
+          setPassword(savedPassword);
+          setRememberMe(true);
+        }
       }
     };
 
@@ -47,6 +51,8 @@ export default function Auth() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      
       if (event === 'SIGNED_IN' && session) {
         navigate("/");
       } else if (event === 'SIGNED_OUT') {
@@ -56,7 +62,10 @@ export default function Auth() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {

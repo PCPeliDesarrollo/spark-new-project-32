@@ -44,24 +44,21 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
-      // Clear localStorage first
-      localStorage.removeItem("rememberedEmail");
-      localStorage.removeItem("rememberedPassword");
-      localStorage.removeItem("rememberMe");
+      // Clear ALL localStorage including Supabase session
+      localStorage.clear();
       
       // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) throw error;
+      await supabase.auth.signOut({ scope: 'local' });
       
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión correctamente",
       });
       
-      // Navigate after successful logout
-      navigate("/auth");
+      // Force navigation to auth page
+      window.location.href = "/auth";
     } catch (error) {
+      console.error("Logout error:", error);
       toast({
         title: "Error",
         description: "No se pudo cerrar la sesión",
