@@ -23,8 +23,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
     <div className="min-h-screen flex w-full">
       <AppSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="h-14 border-b border-border flex items-center px-4 bg-card">
-          <SidebarTrigger />
+        <header className="sticky top-0 z-10 h-14 border-b border-border flex items-center px-4 bg-card/95 backdrop-blur-sm">
+          <SidebarTrigger className="md:hidden" />
         </header>
         <main className="flex-1 overflow-auto">
           {children}
@@ -44,6 +44,14 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route
             path="/"
+            element={
+              <AppLayout>
+                <Classes />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/profile"
             element={
               <AppLayout>
                 <Profile />

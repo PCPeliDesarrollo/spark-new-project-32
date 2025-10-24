@@ -35,6 +35,7 @@ export default function Profile() {
   });
   const [userId, setUserId] = useState<string>("");
   const { isBlocked, loading: blockLoading } = useBlockedStatus();
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -227,6 +228,7 @@ export default function Profile() {
       });
 
       setPasswordData({ newPassword: "", confirmPassword: "" });
+      setShowPasswordChange(false);
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -256,15 +258,49 @@ export default function Profile() {
 
   return (
     <div className="container max-w-2xl py-4 md:py-8 px-4">
+      {/* Card para el QR de acceso - PRIMERO */}
       <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+        <CardHeader className="text-center">
+          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+            MI CÓDIGO QR
+          </CardTitle>
+          <CardDescription className="text-base">Tu código de acceso al gimnasio</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+          {isBlocked ? (
+            <Alert variant="destructive" className="w-full">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Tu cuenta está bloqueada. No puedes acceder al gimnasio ni usar el código QR hasta que un administrador la desbloquee.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg">
+                <QRCodeSVG id="user-qr-code" value={userId} size={180} level="H" includeMargin={true} />
+              </div>
+              <p className="text-sm text-muted-foreground text-center max-w-md px-4">
+                Presenta este código QR al entrar al gimnasio para registrar tu acceso
+              </p>
+              <Button onClick={downloadQR} variant="outline" className="w-full md:w-auto">
+                <Download className="mr-2 h-4 w-4" />
+                Descargar QR
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Card de perfil */}
+      <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader className="text-center">
           <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
             MI PERFIL
           </CardTitle>
-          <CardDescription className="text-base">Actualiza tus datos personales</CardDescription>
+          <CardDescription className="text-base">Tus datos personales</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center mb-6">
+        <CardContent className="space-y-6">
+          <div className="flex flex-col items-center">
             <UserAvatar avatarUrl={profile.avatar_url} fullName={profile.full_name} size="lg" />
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             <Button
@@ -273,6 +309,7 @@ export default function Profile() {
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
+              className="mt-4"
             >
               {uploading ? (
                 <>
@@ -356,94 +393,79 @@ export default function Profile() {
               )}
             </Button>
           </form>
-        </CardContent>
-      </Card>
 
-      {/* Card para el QR de acceso */}
-      <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader className="text-center">
-          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
-            MI CÓDIGO QR
-          </CardTitle>
-          <CardDescription className="text-base">Este es tu código QR único</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4">
-          {isBlocked ? (
-            <Alert variant="destructive" className="w-full">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Tu cuenta está bloqueada. No puedes acceder al gimnasio ni usar el código QR hasta que un administrador la desbloquee.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <>
-              <div className="bg-white p-6 rounded-lg shadow-lg">
-                <QRCodeSVG id="user-qr-code" value={userId} size={200} level="H" includeMargin={true} />
-              </div>
-              <p className="text-sm text-muted-foreground text-center max-w-md">
-                Presenta este código QR al entrar al gimnasio para registrar tu acceso
-              </p>
-              <Button onClick={downloadQR} variant="outline" className="w-full md:w-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Descargar QR
+          {/* Botón para mostrar cambio de contraseña */}
+          <div className="pt-4 border-t">
+            {!showPasswordChange ? (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowPasswordChange(true)}
+              >
+                <Lock className="mr-2 h-4 w-4" />
+                Cambiar contraseña
               </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Card para cambiar contraseña */}
-      <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader className="text-center">
-          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
-            CAMBIAR CONTRASEÑA
-          </CardTitle>
-          <CardDescription className="text-base">Actualiza tu contraseña de acceso</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">Nueva contraseña</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={passwordData.newPassword}
-                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                placeholder="••••••••"
-                minLength={6}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                placeholder="••••••••"
-                minLength={6}
-                required
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
-              disabled={changingPassword}
-            >
-              {changingPassword ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cambiando...
-                </>
-              ) : (
-                <>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Cambiar contraseña
-                </>
-              )}
-            </Button>
-          </form>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Cambiar contraseña</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowPasswordChange(false);
+                      setPasswordData({ newPassword: "", confirmPassword: "" });
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword">Nueva contraseña</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                      placeholder="••••••••"
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      placeholder="••••••••"
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+                    disabled={changingPassword}
+                  >
+                    {changingPassword ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Cambiando...
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="mr-2 h-4 w-4" />
+                        Confirmar cambio
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -19,9 +19,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const menuItems = [
-  { title: "Mi Perfil", url: "/", icon: User },
+  { title: "Clases", url: "/", icon: Calendar },
+  { title: "Mi Perfil", url: "/profile", icon: User },
   { title: "Datos del Centro", url: "/gym-info", icon: Building2 },
-  { title: "Clases", url: "/classes", icon: Calendar },
   { title: "Calculadoras", url: "/calculator", icon: Calculator },
 ];
 
