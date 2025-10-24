@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock } from "lucide-react";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { format, addDays, startOfWeek, isBefore, parseISO, setHours, setMinutes } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface ClassData {
   id: string;
@@ -24,6 +26,7 @@ interface Schedule {
   duration_minutes: number;
   max_capacity: number;
   bookings: { count: number }[];
+  week_start_date: string;
 }
 
 interface Booking {
@@ -81,12 +84,23 @@ export default function ClassDetail() {
         .order("start_time");
 
       if (schedulesError) throw schedulesError;
-      setSchedules(schedulesData || []);
+      
+      // Filter out past schedules
+      const now = new Date();
+      const filteredSchedules = (schedulesData || []).filter(schedule => {
+        const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
+        const scheduleDate = addDays(weekStart, schedule.day_of_week);
+        const [hours, minutes] = schedule.start_time.split(':').map(Number);
+        const scheduleDateTime = setMinutes(setHours(scheduleDate, hours), minutes);
+        return !isBefore(scheduleDateTime, now);
+      });
+      
+      setSchedules(filteredSchedules);
 
       // Load bookings for each schedule
-      if (schedulesData) {
+      if (filteredSchedules) {
         const bookingsData: Record<string, Booking[]> = {};
-        for (const schedule of schedulesData) {
+        for (const schedule of filteredSchedules) {
           const { data, error } = await supabase
             .from("class_bookings")
             .select(`
@@ -242,19 +256,18 @@ export default function ClassDetail() {
             </CardHeader>
           </Card>
 
-          <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-            <CardHeader className="text-center">
-              <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                HORARIOS DE LA SEMANA
-              </CardTitle>
-              <CardDescription>
-                Selecciona un horario para apuntarte
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {schedules.length === 0 ? (
-                <p className="text-muted-foreground">No hay horarios disponibles</p>
-              ) : (
+          {schedules.length > 0 && (
+            <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+              <CardHeader className="text-center">
+                <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                  HORARIOS DE LA SEMANA
+                </CardTitle>
+                <CardDescription>
+                  Selecciona un horario para apuntarte
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {
                 schedules.map((schedule) => {
                   const userBooking = bookings[schedule.id]?.find(b => b.user_id === userId);
                   const confirmedBookings = bookings[schedule.id]?.filter(b => b.status === 'confirmed') || [];
@@ -263,6 +276,11 @@ export default function ClassDetail() {
                   const isFull = confirmedCount >= schedule.max_capacity;
                   const isBooked = !!userBooking;
                   const isOnWaitlist = userBooking?.status === 'waitlist';
+                  
+                  // Calculate actual date
+                  const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
+                  const scheduleDate = addDays(weekStart, schedule.day_of_week);
+                  const formattedDate = format(scheduleDate, "EEEE d", { locale: es });
 
                   return (
                     <div
@@ -272,9 +290,9 @@ export default function ClassDetail() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs capitalize">
                               <Calendar className="mr-1 h-3 w-3" />
-                              {DAYS[schedule.day_of_week]}
+                              {formattedDate}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               <Clock className="mr-1 h-3 w-3" />
@@ -364,9 +382,10 @@ export default function ClassDetail() {
                     </div>
                   );
                 })
-              )}
-            </CardContent>
-          </Card>
+                }
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="lg:sticky lg:top-4">
