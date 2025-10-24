@@ -1,4 +1,4 @@
-import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays } from "lucide-react";
+import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays, Dumbbell } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import panteraLogo from "@/assets/pantera.png";
 import {
@@ -27,6 +27,7 @@ const menuItems = [
 
 const adminMenuItems = [
   { title: "Usuarios", url: "/users", icon: UsersIcon },
+  { title: "Gestionar Clases", url: "/manage-classes", icon: Dumbbell },
   { title: "Horarios Semanales", url: "/manage-schedules", icon: CalendarDays },
 ];
 
@@ -44,26 +45,19 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
-      // Clear ALL localStorage including Supabase session
-      localStorage.clear();
-      
-      // Sign out from Supabase
+      // First sign out from Supabase
       await supabase.auth.signOut({ scope: 'local' });
       
-      toast({
-        title: "Sesión cerrada",
-        description: "Has cerrado sesión correctamente",
-      });
+      // Then clear ALL localStorage
+      localStorage.clear();
       
-      // Force navigation to auth page
-      window.location.href = "/auth";
+      // Force a hard reload to clear all memory state
+      window.location.replace("/auth");
     } catch (error) {
       console.error("Logout error:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo cerrar la sesión",
-        variant: "destructive",
-      });
+      // Even if there's an error, clear localStorage and reload
+      localStorage.clear();
+      window.location.replace("/auth");
     }
   };
 
