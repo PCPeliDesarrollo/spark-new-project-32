@@ -220,6 +220,7 @@ export type Database = {
     }
     Functions: {
       check_booking_limit: { Args: { _user_id: string }; Returns: boolean }
+      duplicate_schedules_for_next_week: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
