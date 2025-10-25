@@ -31,6 +31,12 @@ export default function Classes() {
         return;
       }
 
+      // Get current week's Monday for filtering
+      const now = new Date();
+      const currentWeekStart = new Date(now);
+      currentWeekStart.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
+      currentWeekStart.setHours(0, 0, 0, 0);
+
       const { data: classesData, error: classesError } = await supabase
         .from("classes")
         .select("*")

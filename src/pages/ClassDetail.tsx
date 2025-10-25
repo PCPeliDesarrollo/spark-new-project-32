@@ -85,14 +85,14 @@ export default function ClassDetail() {
 
       if (schedulesError) throw schedulesError;
       
-      // Filter out past schedules
+      // Filter schedules - show current week and future weeks
       const now = new Date();
+      const currentWeekStart = startOfWeek(now, { weekStartsOn: 1 });
+      
       const filteredSchedules = (schedulesData || []).filter(schedule => {
-        const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
-        const scheduleDate = addDays(weekStart, schedule.day_of_week);
-        const [hours, minutes] = schedule.start_time.split(':').map(Number);
-        const scheduleDateTime = setMinutes(setHours(scheduleDate, hours), minutes);
-        return !isBefore(scheduleDateTime, now);
+        const scheduleWeekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
+        // Show schedules from current week onwards
+        return !isBefore(scheduleWeekStart, currentWeekStart);
       });
       
       setSchedules(filteredSchedules);
