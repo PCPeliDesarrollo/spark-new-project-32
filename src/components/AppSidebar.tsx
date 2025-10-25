@@ -11,12 +11,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
+import { NotificationBell } from "./NotificationBell";
 
 const menuItems = [
   { title: "Clases", url: "/classes", icon: Calendar },
@@ -64,11 +66,19 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
+      <SidebarHeader className="border-b border-primary/20 pb-2">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-2">
+            <img src={panteraLogo} alt="Panthera" className="w-6 h-6 md:w-8 md:h-8" />
+            {open && <span className="font-bold text-primary">Panthera Fitness</span>}
+          </div>
+          <NotificationBell />
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-2 text-base md:text-lg font-bold text-primary">
-            <img src={panteraLogo} alt="Panthera" className="w-6 h-6 md:w-8 md:h-8" />
-            {open && <span>Panthera Fitness</span>}
+          <SidebarGroupLabel className="text-base md:text-lg font-bold text-primary">
+            {open && <span>MENÚ</span>}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
