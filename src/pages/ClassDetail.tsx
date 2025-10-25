@@ -107,7 +107,7 @@ export default function ClassDetail() {
               user_id,
               status,
               position,
-              profiles:user_id (
+              profiles!left (
                 full_name,
                 avatar_url
               )
