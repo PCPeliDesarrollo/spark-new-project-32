@@ -15,7 +15,7 @@ import Calculator from "./pages/Calculator";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ManageSchedules from "./pages/ManageSchedules";
-import ManageClasses from "./pages/ManageClasses";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +47,7 @@ const App = () => (
             path="/"
             element={
               <AppLayout>
-                <Classes />
+                <Index />
               </AppLayout>
             }
           />
@@ -112,14 +112,6 @@ const App = () => (
             element={
               <AppLayout>
                 <ManageSchedules />
-              </AppLayout>
-            }
-          />
-          <Route
-            path="/manage-classes"
-            element={
-              <AppLayout>
-                <ManageClasses />
               </AppLayout>
             }
           />

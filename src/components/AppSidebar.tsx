@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const menuItems = [
-  { title: "Clases", url: "/", icon: Calendar },
+  { title: "Clases", url: "/classes", icon: Calendar },
   { title: "Mi Perfil", url: "/profile", icon: User },
   { title: "Datos del Centro", url: "/gym-info", icon: Building2 },
   { title: "Calculadoras", url: "/calculator", icon: Calculator },
@@ -27,8 +27,7 @@ const menuItems = [
 
 const adminMenuItems = [
   { title: "Usuarios", url: "/users", icon: UsersIcon },
-  { title: "Gestionar Clases", url: "/manage-classes", icon: Dumbbell },
-  { title: "Horarios Semanales", url: "/manage-schedules", icon: CalendarDays },
+  { title: "Gestionar Clases", url: "/manage-schedules", icon: CalendarDays },
 ];
 
 export function AppSidebar() {
@@ -45,19 +44,21 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
-      // First sign out from Supabase
-      await supabase.auth.signOut({ scope: 'local' });
-      
-      // Then clear ALL localStorage
+      // Clear ALL localStorage and sessionStorage FIRST
       localStorage.clear();
+      sessionStorage.clear();
       
-      // Force a hard reload to clear all memory state
-      window.location.replace("/auth");
+      // Sign out from Supabase with global scope
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Force complete page reload from server (not cache)
+      window.location.href = "/auth";
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if there's an error, clear localStorage and reload
+      // Even if there's an error, clear everything and reload
       localStorage.clear();
-      window.location.replace("/auth");
+      sessionStorage.clear();
+      window.location.href = "/auth";
     }
   };
 

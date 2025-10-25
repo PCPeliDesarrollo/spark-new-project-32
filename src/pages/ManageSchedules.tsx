@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Trash2, Calendar, Clock, Users } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dumbbell, CalendarDays } from "lucide-react";
 
 interface ClassType {
   id: string;
@@ -42,6 +43,11 @@ export default function ManageSchedules() {
   const navigate = useNavigate();
 
   // Form state
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreateClassDialogOpen, setIsCreateClassDialogOpen] = useState(false);
+  const [newClassName, setNewClassName] = useState("");
+  const [newClassDescription, setNewClassDescription] = useState("");
+  const [newClassImageUrl, setNewClassImageUrl] = useState("");
   const [classId, setClassId] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState("1");
   const [startTime, setStartTime] = useState("09:00");
@@ -127,6 +133,47 @@ export default function ManageSchedules() {
     setLoading(false);
   };
 
+  const handleCreateClass = async () => {
+    if (!newClassName.trim()) {
+      toast({
+        title: "Error",
+        description: "El nombre de la clase es obligatorio",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("classes")
+        .insert({
+          name: newClassName,
+          description: newClassDescription,
+          image_url: newClassImageUrl || null,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Clase creada",
+        description: "La clase se ha creado correctamente",
+      });
+
+      setIsCreateClassDialogOpen(false);
+      setNewClassName("");
+      setNewClassDescription("");
+      setNewClassImageUrl("");
+      loadData();
+    } catch (error) {
+      console.error("Error creating class:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo crear la clase",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCreateSchedule = async () => {
     if (!classId || !dayOfWeek || !startTime || !durationMinutes || !maxCapacity) {
       toast({
@@ -167,7 +214,7 @@ export default function ManageSchedules() {
         title: "Horario creado",
         description: "El horario se ha creado correctamente",
       });
-      setDialogOpen(false);
+      setIsCreateDialogOpen(false);
       resetForm();
       loadData();
     }
@@ -227,16 +274,65 @@ export default function ManageSchedules() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle>Gestión de Horarios Semanales</CardTitle>
-            <CardDescription>Crea y gestiona los horarios de las clases para esta semana</CardDescription>
-          </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <h1 className="text-3xl font-bebas tracking-wider">GESTIONAR CLASES</h1>
+        <div className="flex gap-2">
+          <Dialog open={isCreateClassDialogOpen} onOpenChange={setIsCreateClassDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Dumbbell className="mr-2 h-4 w-4" />
+                Nueva Clase
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Crear Nuevo Tipo de Clase</DialogTitle>
+                <DialogDescription>
+                  Crea un nuevo tipo de clase (ej: CrossFit, Yoga)
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="className">Nombre de la Clase *</Label>
+                  <Input
+                    id="className"
+                    value={newClassName}
+                    onChange={(e) => setNewClassName(e.target.value)}
+                    placeholder="CrossFit, Yoga, Spinning..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="classDescription">Descripción</Label>
+                  <Input
+                    id="classDescription"
+                    value={newClassDescription}
+                    onChange={(e) => setNewClassDescription(e.target.value)}
+                    placeholder="Descripción de la clase"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="classImageUrl">URL de Imagen</Label>
+                  <Input
+                    id="classImageUrl"
+                    value={newClassImageUrl}
+                    onChange={(e) => setNewClassImageUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateClassDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleCreateClass}>Crear Clase</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <CalendarDays className="mr-2 h-4 w-4" />
                 Nuevo Horario
               </Button>
             </DialogTrigger>
@@ -311,8 +407,11 @@ export default function ManageSchedules() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </CardHeader>
-        <CardContent>
+        </div>
+      </div>
+      
+      <Card>
+        <CardContent className="p-6">
           {schedules.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No hay horarios configurados para esta semana

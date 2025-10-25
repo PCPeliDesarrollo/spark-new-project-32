@@ -34,7 +34,7 @@ export default function Auth() {
       }
       
       // Only load saved credentials if no active session
-      if (mounted) {
+      if (mounted && !session) {
         const savedEmail = localStorage.getItem("rememberedEmail");
         const savedPassword = localStorage.getItem("rememberedPassword");
         const wasRemembered = localStorage.getItem("rememberMe") === "true";
@@ -54,11 +54,17 @@ export default function Auth() {
       if (!mounted) return;
       
       if (event === 'SIGNED_IN' && session) {
-        navigate("/");
+        // Small delay to ensure session is properly set
+        setTimeout(() => {
+          if (mounted) navigate("/");
+        }, 100);
       } else if (event === 'SIGNED_OUT') {
-        setEmail("");
-        setPassword("");
-        setRememberMe(false);
+        // Clear credentials from form
+        if (mounted) {
+          setEmail("");
+          setPassword("");
+          setRememberMe(false);
+        }
       }
     });
 
