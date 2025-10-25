@@ -14,7 +14,7 @@ export default function GymInfo() {
   const gymCoordinates = "39.2194,-5.7994"; // Coordenadas de Alburquerque, Badajoz
 
   const handleOpenMaps = () => {
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(gymLocation)}`;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${gymCoordinates}`;
     window.open(mapsUrl, "_blank");
   };
 
