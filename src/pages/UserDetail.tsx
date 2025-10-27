@@ -241,7 +241,7 @@ export default function UserDetail() {
           Volver a usuarios
         </Button>
         
-        {user && user.role !== "admin" && (
+        {user && (
           <div className="flex gap-2">
             <Button
               variant={user.blocked ? "default" : "destructive"}
@@ -374,9 +374,8 @@ export default function UserDetail() {
               </div>
             </div>
 
-            {/* Role Selector - Only for non-admin users */}
-            {user.role !== "admin" && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg bg-accent/50">
+            {/* Role Selector */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg bg-accent/50">
                 <UserCog className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 <div className="flex-1 w-full">
                   <p className="text-sm text-muted-foreground mb-2">Tipo de Cliente</p>
@@ -398,7 +397,7 @@ export default function UserDetail() {
                   </div>
                 </div>
               </div>
-            )}
+
             <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
               <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
