@@ -6,11 +6,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock } from "lucide-react";
+import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock, UserPlus } from "lucide-react";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { format, addDays, startOfWeek, isBefore, parseISO, setHours, setMinutes } from "date-fns";
 import { es } from "date-fns/locale";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ClassData {
   id: string;
@@ -46,16 +61,42 @@ export default function ClassDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isBlocked } = useBlockedStatus();
+  const { isAdmin } = useUserRole();
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Record<string, Booking[]>>({});
+  const [users, setUsers] = useState<Array<{ id: string; full_name: string; email: string }>>([]);
+  const [showAdminBookingDialog, setShowAdminBookingDialog] = useState(false);
+  const [adminBookingScheduleId, setAdminBookingScheduleId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   useEffect(() => {
     loadData();
   }, [id]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadUsers();
+    }
+  }, [isAdmin]);
+
+  const loadUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .order("full_name");
+      
+      if (!error && data) {
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -134,8 +175,10 @@ export default function ClassDetail() {
     }
   };
 
-  const handleBooking = async (scheduleId: string) => {
-    if (!userId) {
+  const handleBooking = async (scheduleId: string, targetUserId?: string) => {
+    const bookingUserId = targetUserId || userId;
+    
+    if (!bookingUserId) {
       toast({
         title: "Error",
         description: "Debes iniciar sesión para apuntarte",
@@ -144,7 +187,7 @@ export default function ClassDetail() {
       return;
     }
 
-    if (isBlocked) {
+    if (!targetUserId && isBlocked) {
       toast({
         title: "Cuenta bloqueada",
         description: "Tu cuenta ha sido bloqueada. Contacta con el administrador.",
@@ -154,7 +197,7 @@ export default function ClassDetail() {
     }
 
     try {
-      const isBooked = bookings[scheduleId]?.some(b => b.user_id === userId);
+      const isBooked = bookings[scheduleId]?.some(b => b.user_id === bookingUserId);
 
       if (isBooked) {
         // Cancel booking
@@ -162,13 +205,13 @@ export default function ClassDetail() {
           .from("class_bookings")
           .delete()
           .eq("schedule_id", scheduleId)
-          .eq("user_id", userId);
+          .eq("user_id", bookingUserId);
 
         if (error) throw error;
 
         toast({
           title: "Cancelado",
-          description: "Te has dado de baja de esta clase",
+          description: targetUserId ? "Usuario dado de baja de la clase" : "Te has dado de baja de esta clase",
         });
       } else {
         // Create booking
@@ -176,14 +219,14 @@ export default function ClassDetail() {
           .from("class_bookings")
           .insert({
             schedule_id: scheduleId,
-            user_id: userId,
+            user_id: bookingUserId,
           });
 
         if (error) throw error;
 
         toast({
           title: "¡Apuntado!",
-          description: "Te has apuntado a esta clase",
+          description: targetUserId ? "Usuario apuntado a la clase" : "Te has apuntado a esta clase",
         });
       }
 
@@ -196,6 +239,29 @@ export default function ClassDetail() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleAdminBooking = () => {
+    if (!selectedUserId) {
+      toast({
+        title: "Error",
+        description: "Debes seleccionar un usuario",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (adminBookingScheduleId) {
+      handleBooking(adminBookingScheduleId, selectedUserId);
+      setShowAdminBookingDialog(false);
+      setSelectedUserId("");
+      setAdminBookingScheduleId(null);
+    }
+  };
+
+  const openAdminBookingDialog = (scheduleId: string) => {
+    setAdminBookingScheduleId(scheduleId);
+    setShowAdminBookingDialog(true);
   };
 
   if (loading) {
@@ -324,6 +390,16 @@ export default function ClassDetail() {
                           >
                             {isBooked ? "Cancelar" : isFull ? "Lista de espera" : "Apuntarse"}
                           </Button>
+                          {isAdmin && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => openAdminBookingDialog(schedule.id)}
+                              className="text-xs"
+                            >
+                              <UserPlus className="h-3 w-3" />
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -388,30 +464,76 @@ export default function ClassDetail() {
           )}
         </div>
 
-        <div className="lg:sticky lg:top-4">
-          <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-            <CardHeader className="text-center">
-              <CardTitle className="font-bebas text-2xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                INFORMACIÓN
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <p className="text-sm font-medium mb-1">Duración</p>
-                <p className="font-bebas text-2xl text-primary">
-                  {schedules[0]?.duration_minutes || 60} MIN
-                </p>
-              </div>
-              <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <p className="text-sm font-medium mb-1">Capacidad máxima</p>
-                <p className="font-bebas text-2xl text-primary">
-                  {schedules[0]?.max_capacity || 20} PERSONAS
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {schedules.length > 0 && (
+          <div className="lg:sticky lg:top-4">
+            <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+              <CardHeader className="text-center">
+                <CardTitle className="font-bebas text-2xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                  INFORMACIÓN
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {schedules[0]?.duration_minutes && (
+                  <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
+                    <p className="text-sm font-medium mb-1">Duración</p>
+                    <p className="font-bebas text-2xl text-primary">
+                      {schedules[0].duration_minutes} MIN
+                    </p>
+                  </div>
+                )}
+                {schedules[0]?.max_capacity && (
+                  <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
+                    <p className="text-sm font-medium mb-1">Capacidad máxima</p>
+                    <p className="font-bebas text-2xl text-primary">
+                      {schedules[0].max_capacity} PERSONAS
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
+
+      <Dialog open={showAdminBookingDialog} onOpenChange={setShowAdminBookingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apuntar usuario a la clase</DialogTitle>
+            <DialogDescription>
+              Selecciona el usuario que deseas apuntar a esta clase
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona un usuario" />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.full_name} ({user.email})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAdminBookingDialog(false);
+                setSelectedUserId("");
+                setAdminBookingScheduleId(null);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleAdminBooking}>
+              Apuntar usuario
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
