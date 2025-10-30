@@ -120,32 +120,32 @@ export function MonthlyClassesIndicator() {
   }
 
   return (
-    <Card className="mb-6 bg-card/80 backdrop-blur-md border-primary/30">
-      <CardHeader>
-        <CardTitle className="text-xl font-bebas tracking-wide">
+    <Card className="mb-4 md:mb-6 bg-card/80 backdrop-blur-md border-primary/30">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg md:text-xl font-bebas tracking-wide text-center sm:text-left">
           Clases VIP - {availableClasses} disponibles de 12
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+      <CardContent className="p-4 md:p-6 pt-0">
+        <div className="grid grid-cols-6 sm:grid-cols-12 gap-1.5 sm:gap-2">
           {boxes.map((box) => (
             <div
               key={box.key}
-              className={`aspect-square rounded-lg ${box.color} transition-all duration-300 hover:scale-110 shadow-md`}
+              className={`aspect-square rounded ${box.color} transition-all duration-300 hover:scale-110 shadow-md`}
             />
           ))}
         </div>
-        <div className="flex gap-4 mt-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-green-500" />
+        <div className="flex flex-wrap gap-3 md:gap-4 mt-4 text-xs sm:text-sm justify-center sm:justify-start">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-green-500" />
             <span>Disponibles</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-yellow-500" />
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-yellow-500" />
             <span>Reservadas</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-red-500" />
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-red-500" />
             <span>Usadas</span>
           </div>
         </div>

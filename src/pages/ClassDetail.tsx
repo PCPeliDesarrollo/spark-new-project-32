@@ -200,6 +200,27 @@ export default function ClassDetail() {
       const isBooked = bookings[scheduleId]?.some(b => b.user_id === bookingUserId);
 
       if (isBooked) {
+        // Check if cancellation is at least 1 hour before class (only for regular users)
+        if (!targetUserId) {
+          const schedule = schedules.find(s => s.id === scheduleId);
+          if (schedule) {
+            const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
+            const scheduleDate = addDays(weekStart, schedule.day_of_week);
+            const [hours, minutes] = schedule.start_time.split(':').map(Number);
+            const scheduleDateTime = setMinutes(setHours(scheduleDate, hours), minutes);
+            const oneHourBefore = new Date(scheduleDateTime.getTime() - 60 * 60 * 1000);
+            
+            if (new Date() >= oneHourBefore) {
+              toast({
+                title: "No se puede cancelar",
+                description: "Debes cancelar con al menos 1 hora de antelación",
+                variant: "destructive",
+              });
+              return;
+            }
+          }
+        }
+
         // Cancel booking
         const { error } = await supabase
           .from("class_bookings")
