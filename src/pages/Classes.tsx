@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClassCard } from "@/components/ClassCard";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { MonthlyClassesIndicator } from "@/components/MonthlyClassesIndicator";
 
 interface ClassData {
   id: string;
@@ -71,6 +72,8 @@ export default function Classes() {
       <h1 className="font-bebas text-4xl md:text-6xl tracking-wider mb-6 md:mb-8 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent text-center">
         CLASES DISPONIBLES
       </h1>
+
+      <MonthlyClassesIndicator />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {classes.map((classItem) => (

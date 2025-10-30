@@ -1,0 +1,155 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+
+interface ClassBooking {
+  id: string;
+  status: string;
+  created_at: string;
+  schedule_id: string;
+  class_schedules: {
+    week_start_date: string;
+    start_time: string;
+    day_of_week: number;
+  };
+}
+
+export function MonthlyClassesIndicator() {
+  const { role, loading: roleLoading } = useUserRole();
+  const [bookings, setBookings] = useState<ClassBooking[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!roleLoading && role === "vip") {
+      loadBookings();
+    } else {
+      setLoading(false);
+    }
+  }, [role, roleLoading]);
+
+  const loadBookings = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get current month start
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const { data, error } = await supabase
+        .from("class_bookings")
+        .select(`
+          id,
+          status,
+          created_at,
+          schedule_id,
+          class_schedules (
+            week_start_date,
+            start_time,
+            day_of_week
+          )
+        `)
+        .eq("user_id", user.id)
+        .gte("created_at", monthStart.toISOString())
+        .eq("status", "confirmed")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setBookings(data || []);
+    } catch (error) {
+      console.error("Error loading bookings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (roleLoading || loading) {
+    return (
+      <div className="flex justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Only show for VIP users
+  if (role !== "vip") return null;
+
+  const getClassStatus = (booking: ClassBooking): "used" | "booked" | "available" => {
+    const schedule = booking.class_schedules;
+    if (!schedule) return "available";
+
+    // Calculate the actual date and time of the class
+    const classDate = new Date(schedule.week_start_date);
+    classDate.setDate(classDate.getDate() + schedule.day_of_week);
+    
+    const [hours, minutes] = schedule.start_time.split(":");
+    classDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    const now = new Date();
+    
+    // If class date/time has passed, it's used (red)
+    if (classDate < now) {
+      return "used";
+    }
+    
+    // If class date/time is in the future, it's booked (yellow)
+    return "booked";
+  };
+
+  const usedClasses = bookings.filter(b => getClassStatus(b) === "used").length;
+  const bookedClasses = bookings.filter(b => getClassStatus(b) === "booked").length;
+  const availableClasses = 12 - usedClasses - bookedClasses;
+
+  const boxes = [];
+  
+  // Red boxes (used)
+  for (let i = 0; i < usedClasses; i++) {
+    boxes.push({ key: `used-${i}`, color: "bg-red-500" });
+  }
+  
+  // Yellow boxes (booked)
+  for (let i = 0; i < bookedClasses; i++) {
+    boxes.push({ key: `booked-${i}`, color: "bg-yellow-500" });
+  }
+  
+  // Green boxes (available)
+  for (let i = 0; i < availableClasses; i++) {
+    boxes.push({ key: `available-${i}`, color: "bg-green-500" });
+  }
+
+  return (
+    <Card className="mb-6 bg-card/80 backdrop-blur-md border-primary/30">
+      <CardHeader>
+        <CardTitle className="text-xl font-bebas tracking-wide">
+          Clases VIP - {availableClasses} disponibles de 12
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+          {boxes.map((box) => (
+            <div
+              key={box.key}
+              className={`aspect-square rounded-lg ${box.color} transition-all duration-300 hover:scale-110 shadow-md`}
+            />
+          ))}
+        </div>
+        <div className="flex gap-4 mt-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-green-500" />
+            <span>Disponibles</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-yellow-500" />
+            <span>Reservadas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-red-500" />
+            <span>Usadas</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
