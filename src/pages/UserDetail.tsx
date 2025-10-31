@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail, User, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -24,6 +24,7 @@ interface UserProfile {
   role: string;
   blocked: boolean;
   email: string | null;
+  telefono: string | null;
 }
 
 export default function UserDetail() {
@@ -38,6 +39,12 @@ export default function UserDetail() {
   const [deleting, setDeleting] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState("");
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [editingApellidos, setEditingApellidos] = useState(false);
+  const [newApellidos, setNewApellidos] = useState("");
+  const [editingTelefono, setEditingTelefono] = useState(false);
+  const [newTelefono, setNewTelefono] = useState("");
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -83,6 +90,9 @@ export default function UserDetail() {
         role: roleData?.role || "basica",
       });
       setNewEmail(profileData.email || "");
+      setNewName(profileData.full_name || "");
+      setNewApellidos(profileData.apellidos || "");
+      setNewTelefono(profileData.telefono || "");
       setLoading(false);
     };
 
@@ -196,7 +206,6 @@ export default function UserDetail() {
 
     setEditingEmail(false);
 
-    // Update email in profiles table for reference
     const { error: profileError } = await supabase
       .from("profiles")
       .update({ email: newEmail })
@@ -214,7 +223,85 @@ export default function UserDetail() {
     setUser({ ...user, email: newEmail });
     toast({
       title: "Email actualizado",
-      description: "El email se ha actualizado en el perfil. Nota: El usuario deberá usar su email anterior para iniciar sesión hasta que actualice su email de autenticación.",
+      description: "El email se ha actualizado en el perfil.",
+    });
+  };
+
+  const handleNameUpdate = async () => {
+    if (!id || !user) return;
+
+    setEditingName(false);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: newName })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el nombre",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUser({ ...user, full_name: newName });
+    toast({
+      title: "Nombre actualizado",
+      description: "El nombre se ha actualizado correctamente.",
+    });
+  };
+
+  const handleApellidosUpdate = async () => {
+    if (!id || !user) return;
+
+    setEditingApellidos(false);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ apellidos: newApellidos })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudieron actualizar los apellidos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUser({ ...user, apellidos: newApellidos });
+    toast({
+      title: "Apellidos actualizados",
+      description: "Los apellidos se han actualizado correctamente.",
+    });
+  };
+
+  const handleTelefonoUpdate = async () => {
+    if (!id || !user) return;
+
+    setEditingTelefono(false);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ telefono: newTelefono })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el teléfono",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUser({ ...user, telefono: newTelefono });
+    toast({
+      title: "Teléfono actualizado",
+      description: "El teléfono se ha actualizado correctamente.",
     });
   };
 
@@ -344,6 +431,90 @@ export default function UserDetail() {
             <CardTitle className="text-lg sm:text-xl">Información del Usuario</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">
+            {/* Nombre */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+              <User className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground mb-2">Nombre</p>
+                {editingName ? (
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button size="sm" onClick={handleNameUpdate}>
+                      Guardar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setEditingName(false);
+                        setNewName(user.full_name || "");
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all">{user.full_name || "Sin nombre"}</p>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setEditingName(true)}
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Apellidos */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+              <User className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground mb-2">Apellidos</p>
+                {editingApellidos ? (
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      value={newApellidos}
+                      onChange={(e) => setNewApellidos(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button size="sm" onClick={handleApellidosUpdate}>
+                      Guardar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setEditingApellidos(false);
+                        setNewApellidos(user.apellidos || "");
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all">{user.apellidos || "Sin apellidos"}</p>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setEditingApellidos(true)}
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Email */}
             <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
               <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
@@ -378,6 +549,48 @@ export default function UserDetail() {
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setEditingEmail(true)}
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Teléfono */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+              <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground mb-2">Teléfono</p>
+                {editingTelefono ? (
+                  <div className="flex gap-2">
+                    <Input
+                      type="tel"
+                      value={newTelefono}
+                      onChange={(e) => setNewTelefono(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button size="sm" onClick={handleTelefonoUpdate}>
+                      Guardar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setEditingTelefono(false);
+                        setNewTelefono(user.telefono || "");
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all">{user.telefono || "Sin teléfono"}</p>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setEditingTelefono(true)}
                     >
                       Editar
                     </Button>

@@ -12,6 +12,8 @@ import { z } from "zod";
 import { QRCodeSVG } from "qrcode.react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Badge } from "@/components/ui/badge";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ export default function Profile() {
   });
   const [userId, setUserId] = useState<string>("");
   const { isBlocked, loading: blockLoading } = useBlockedStatus();
+  const { role } = useUserRole();
   const [showPasswordChange, setShowPasswordChange] = useState(false);
 
   useEffect(() => {
@@ -298,6 +301,26 @@ export default function Profile() {
             MI PERFIL
           </CardTitle>
           <CardDescription className="text-base">Tus datos personales</CardDescription>
+          <div className="flex justify-center mt-2">
+            <Badge
+              variant={
+                role === "admin" 
+                  ? "default" 
+                  : role === "full" || role === "basica_clases"
+                  ? "secondary" 
+                  : "outline"
+              }
+              className="text-sm"
+            >
+              {role === "admin" 
+                ? "Administrador" 
+                : role === "full"
+                ? "Suscripción Full"
+                : role === "basica_clases"
+                ? "Suscripción Básica + Clases"
+                : "Suscripción Básica"}
+            </Badge>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center">
