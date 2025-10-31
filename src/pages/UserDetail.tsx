@@ -319,21 +319,23 @@ export default function UserDetail() {
 
   return (
     <div className="container mx-auto py-4 sm:py-8 px-4">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
         <Button
           variant="ghost"
           onClick={() => navigate("/users")}
+          className="self-start"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver a usuarios
+          <span className="text-sm">Volver a usuarios</span>
         </Button>
         
         {user && (
-          <div className="flex gap-2">
+          <div className="flex flex-col xs:flex-row gap-2">
             <Button
               variant={user.blocked ? "default" : "destructive"}
               onClick={handleBlockToggle}
               disabled={updatingStatus}
+              className="w-full xs:w-auto text-sm"
             >
               {updatingStatus ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -352,7 +354,7 @@ export default function UserDetail() {
             
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={deleting}>
+                <Button variant="destructive" disabled={deleting} className="w-full xs:w-auto text-sm">
                   {deleting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -363,17 +365,17 @@ export default function UserDetail() {
                   )}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="w-[95vw] max-w-md">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle className="text-lg">¿Estás seguro?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm">
                     Esta acción no se puede deshacer. Esto eliminará permanentemente al usuario
                     y todos sus datos asociados.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteUser}>
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel className="w-full sm:w-auto m-0">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteUser} className="w-full sm:w-auto">
                     Eliminar
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -437,34 +439,38 @@ export default function UserDetail() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground mb-2">Nombre</p>
                 {editingName ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col xs:flex-row gap-2">
                     <Input
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="flex-1"
+                      className="flex-1 text-sm"
                     />
-                    <Button size="sm" onClick={handleNameUpdate}>
-                      Guardar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => {
-                        setEditingName(false);
-                        setNewName(user.full_name || "");
-                      }}
-                    >
-                      Cancelar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleNameUpdate} className="flex-1 xs:flex-none text-xs">
+                        Guardar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => {
+                          setEditingName(false);
+                          setNewName(user.full_name || "");
+                        }}
+                        className="flex-1 xs:flex-none text-xs"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm sm:text-base break-all">{user.full_name || "Sin nombre"}</p>
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all flex-1">{user.full_name || "Sin nombre"}</p>
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setEditingName(true)}
+                      className="self-start xs:self-auto text-xs"
                     >
                       Editar
                     </Button>
@@ -479,34 +485,38 @@ export default function UserDetail() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground mb-2">Apellidos</p>
                 {editingApellidos ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col xs:flex-row gap-2">
                     <Input
                       type="text"
                       value={newApellidos}
                       onChange={(e) => setNewApellidos(e.target.value)}
-                      className="flex-1"
+                      className="flex-1 text-sm"
                     />
-                    <Button size="sm" onClick={handleApellidosUpdate}>
-                      Guardar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => {
-                        setEditingApellidos(false);
-                        setNewApellidos(user.apellidos || "");
-                      }}
-                    >
-                      Cancelar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleApellidosUpdate} className="flex-1 xs:flex-none text-xs">
+                        Guardar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => {
+                          setEditingApellidos(false);
+                          setNewApellidos(user.apellidos || "");
+                        }}
+                        className="flex-1 xs:flex-none text-xs"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm sm:text-base break-all">{user.apellidos || "Sin apellidos"}</p>
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all flex-1">{user.apellidos || "Sin apellidos"}</p>
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setEditingApellidos(true)}
+                      className="self-start xs:self-auto text-xs"
                     >
                       Editar
                     </Button>
@@ -521,34 +531,38 @@ export default function UserDetail() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground mb-2">Email</p>
                 {editingEmail ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col xs:flex-row gap-2">
                     <Input
                       type="email"
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
-                      className="flex-1"
+                      className="flex-1 text-sm"
                     />
-                    <Button size="sm" onClick={handleEmailUpdate}>
-                      Guardar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => {
-                        setEditingEmail(false);
-                        setNewEmail(user.email || "");
-                      }}
-                    >
-                      Cancelar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleEmailUpdate} className="flex-1 xs:flex-none text-xs">
+                        Guardar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => {
+                          setEditingEmail(false);
+                          setNewEmail(user.email || "");
+                        }}
+                        className="flex-1 xs:flex-none text-xs"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm sm:text-base break-all">{user.email || "Sin email"}</p>
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all flex-1">{user.email || "Sin email"}</p>
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setEditingEmail(true)}
+                      className="self-start xs:self-auto text-xs"
                     >
                       Editar
                     </Button>
@@ -563,34 +577,38 @@ export default function UserDetail() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground mb-2">Teléfono</p>
                 {editingTelefono ? (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col xs:flex-row gap-2">
                     <Input
                       type="tel"
                       value={newTelefono}
                       onChange={(e) => setNewTelefono(e.target.value)}
-                      className="flex-1"
+                      className="flex-1 text-sm"
                     />
-                    <Button size="sm" onClick={handleTelefonoUpdate}>
-                      Guardar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => {
-                        setEditingTelefono(false);
-                        setNewTelefono(user.telefono || "");
-                      }}
-                    >
-                      Cancelar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleTelefonoUpdate} className="flex-1 xs:flex-none text-xs">
+                        Guardar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => {
+                          setEditingTelefono(false);
+                          setNewTelefono(user.telefono || "");
+                        }}
+                        className="flex-1 xs:flex-none text-xs"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm sm:text-base break-all">{user.telefono || "Sin teléfono"}</p>
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-all flex-1">{user.telefono || "Sin teléfono"}</p>
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       onClick={() => setEditingTelefono(true)}
+                      className="self-start xs:self-auto text-xs"
                     >
                       Editar
                     </Button>

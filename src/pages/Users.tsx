@@ -127,8 +127,8 @@ export default function Users() {
   return (
     <div className="container mx-auto py-8 px-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle>Usuarios Registrados</CardTitle>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 pb-4">
+          <CardTitle className="text-xl sm:text-2xl">Usuarios Registrados</CardTitle>
           <RegisterUserDialog onUserCreated={handleUserCreated} />
         </CardHeader>
         <CardContent>
@@ -152,7 +152,8 @@ export default function Users() {
                   </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="overflow-x-auto mt-2">
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block overflow-x-auto mt-2">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b">
@@ -224,6 +225,71 @@ export default function Users() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* Mobile Card View */}
+                  <div className="md:hidden space-y-3 mt-2">
+                    {monthUsers.map((user) => (
+                      <Card
+                        key={user.id}
+                        onClick={() => navigate(`/users/${user.id}`)}
+                        className={`cursor-pointer transition-colors ${
+                          user.blocked 
+                            ? "bg-destructive/10 hover:bg-destructive/20 border-destructive/30" 
+                            : "hover:bg-accent/50"
+                        }`}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3 mb-3">
+                            <Avatar className="h-12 w-12 flex-shrink-0">
+                              <AvatarImage src={user.avatar_url || undefined} />
+                              <AvatarFallback>
+                                {user.full_name
+                                  ?.split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .toUpperCase() || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium truncate">{user.full_name || "Sin nombre"}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(user.created_at).toLocaleDateString("es-ES", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge
+                              variant={
+                                user.role === "admin" 
+                                  ? "default" 
+                                  : user.role === "full" || user.role === "basica_clases"
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                              className="text-xs"
+                            >
+                              {user.role === "admin" 
+                                ? "Administrador" 
+                                : user.role === "full"
+                                ? "Full"
+                                : user.role === "basica_clases"
+                                ? "Básica + Clases"
+                                : "Básica"}
+                            </Badge>
+                            {user.blocked && (
+                              <Badge variant="destructive" className="text-xs">
+                                Bloqueado
+                              </Badge>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </CollapsibleContent>
               </Collapsible>

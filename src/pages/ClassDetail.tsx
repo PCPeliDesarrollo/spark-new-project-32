@@ -566,10 +566,10 @@ export default function ClassDetail() {
       </div>
 
       <Dialog open={showAdminBookingDialog} onOpenChange={setShowAdminBookingDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Apuntar usuario a la clase</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">Apuntar usuario a la clase</DialogTitle>
+            <DialogDescription className="text-sm">
               Busca y selecciona el usuario que deseas apuntar a esta clase
             </DialogDescription>
           </DialogHeader>
@@ -580,19 +580,25 @@ export default function ClassDetail() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={openUserSelect}
-                  className="w-full justify-between"
+                  className="w-full justify-between text-sm"
                 >
-                  {selectedUserId
-                    ? users.find((user) => user.id === selectedUserId)?.full_name
-                    : "Buscar usuario..."}
+                  <span className="truncate">
+                    {selectedUserId
+                      ? users.find((user) => user.id === selectedUserId)?.full_name
+                      : "Buscar usuario..."}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[460px] p-0 bg-popover z-50">
+              <PopoverContent 
+                className="w-[calc(95vw-2rem)] sm:w-[460px] p-0 bg-popover z-50" 
+                align="start"
+                sideOffset={5}
+              >
                 <Command>
-                  <CommandInput placeholder="Buscar por nombre o email..." />
-                  <CommandEmpty>No se encontraron usuarios.</CommandEmpty>
-                  <CommandGroup className="max-h-[300px] overflow-auto">
+                  <CommandInput placeholder="Buscar por nombre o email..." className="text-sm" />
+                  <CommandEmpty className="text-sm py-6">No se encontraron usuarios.</CommandEmpty>
+                  <CommandGroup className="max-h-[250px] sm:max-h-[300px] overflow-auto">
                     {users.map((user) => {
                       const roleLabels: Record<string, string> = {
                         'basica_clases': 'Básica + Clases',
@@ -608,19 +614,19 @@ export default function ClassDetail() {
                             setSelectedUserId(user.id);
                             setOpenUserSelect(false);
                           }}
-                          className="cursor-pointer"
+                          className="cursor-pointer px-2 py-3"
                         >
                           <Check
-                            className={`mr-2 h-4 w-4 ${
+                            className={`mr-2 h-4 w-4 flex-shrink-0 ${
                               selectedUserId === user.id ? "opacity-100" : "opacity-0"
                             }`}
                           />
-                          <div className="flex-1 flex items-center justify-between">
-                            <div className="flex flex-col">
-                              <span className="font-medium">{user.full_name}</span>
-                              <span className="text-xs text-muted-foreground">{user.email}</span>
+                          <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 min-w-0">
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-medium text-sm truncate">{user.full_name}</span>
+                              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                             </div>
-                            <Badge variant="outline" className="ml-2">
+                            <Badge variant="outline" className="text-xs whitespace-nowrap self-start sm:self-center">
                               {roleLabels[user.role] || user.role}
                             </Badge>
                           </div>
@@ -632,7 +638,7 @@ export default function ClassDetail() {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
             <Button
               variant="outline"
               onClick={() => {
@@ -641,10 +647,11 @@ export default function ClassDetail() {
                 setAdminBookingScheduleId(null);
                 setOpenUserSelect(false);
               }}
+              className="w-full sm:w-auto"
             >
               Cancelar
             </Button>
-            <Button onClick={handleAdminBooking}>
+            <Button onClick={handleAdminBooking} className="w-full sm:w-auto">
               Apuntar usuario
             </Button>
           </div>

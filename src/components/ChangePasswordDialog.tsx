@@ -83,46 +83,48 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[95vw] max-w-md">
         <DialogHeader>
           <div className="flex justify-center mb-4">
             <div className="bg-amber-500/10 p-3 rounded-full">
               <Lock className="h-6 w-6 text-amber-500" />
             </div>
           </div>
-          <DialogTitle className="text-center text-xl">
+          <DialogTitle className="text-center text-lg sm:text-xl">
             Recomendación de seguridad
           </DialogTitle>
-          <DialogDescription className="text-center">
+          <DialogDescription className="text-center text-sm">
             Te recomendamos cambiar tu contraseña temporal por una más segura para proteger tu cuenta.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="new-password">Nueva contraseña</Label>
+            <Label htmlFor="new-password" className="text-sm">Nueva contraseña</Label>
             <Input
               id="new-password"
               type="password"
               placeholder="Mínimo 6 caracteres"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              className="text-sm"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirmar contraseña</Label>
+            <Label htmlFor="confirm-password" className="text-sm">Confirmar contraseña</Label>
             <Input
               id="confirm-password"
               type="password"
               placeholder="Repite tu contraseña"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className="text-sm"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               onClick={onClose}
               variant="outline"
-              className="flex-1"
+              className="flex-1 text-sm"
               disabled={loading}
             >
               Recordar más tarde
@@ -130,7 +132,7 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
             <Button
               onClick={handleChangePassword}
               disabled={loading || !newPassword || !confirmPassword}
-              className="flex-1"
+              className="flex-1 text-sm"
             >
               {loading ? "Cambiando..." : "Cambiar ahora"}
             </Button>

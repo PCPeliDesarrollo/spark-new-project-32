@@ -123,21 +123,22 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <UserPlus className="h-4 w-4" />
-          Registrar Cliente
+          <span className="hidden sm:inline">Registrar Cliente</span>
+          <span className="sm:hidden">Registrar</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrar Nuevo Cliente</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Registrar Nuevo Cliente</DialogTitle>
+          <DialogDescription className="text-sm">
             Completa los datos para crear una nueva cuenta de cliente
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="full_name"
