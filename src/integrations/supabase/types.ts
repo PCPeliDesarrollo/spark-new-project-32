@@ -265,7 +265,7 @@ export type Database = {
       is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "standard" | "vip"
+      app_role: "admin" | "basica" | "basica_clases" | "full"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -393,7 +393,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "standard", "vip"],
+      app_role: ["admin", "basica", "basica_clases", "full"],
     },
   },
 } as const

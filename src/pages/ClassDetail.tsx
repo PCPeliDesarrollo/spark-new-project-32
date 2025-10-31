@@ -61,7 +61,7 @@ export default function ClassDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isBlocked } = useBlockedStatus();
-  const { isAdmin } = useUserRole();
+  const { isAdmin, role, canBookClasses } = useUserRole();
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -322,6 +322,16 @@ export default function ClassDetail() {
         </Alert>
       )}
 
+      {!canBookClasses && !isBlocked && role === "basica" && (
+        <Alert className="mb-4 border-primary/50 bg-primary/10">
+          <Lock className="h-4 w-4" />
+          <AlertTitle>Suscripción Básica</AlertTitle>
+          <AlertDescription>
+            Tu suscripción actual solo incluye acceso a las máquinas del gimnasio. Para apuntarte a clases, contacta con un administrador para actualizar tu suscripción a Básica + Clases o Full.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2">
           <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
@@ -407,9 +417,9 @@ export default function ClassDetail() {
                             onClick={() => handleBooking(schedule.id)}
                             className="flex-1 sm:flex-none text-xs sm:text-sm bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300"
                             size="sm"
-                            disabled={isBlocked}
+                            disabled={isBlocked || !canBookClasses}
                           >
-                            {isBooked ? "Cancelar" : isFull ? "Lista de espera" : "Apuntarse"}
+                            {isBooked ? "Cancelar" : isFull ? "Lista de espera" : !canBookClasses ? "No disponible" : "Apuntarse"}
                           </Button>
                           {isAdmin && (
                             <Button

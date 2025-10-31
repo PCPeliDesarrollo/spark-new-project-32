@@ -36,7 +36,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
   full_name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
-  role: z.enum(["standard", "vip", "admin"], {
+  role: z.enum(["basica", "basica_clases", "full", "admin"], {
     required_error: "Selecciona un tipo de cliente",
   }),
 });
@@ -58,7 +58,7 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
       email: "",
       password: "",
       full_name: "",
-      role: "standard",
+      role: "basica",
     },
   });
 
@@ -183,8 +183,9 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="standard">Estándar (sin acceso a clases)</SelectItem>
-                      <SelectItem value="vip">VIP (12 clases/mes)</SelectItem>
+                      <SelectItem value="basica">Básica (solo máquinas)</SelectItem>
+                      <SelectItem value="basica_clases">Básica + Clases (12 clases/mes)</SelectItem>
+                      <SelectItem value="full">Full (todo + 12 clases/mes)</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>

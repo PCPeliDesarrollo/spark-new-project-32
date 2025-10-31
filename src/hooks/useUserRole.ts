@@ -24,7 +24,7 @@ export function useUserRole() {
       if (!error && data) {
         setRole(data.role);
       } else if (!data) {
-        setRole("standard"); // default role if none found
+        setRole("basica"); // default role if none found
       }
       
       setLoading(false);
@@ -33,5 +33,11 @@ export function useUserRole() {
     fetchRole();
   }, []);
 
-  return { role, isAdmin: role === "admin", loading };
+  return { 
+    role, 
+    isAdmin: role === "admin",
+    canBookClasses: role === "basica_clases" || role === "full" || role === "admin",
+    hasClassLimit: role === "basica_clases" || role === "full",
+    loading 
+  };
 }

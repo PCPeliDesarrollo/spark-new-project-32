@@ -77,7 +77,7 @@ export default function Users() {
       const roleRecord = rolesData?.find((r) => r.user_id === profile.id);
       return {
         ...profile,
-        role: roleRecord?.role || "standard",
+        role: roleRecord?.role || "basica",
       };
     }) || [];
 
@@ -193,16 +193,18 @@ export default function Users() {
                                   variant={
                                     user.role === "admin" 
                                       ? "default" 
-                                      : user.role === "vip"
+                                      : user.role === "full" || user.role === "basica_clases"
                                       ? "secondary"
                                       : "outline"
                                   }
                                 >
                                   {user.role === "admin" 
                                     ? "Administrador" 
-                                    : user.role === "vip"
-                                    ? "VIP"
-                                    : "Estándar"}
+                                    : user.role === "full"
+                                    ? "Full"
+                                    : user.role === "basica_clases"
+                                    ? "Básica + Clases"
+                                    : "Básica"}
                                 </Badge>
                                 {user.blocked && (
                                   <Badge variant="destructive">

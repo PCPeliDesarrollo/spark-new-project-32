@@ -80,7 +80,7 @@ export default function UserDetail() {
 
       setUser({
         ...profileData,
-        role: roleData?.role || "standard",
+        role: roleData?.role || "basica",
       });
       setNewEmail(profileData.email || "");
       setLoading(false);
@@ -98,7 +98,7 @@ export default function UserDetail() {
     
     const { error } = await supabase
       .from("user_roles")
-      .update({ role: newRole as "admin" | "vip" | "standard" })
+      .update({ role: newRole as "admin" | "basica" | "basica_clases" | "full" })
       .eq("user_id", id);
 
     if (error) {
@@ -312,9 +312,21 @@ export default function UserDetail() {
             <CardDescription className="space-y-2">
               <div className="flex gap-2 items-center justify-center mt-2">
                 <Badge
-                  variant={user.role === "admin" ? "default" : user.role === "vip" ? "secondary" : "outline"}
+                  variant={
+                    user.role === "admin" 
+                      ? "default" 
+                      : user.role === "full" || user.role === "basica_clases"
+                      ? "secondary" 
+                      : "outline"
+                  }
                 >
-                  {user.role}
+                  {user.role === "admin" 
+                    ? "Administrador" 
+                    : user.role === "full"
+                    ? "Full"
+                    : user.role === "basica_clases"
+                    ? "Básica + Clases"
+                    : "Básica"}
                 </Badge>
                 {user.blocked && (
                   <Badge variant="destructive">
@@ -389,8 +401,9 @@ export default function UserDetail() {
                         <SelectValue placeholder="Seleccionar rol" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="standard">Estándar (sin acceso a clases)</SelectItem>
-                        <SelectItem value="vip">VIP (12 clases/mes)</SelectItem>
+                        <SelectItem value="basica">Básica (solo máquinas)</SelectItem>
+                        <SelectItem value="basica_clases">Básica + Clases (12 clases/mes)</SelectItem>
+                        <SelectItem value="full">Full (todo + 12 clases/mes)</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>

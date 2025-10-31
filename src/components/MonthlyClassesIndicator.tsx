@@ -22,7 +22,7 @@ export function MonthlyClassesIndicator() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!roleLoading && role === "vip") {
+    if (!roleLoading && (role === "basica_clases" || role === "full")) {
       loadBookings();
     } else {
       setLoading(false);
@@ -73,8 +73,8 @@ export function MonthlyClassesIndicator() {
     );
   }
 
-  // Only show for VIP users
-  if (role !== "vip") return null;
+  // Only show for users with basica_clases or full subscription
+  if (role !== "basica_clases" && role !== "full") return null;
 
   const getClassStatus = (booking: ClassBooking): "used" | "booked" | "available" => {
     const schedule = booking.class_schedules;
@@ -123,7 +123,7 @@ export function MonthlyClassesIndicator() {
     <Card className="mb-3 md:mb-4 bg-card/80 backdrop-blur-md border-primary/30">
       <CardHeader className="p-3 md:p-4">
         <CardTitle className="text-base md:text-lg font-bebas tracking-wide text-center sm:text-left">
-          Clases VIP - {availableClasses} disponibles de 12
+          Clases Mensuales - {availableClasses} disponibles de 12
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 md:p-4 pt-0">
