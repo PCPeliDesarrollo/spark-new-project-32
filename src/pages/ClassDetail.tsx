@@ -20,18 +20,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 interface ClassData {
   id: string;
   name: string;
   description: string;
   image_url: string;
+}
+
+interface UserWithRole {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
 }
 
 interface Schedule {
@@ -68,10 +81,11 @@ export default function ClassDetail() {
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Record<string, Booking[]>>({});
-  const [users, setUsers] = useState<Array<{ id: string; full_name: string; email: string }>>([]);
+  const [users, setUsers] = useState<UserWithRole[]>([]);
   const [showAdminBookingDialog, setShowAdminBookingDialog] = useState(false);
   const [adminBookingScheduleId, setAdminBookingScheduleId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [openUserSelect, setOpenUserSelect] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -98,13 +112,21 @@ export default function ClassDetail() {
       
       if (profilesError) throw profilesError;
 
-      // Filter users who can book classes (basica_clases, full, or admin)
-      const usersWithClassAccess = (profilesData || []).filter((profile: any) => {
-        const userRole = profile.user_roles?.[0]?.role;
-        return userRole === 'basica_clases' || userRole === 'full' || userRole === 'admin';
-      });
+      // Map users with their roles and filter those who can book classes
+      const usersWithRoles = (profilesData || [])
+        .map((profile: any) => ({
+          id: profile.id,
+          full_name: profile.full_name || 'Sin nombre',
+          email: profile.email || '',
+          role: profile.user_roles?.[0]?.role || 'basica'
+        }))
+        .filter((user: UserWithRole) => 
+          user.role === 'basica_clases' || 
+          user.role === 'full' || 
+          user.role === 'admin'
+        );
       
-      setUsers(usersWithClassAccess);
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error("Error loading users:", error);
     }
@@ -539,26 +561,71 @@ export default function ClassDetail() {
       </div>
 
       <Dialog open={showAdminBookingDialog} onOpenChange={setShowAdminBookingDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Apuntar usuario a la clase</DialogTitle>
             <DialogDescription>
-              Selecciona el usuario que deseas apuntar a esta clase
+              Busca y selecciona el usuario que deseas apuntar a esta clase
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un usuario" />
-              </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.full_name} ({user.email})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openUserSelect} onOpenChange={setOpenUserSelect}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openUserSelect}
+                  className="w-full justify-between"
+                >
+                  {selectedUserId
+                    ? users.find((user) => user.id === selectedUserId)?.full_name
+                    : "Buscar usuario..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[460px] p-0 bg-popover z-50">
+                <Command>
+                  <CommandInput placeholder="Buscar por nombre o email..." />
+                  <CommandEmpty>No se encontraron usuarios.</CommandEmpty>
+                  <CommandGroup className="max-h-[300px] overflow-auto">
+                    {users.map((user) => {
+                      const roleLabels: Record<string, string> = {
+                        'basica_clases': 'Básica + Clases',
+                        'full': 'Full',
+                        'admin': 'Admin'
+                      };
+                      
+                      return (
+                        <CommandItem
+                          key={user.id}
+                          value={`${user.full_name} ${user.email}`}
+                          onSelect={() => {
+                            setSelectedUserId(user.id);
+                            setOpenUserSelect(false);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${
+                              selectedUserId === user.id ? "opacity-100" : "opacity-0"
+                            }`}
+                          />
+                          <div className="flex-1 flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{user.full_name}</span>
+                              <span className="text-xs text-muted-foreground">{user.email}</span>
+                            </div>
+                            <Badge variant="outline" className="ml-2">
+                              {roleLabels[user.role] || user.role}
+                            </Badge>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="flex gap-2 justify-end">
             <Button
@@ -567,6 +634,7 @@ export default function ClassDetail() {
                 setShowAdminBookingDialog(false);
                 setSelectedUserId("");
                 setAdminBookingScheduleId(null);
+                setOpenUserSelect(false);
               }}
             >
               Cancelar
