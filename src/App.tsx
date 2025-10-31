@@ -186,6 +186,7 @@ const App = () => {
         {userId && (
           <ChangePasswordDialog 
             open={needsPasswordChange} 
+            onClose={() => setNeedsPasswordChange(false)}
             userId={userId} 
           />
         )}

@@ -15,10 +15,11 @@ import { Lock } from "lucide-react";
 
 interface ChangePasswordDialogProps {
   open: boolean;
+  onClose: () => void;
   userId: string;
 }
 
-export function ChangePasswordDialog({ open, userId }: ChangePasswordDialogProps) {
+export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDialogProps) {
   const { toast } = useToast();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -67,6 +68,7 @@ export function ChangePasswordDialog({ open, userId }: ChangePasswordDialogProps
 
       setNewPassword("");
       setConfirmPassword("");
+      onClose();
     } catch (error) {
       console.error("Error changing password:", error);
       toast({
@@ -80,19 +82,19 @@ export function ChangePasswordDialog({ open, userId }: ChangePasswordDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex justify-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <Lock className="h-6 w-6 text-primary" />
+            <div className="bg-amber-500/10 p-3 rounded-full">
+              <Lock className="h-6 w-6 text-amber-500" />
             </div>
           </div>
           <DialogTitle className="text-center text-xl">
-            Cambio de contraseña obligatorio
+            Recomendación de seguridad
           </DialogTitle>
           <DialogDescription className="text-center">
-            Por seguridad, debes cambiar tu contraseña antes de continuar usando la aplicación.
+            Te recomendamos cambiar tu contraseña temporal por una más segura para proteger tu cuenta.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -116,13 +118,23 @@ export function ChangePasswordDialog({ open, userId }: ChangePasswordDialogProps
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          <Button
-            onClick={handleChangePassword}
-            disabled={loading || !newPassword || !confirmPassword}
-            className="w-full"
-          >
-            {loading ? "Cambiando..." : "Cambiar contraseña"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="flex-1"
+              disabled={loading}
+            >
+              Recordar más tarde
+            </Button>
+            <Button
+              onClick={handleChangePassword}
+              disabled={loading || !newPassword || !confirmPassword}
+              className="flex-1"
+            >
+              {loading ? "Cambiando..." : "Cambiar ahora"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
