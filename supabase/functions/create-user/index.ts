@@ -49,7 +49,7 @@ serve(async (req) => {
       });
     }
 
-    const { email, password, full_name, role } = await req.json();
+    const { email, password, full_name, apellidos, telefono, fecha_nacimiento, role } = await req.json();
 
     if (!email || !password) {
       return new Response(JSON.stringify({ error: "Email and password are required" }), {
@@ -73,15 +73,31 @@ serve(async (req) => {
       });
     }
 
-    // Update the user's role if specified (default is handled by trigger)
-    if (role && role !== "standard" && newUser.user) {
-      const { error: roleUpdateError } = await supabaseAdmin
-        .from("user_roles")
-        .update({ role })
-        .eq("user_id", newUser.user.id);
+    if (newUser.user) {
+      // Update profile with additional fields
+      const { error: profileUpdateError } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          apellidos: apellidos || null,
+          telefono: telefono || null,
+          fecha_nacimiento: fecha_nacimiento || null,
+        })
+        .eq("id", newUser.user.id);
 
-      if (roleUpdateError) {
-        console.error("Error updating role:", roleUpdateError);
+      if (profileUpdateError) {
+        console.error("Error updating profile:", profileUpdateError);
+      }
+
+      // Update the user's role if specified (default is handled by trigger)
+      if (role && role !== "standard") {
+        const { error: roleUpdateError } = await supabaseAdmin
+          .from("user_roles")
+          .update({ role })
+          .eq("user_id", newUser.user.id);
+
+        if (roleUpdateError) {
+          console.error("Error updating role:", roleUpdateError);
+        }
       }
     }
 

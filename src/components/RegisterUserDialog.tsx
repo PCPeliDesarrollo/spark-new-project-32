@@ -36,6 +36,9 @@ const formSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
   full_name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
+  apellidos: z.string().optional(),
+  telefono: z.string().optional(),
+  fecha_nacimiento: z.string().optional(),
   role: z.enum(["basica", "basica_clases", "full", "admin"], {
     required_error: "Selecciona un tipo de cliente",
   }),
@@ -58,6 +61,9 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
       email: "",
       password: "",
       full_name: "",
+      apellidos: "",
+      telefono: "",
+      fecha_nacimiento: "",
       role: "basica",
     },
   });
@@ -122,7 +128,7 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
           Registrar Cliente
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Registrar Nuevo Cliente</DialogTitle>
           <DialogDescription>
@@ -131,25 +137,41 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="full_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre Completo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Juan Pérez" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="full_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Juan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="apellidos"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Apellidos</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Pérez García" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email *</FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="correo@ejemplo.com" {...field} />
                   </FormControl>
@@ -157,12 +179,41 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                 </FormItem>
               )}
             />
+            
+            <FormField
+              control={form.control}
+              name="telefono"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teléfono</FormLabel>
+                  <FormControl>
+                    <Input type="tel" placeholder="+34 600 000 000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="fecha_nacimiento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fecha de Nacimiento</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Contraseña</FormLabel>
+                  <FormLabel>Contraseña *</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••" {...field} />
                   </FormControl>
@@ -170,12 +221,13 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de Cliente</FormLabel>
+                  <FormLabel>Tipo de Cliente *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -193,9 +245,10 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                 </FormItem>
               )}
             />
+            
             <DialogFooter>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 Crear Usuario
               </Button>
             </DialogFooter>

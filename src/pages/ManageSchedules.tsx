@@ -289,7 +289,7 @@ export default function ManageSchedules() {
               <DialogHeader>
                 <DialogTitle>Crear Nuevo Tipo de Clase</DialogTitle>
                 <DialogDescription>
-                  Crea un nuevo tipo de clase (ej: CrossFit, Yoga)
+                  Crea un nuevo tipo de clase (ej: CrossTraining, Yoga)
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -299,7 +299,7 @@ export default function ManageSchedules() {
                     id="className"
                     value={newClassName}
                     onChange={(e) => setNewClassName(e.target.value)}
-                    placeholder="CrossFit, Yoga, Spinning..."
+                    placeholder="CrossTraining, Yoga, Spinning..."
                   />
                 </div>
                 <div>
