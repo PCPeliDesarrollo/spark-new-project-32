@@ -192,6 +192,7 @@ export type Database = {
           fecha_nacimiento: string | null
           full_name: string | null
           id: string
+          password_changed: boolean
           peso: number | null
           telefono: string | null
           updated_at: string
@@ -206,6 +207,7 @@ export type Database = {
           fecha_nacimiento?: string | null
           full_name?: string | null
           id: string
+          password_changed?: boolean
           peso?: number | null
           telefono?: string | null
           updated_at?: string
@@ -220,6 +222,7 @@ export type Database = {
           fecha_nacimiento?: string | null
           full_name?: string | null
           id?: string
+          password_changed?: boolean
           peso?: number | null
           telefono?: string | null
           updated_at?: string

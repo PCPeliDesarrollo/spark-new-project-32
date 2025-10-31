@@ -85,14 +85,26 @@ export default function ClassDetail() {
 
   const loadUsers = async () => {
     try {
-      const { data, error } = await supabase
+      // Get users with their roles
+      const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, full_name, email")
+        .select(`
+          id, 
+          full_name, 
+          email,
+          user_roles (role)
+        `)
         .order("full_name");
       
-      if (!error && data) {
-        setUsers(data);
-      }
+      if (profilesError) throw profilesError;
+
+      // Filter users who can book classes (basica_clases, full, or admin)
+      const usersWithClassAccess = (profilesData || []).filter((profile: any) => {
+        const userRole = profile.user_roles?.[0]?.role;
+        return userRole === 'basica_clases' || userRole === 'full' || userRole === 'admin';
+      });
+      
+      setUsers(usersWithClassAccess);
     } catch (error) {
       console.error("Error loading users:", error);
     }
