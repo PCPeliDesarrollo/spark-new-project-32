@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.check-renewals]
 verify_jwt = false
+
+[functions.check-birthdays]
+verify_jwt = false
