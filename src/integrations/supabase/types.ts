@@ -223,6 +223,39 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_renewals: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_payment_date: string | null
+          next_payment_date: string
+          notified_at_3_days: boolean | null
+          notified_at_5_days: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_payment_date?: string | null
+          next_payment_date: string
+          notified_at_3_days?: boolean | null
+          notified_at_5_days?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_payment_date?: string | null
+          next_payment_date?: string
+          notified_at_3_days?: boolean | null
+          notified_at_5_days?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
