@@ -99,18 +99,23 @@ export default function ClassDetail() {
 
   const loadUsers = async () => {
     try {
-      // Get users with their roles
+      // First get all profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select(`
-          id, 
-          full_name, 
-          email,
-          user_roles (role)
-        `)
+        .select("id, full_name, email")
         .order("full_name");
       
       if (profilesError) throw profilesError;
+
+      // Then get all user roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      if (rolesError) throw rolesError;
+
+      // Create a map of user_id to role
+      const roleMap = new Map(rolesData?.map(r => [r.user_id, r.role]) || []);
 
       // Map users with their roles and filter those who can book classes
       const usersWithRoles = (profilesData || [])
@@ -118,7 +123,7 @@ export default function ClassDetail() {
           id: profile.id,
           full_name: profile.full_name || 'Sin nombre',
           email: profile.email || '',
-          role: profile.user_roles?.[0]?.role || 'basica'
+          role: roleMap.get(profile.id) || 'basica'
         }))
         .filter((user: UserWithRole) => 
           user.role === 'basica_clases' || 
