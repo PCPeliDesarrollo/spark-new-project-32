@@ -29,7 +29,8 @@ const menuItems = [
 
 const adminMenuItems = [
   { title: "Usuarios", url: "/users", icon: UsersIcon },
-  { title: "Gestionar Clases", url: "/manage-schedules", icon: CalendarDays },
+  { title: "Gestionar Clases", url: "/manage-classes", icon: Dumbbell },
+  { title: "Gestionar Horarios", url: "/manage-schedules", icon: CalendarDays },
 ];
 
 export function AppSidebar() {

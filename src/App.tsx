@@ -18,6 +18,7 @@ import Calculator from "./pages/Calculator";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ManageSchedules from "./pages/ManageSchedules";
+import ManageClasses from "./pages/ManageClasses";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -176,6 +177,14 @@ const App = () => {
               element={
                 <AppLayout>
                   <ManageSchedules />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/manage-classes"
+              element={
+                <AppLayout>
+                  <ManageClasses />
                 </AppLayout>
               }
             />
