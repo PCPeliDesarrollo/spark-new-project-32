@@ -204,7 +204,7 @@ export default function Users() {
                                     : user.role === "full"
                                     ? "Full"
                                     : user.role === "basica_clases"
-                                    ? "Básica + Clases"
+                                    ? "Básica Clases"
                                     : "Básica"}
                                 </Badge>
                                 {user.blocked && (
@@ -278,7 +278,7 @@ export default function Users() {
                                 : user.role === "full"
                                 ? "Full"
                                 : user.role === "basica_clases"
-                                ? "Básica + Clases"
+                                ? "Básica Clases"
                                 : "Básica"}
                             </Badge>
                             {user.blocked && (

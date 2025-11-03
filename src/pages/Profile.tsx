@@ -317,7 +317,7 @@ export default function Profile() {
                 : role === "full"
                 ? "Suscripción Full"
                 : role === "basica_clases"
-                ? "Suscripción Básica + Clases"
+                ? "Suscripción Básica Clases"
                 : "Suscripción Básica"}
             </Badge>
           </div>

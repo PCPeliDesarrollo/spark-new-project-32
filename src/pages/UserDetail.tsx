@@ -414,7 +414,7 @@ export default function UserDetail() {
                     : user.role === "full"
                     ? "Full"
                     : user.role === "basica_clases"
-                    ? "Básica + Clases"
+                    ? "Básica Clases"
                     : "Básica"}
                 </Badge>
                 {user.blocked && (
@@ -633,7 +633,7 @@ export default function UserDetail() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="basica">Básica (solo máquinas)</SelectItem>
-                        <SelectItem value="basica_clases">Básica + Clases (12 clases/mes)</SelectItem>
+                        <SelectItem value="basica_clases">Básica Clases (12 clases/mes)</SelectItem>
                         <SelectItem value="full">Full (todo + 12 clases/mes)</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>

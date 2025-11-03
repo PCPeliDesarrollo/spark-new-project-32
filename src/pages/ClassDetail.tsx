@@ -601,7 +601,7 @@ export default function ClassDetail() {
                   <CommandGroup className="max-h-[250px] sm:max-h-[300px] overflow-auto">
                     {users.map((user) => {
                       const roleLabels: Record<string, string> = {
-                        'basica_clases': 'Básica + Clases',
+                        'basica_clases': 'Básica Clases',
                         'full': 'Full',
                         'admin': 'Admin'
                       };
