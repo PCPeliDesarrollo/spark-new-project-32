@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, Trash2, Calendar, Clock, Users } from "lucide-react";
+import { Loader2, Plus, Trash2, Calendar, Clock, Users, Pencil } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dumbbell, CalendarDays } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ClassType {
   id: string;
@@ -45,6 +46,8 @@ export default function ManageSchedules() {
   // Form state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCreateClassDialogOpen, setIsCreateClassDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [newClassName, setNewClassName] = useState("");
   const [newClassDescription, setNewClassDescription] = useState("");
   const [newClassImageUrl, setNewClassImageUrl] = useState("");
@@ -241,6 +244,55 @@ export default function ManageSchedules() {
     }
   };
 
+  const handleEditSchedule = async () => {
+    if (!editingSchedule || !classId || !dayOfWeek || !startTime || !durationMinutes || !maxCapacity) {
+      toast({
+        title: "Error",
+        description: "Todos los campos son obligatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from("class_schedules")
+      .update({
+        class_id: classId,
+        day_of_week: parseInt(dayOfWeek),
+        start_time: startTime,
+        duration_minutes: parseInt(durationMinutes),
+        max_capacity: parseInt(maxCapacity),
+      })
+      .eq("id", editingSchedule.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el horario",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Horario actualizado",
+        description: "El horario se ha actualizado correctamente",
+      });
+      setIsEditDialogOpen(false);
+      setEditingSchedule(null);
+      resetForm();
+      loadData();
+    }
+  };
+
+  const openEditDialog = (schedule: Schedule) => {
+    setEditingSchedule(schedule);
+    setClassId(schedule.class_id);
+    setDayOfWeek(schedule.day_of_week.toString());
+    setStartTime(schedule.start_time);
+    setDurationMinutes(schedule.duration_minutes.toString());
+    setMaxCapacity(schedule.max_capacity.toString());
+    setIsEditDialogOpen(true);
+  };
+
   const resetForm = () => {
     setClassId("");
     setDayOfWeek("1");
@@ -271,6 +323,34 @@ export default function ManageSchedules() {
   }, {} as Record<number, Schedule[]>);
 
   const weekDates = getWeekDates();
+
+  // Generate time slots from 6:00 to 22:00 (every 30 minutes)
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 6; hour <= 22; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        if (hour === 22 && minute > 0) break;
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(timeStr);
+      }
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
+  // Function to check if a schedule overlaps with a time slot
+  const getScheduleAtTime = (dayNum: number, timeSlot: string) => {
+    return schedules.filter(schedule => {
+      if (schedule.day_of_week !== dayNum) return false;
+      const scheduleTime = schedule.start_time.substring(0, 5);
+      const scheduleEndTime = new Date(`2000-01-01T${schedule.start_time}`);
+      scheduleEndTime.setMinutes(scheduleEndTime.getMinutes() + schedule.duration_minutes);
+      const endTimeStr = `${scheduleEndTime.getHours().toString().padStart(2, '0')}:${scheduleEndTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      return scheduleTime <= timeSlot && timeSlot < endTimeStr;
+    });
+  };
 
   return (
     <div className="container mx-auto py-6 px-3 md:py-8 md:px-4">
@@ -409,127 +489,349 @@ export default function ManageSchedules() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Editar Horario</DialogTitle>
+                <DialogDescription>
+                  Modifica los detalles del horario seleccionado.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-class">Clase</Label>
+                  <Select value={classId} onValueChange={setClassId}>
+                    <SelectTrigger id="edit-class">
+                      <SelectValue placeholder="Selecciona una clase" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls.id} value={cls.id}>
+                          {cls.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-day">Día de la semana</Label>
+                  <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
+                    <SelectTrigger id="edit-day">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DAYS.map((day, index) => (
+                        <SelectItem key={index} value={index.toString()}>
+                          {day}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-time">Hora de inicio</Label>
+                  <Input
+                    id="edit-time"
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-duration">Duración (minutos)</Label>
+                  <Input
+                    id="edit-duration"
+                    type="number"
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-capacity">Capacidad máxima</Label>
+                  <Input
+                    id="edit-capacity"
+                    type="number"
+                    value={maxCapacity}
+                    onChange={(e) => setMaxCapacity(e.target.value)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleEditSchedule}>Guardar Cambios</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
-      
-      {schedules.length === 0 ? (
-        <Card className="bg-card/50 backdrop-blur-md border-primary/30">
-          <CardContent className="p-8 md:p-12 text-center">
-            <CalendarDays className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <p className="text-lg text-muted-foreground mb-2">No hay horarios configurados para esta semana</p>
-            <p className="text-sm text-muted-foreground">Crea tu primer horario para comenzar</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-          {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
-            const daySchedules = schedulesByDay[dayNum] || [];
-            const weekDateIndex = dayNum === 0 ? 6 : dayNum - 1;
-            const dayDate = weekDates[weekDateIndex];
-            
-            if (!dayDate) return null;
-            
-            const dateStr = dayDate.toLocaleDateString('es-ES', { 
-              day: 'numeric', 
-              month: 'short'
-            });
 
-            return (
-              <Card key={dayNum} className="bg-card/80 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base md:text-lg font-bebas tracking-wide flex items-center justify-between">
-                    <span>{DAYS[dayNum]}</span>
-                    <Badge variant="outline" className="text-xs font-normal">
-                      {dateStr}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {daySchedules.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-4">Sin clases</p>
-                  ) : (
-                    daySchedules.map((schedule) => {
-                      const bookingCount = schedule.bookings[0]?.count || 0;
-                      const isFull = bookingCount >= schedule.max_capacity;
+      <Tabs defaultValue="visual" className="w-full">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+          <TabsTrigger value="visual">Vista Semanal</TabsTrigger>
+          <TabsTrigger value="list">Vista Lista</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="visual">
+          {schedules.length === 0 ? (
+            <Card className="bg-card/50 backdrop-blur-md border-primary/30">
+              <CardContent className="p-8 md:p-12 text-center">
+                <CalendarDays className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-lg text-muted-foreground mb-2">No hay horarios configurados para esta semana</p>
+                <p className="text-sm text-muted-foreground">Crea tu primer horario para comenzar</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-card/80 backdrop-blur-md border-primary/30 overflow-auto">
+              <CardContent className="p-3 md:p-6">
+                <div className="overflow-x-auto">
+                  <div className="min-w-[800px]">
+                    <div className="grid grid-cols-8 gap-px bg-border/50">
+                      {/* Header row */}
+                      <div className="bg-background p-2 font-semibold text-xs md:text-sm sticky left-0 z-10">
+                        Hora
+                      </div>
+                      {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
+                        const weekDateIndex = dayNum === 0 ? 6 : dayNum - 1;
+                        const dayDate = weekDates[weekDateIndex];
+                        const dateStr = dayDate?.toLocaleDateString('es-ES', { 
+                          day: 'numeric', 
+                          month: 'short'
+                        });
+                        return (
+                          <div key={dayNum} className="bg-background p-2 text-center">
+                            <div className="font-semibold text-xs md:text-sm">{DAYS[dayNum]}</div>
+                            <div className="text-xs text-muted-foreground">{dateStr}</div>
+                          </div>
+                        );
+                      })}
                       
-                      return (
-                        <div
-                          key={schedule.id}
-                          className="group relative p-3 border rounded-lg bg-accent/30 hover:bg-accent/50 transition-all"
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <p className="font-medium text-sm line-clamp-1">{schedule.classes?.name}</p>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <Trash2 className="h-3 w-3 text-destructive" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>¿Eliminar horario?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Se eliminará el horario y todas las reservas asociadas.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteSchedule(schedule.id)}>
-                                    Eliminar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                      {/* Time slots */}
+                      {timeSlots.map((timeSlot) => (
+                        <>
+                          <div key={`time-${timeSlot}`} className="bg-background p-2 text-xs text-muted-foreground sticky left-0 z-10 border-r">
+                            {timeSlot}
                           </div>
+                          {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
+                            const schedulesAtTime = getScheduleAtTime(dayNum, timeSlot);
+                            return (
+                              <div key={`${dayNum}-${timeSlot}`} className="bg-background/50 min-h-[60px] p-1">
+                                {schedulesAtTime.map((schedule) => {
+                                  const bookingCount = schedule.bookings[0]?.count || 0;
+                                  const isFull = bookingCount >= schedule.max_capacity;
+                                  const scheduleTime = schedule.start_time.substring(0, 5);
+                                  
+                                  // Only render the schedule card at its start time
+                                  if (scheduleTime !== timeSlot) return null;
+                                  
+                                  const slots = Math.ceil(schedule.duration_minutes / 30);
+                                  
+                                  return (
+                                    <div
+                                      key={schedule.id}
+                                      className="group relative bg-primary/10 border border-primary/30 rounded p-1.5 mb-1 hover:bg-primary/20 transition-colors"
+                                      style={{ 
+                                        minHeight: `${slots * 60 - 8}px`,
+                                      }}
+                                    >
+                                      <div className="flex items-start justify-between gap-1 mb-1">
+                                        <p className="font-medium text-xs line-clamp-1">{schedule.classes?.name}</p>
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-5 w-5"
+                                            onClick={() => openEditDialog(schedule)}
+                                          >
+                                            <Pencil className="h-3 w-3" />
+                                          </Button>
+                                          <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-5 w-5"
+                                              >
+                                                <Trash2 className="h-3 w-3 text-destructive" />
+                                              </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                <AlertDialogTitle>¿Eliminar horario?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                  Se eliminará el horario y todas las reservas asociadas.
+                                                </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDeleteSchedule(schedule.id)}>
+                                                  Eliminar
+                                                </AlertDialogAction>
+                                              </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                          </AlertDialog>
+                                        </div>
+                                      </div>
+                                      <div className="space-y-0.5 text-xs text-muted-foreground">
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="h-3 w-3" />
+                                          <span>{schedule.start_time.substring(0, 5)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <Users className="h-3 w-3" />
+                                          <span className={isFull ? "text-destructive font-medium" : ""}>
+                                            {bookingCount}/{schedule.max_capacity}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="list">
+          {schedules.length === 0 ? (
+            <Card className="bg-card/50 backdrop-blur-md border-primary/30">
+              <CardContent className="p-8 md:p-12 text-center">
+                <CalendarDays className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-lg text-muted-foreground mb-2">No hay horarios configurados para esta semana</p>
+                <p className="text-sm text-muted-foreground">Crea tu primer horario para comenzar</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+              {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
+                const daySchedules = schedulesByDay[dayNum] || [];
+                const weekDateIndex = dayNum === 0 ? 6 : dayNum - 1;
+                const dayDate = weekDates[weekDateIndex];
+                
+                if (!dayDate) return null;
+                
+                const dateStr = dayDate.toLocaleDateString('es-ES', { 
+                  day: 'numeric', 
+                  month: 'short'
+                });
+
+                return (
+                  <Card key={dayNum} className="bg-card/80 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base md:text-lg font-bebas tracking-wide flex items-center justify-between">
+                        <span>{DAYS[dayNum]}</span>
+                        <Badge variant="outline" className="text-xs font-normal">
+                          {dateStr}
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {daySchedules.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-4">Sin clases</p>
+                      ) : (
+                        daySchedules.map((schedule) => {
+                          const bookingCount = schedule.bookings[0]?.count || 0;
+                          const isFull = bookingCount >= schedule.max_capacity;
                           
-                          <div className="flex items-center gap-2 text-xs">
-                            <div className="flex items-center gap-1 text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              <span>{schedule.start_time.slice(0, 5)}</span>
+                          return (
+                            <div
+                              key={schedule.id}
+                              className="group relative p-3 border rounded-lg bg-accent/30 hover:bg-accent/50 transition-all"
+                            >
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <p className="font-medium text-sm line-clamp-1">{schedule.classes?.name}</p>
+                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6"
+                                    onClick={() => openEditDialog(schedule)}
+                                  >
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-6 w-6"
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Eliminar horario?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Se eliminará el horario y todas las reservas asociadas.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteSchedule(schedule.id)}>
+                                          Eliminar
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-2 text-xs">
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{schedule.start_time.slice(0, 5)}</span>
+                                </div>
+                                <span className="text-muted-foreground">•</span>
+                                <span className="text-muted-foreground">{schedule.duration_minutes}min</span>
+                              </div>
+                              
+                              <div className="flex items-center gap-1 mt-2">
+                                <Users className="h-3 w-3 text-muted-foreground" />
+                                <span className={`text-xs font-medium ${isFull ? 'text-destructive' : 'text-muted-foreground'}`}>
+                                  {bookingCount}/{schedule.max_capacity}
+                                </span>
+                                {isFull && (
+                                  <Badge variant="destructive" className="text-[10px] ml-auto">
+                                    Completa
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-muted-foreground">{schedule.duration_minutes}min</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-1 mt-2">
-                            <Users className="h-3 w-3 text-muted-foreground" />
-                            <span className={`text-xs font-medium ${isFull ? 'text-destructive' : 'text-muted-foreground'}`}>
-                              {bookingCount}/{schedule.max_capacity}
-                            </span>
-                            {isFull && (
-                              <Badge variant="destructive" className="text-[10px] ml-auto">
-                                Completa
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-      
-      <Card className="mt-6 bg-primary/5 border-primary/20">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <CalendarDays className="h-4 w-4 text-primary" />
+                          );
+                        })
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-            <div>
-              <p className="text-sm font-medium mb-1">Duplicación automática semanal</p>
-              <p className="text-xs text-muted-foreground">
-                Los horarios creados se replican automáticamente cada semana. Si necesitas modificar algo, elimina el horario antiguo y crea uno nuevo.
-              </p>
-            </div>
-          </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <Card className="mt-6 bg-card/50 backdrop-blur-md border-primary/30">
+        <CardHeader>
+          <CardTitle className="text-base md:text-lg flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Información sobre horarios
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Los horarios que crees esta semana se duplicarán automáticamente para las próximas semanas. 
+            No necesitas crear los horarios cada semana, el sistema los replicará por ti.
+          </p>
         </CardContent>
       </Card>
     </div>
