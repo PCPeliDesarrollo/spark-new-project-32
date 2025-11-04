@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.check-birthdays]
 verify_jwt = false
+
+[functions.send-class-reminders]
+verify_jwt = false

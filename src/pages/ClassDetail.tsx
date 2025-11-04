@@ -669,23 +669,45 @@ export default function ClassDetail() {
                   <CommandInput placeholder="Buscar usuario..." />
                   <CommandEmpty>No se encontraron usuarios.</CommandEmpty>
                   <CommandGroup>
-                    {users.map((user) => (
-                      <CommandItem
-                        key={user.id}
-                        value={user.full_name}
-                        onSelect={() => {
-                          setSelectedUserId(user.id);
-                          setOpenUserSelect(false);
-                        }}
-                      >
-                        <Check
-                          className={`mr-2 h-4 w-4 ${
-                            selectedUserId === user.id ? "opacity-100" : "opacity-0"
-                          }`}
-                        />
-                        {user.full_name}
-                      </CommandItem>
-                    ))}
+                    {users.map((user) => {
+                      const roleColors = {
+                        admin: "bg-primary text-primary-foreground",
+                        full: "bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/50",
+                        basica_clases: "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/50"
+                      };
+                      const roleLabels = {
+                        admin: "Admin",
+                        full: "Full",
+                        basica_clases: "Básica + Clases"
+                      };
+                      
+                      return (
+                        <CommandItem
+                          key={user.id}
+                          value={user.full_name}
+                          onSelect={() => {
+                            setSelectedUserId(user.id);
+                            setOpenUserSelect(false);
+                          }}
+                          className="flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Check
+                              className={`h-4 w-4 ${
+                                selectedUserId === user.id ? "opacity-100" : "opacity-0"
+                              }`}
+                            />
+                            <span>{user.full_name}</span>
+                          </div>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${roleColors[user.role as keyof typeof roleColors]}`}
+                          >
+                            {roleLabels[user.role as keyof typeof roleLabels]}
+                          </Badge>
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </Command>
               </PopoverContent>

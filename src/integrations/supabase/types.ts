@@ -44,6 +44,7 @@ export type Database = {
           created_at: string
           id: string
           position: number | null
+          reminder_sent: boolean
           schedule_id: string
           status: string
           user_id: string
@@ -53,6 +54,7 @@ export type Database = {
           created_at?: string
           id?: string
           position?: number | null
+          reminder_sent?: boolean
           schedule_id: string
           status?: string
           user_id: string
@@ -62,6 +64,7 @@ export type Database = {
           created_at?: string
           id?: string
           position?: number | null
+          reminder_sent?: boolean
           schedule_id?: string
           status?: string
           user_id?: string
