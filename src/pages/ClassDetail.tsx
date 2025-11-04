@@ -266,14 +266,6 @@ export default function ClassDetail() {
     const bookingUserId = targetUserId || userId;
     const dateKey = `${scheduleId}-${format(classDate, 'yyyy-MM-dd')}`;
     
-    console.log('handleBooking called:', {
-      scheduleId,
-      classDate: format(classDate, 'yyyy-MM-dd'),
-      dateKey,
-      targetUserId,
-      bookingUserId
-    });
-    
     if (!bookingUserId) {
       toast({
         title: "Error",
@@ -294,7 +286,6 @@ export default function ClassDetail() {
 
     try {
       const isBooked = bookings[dateKey]?.some(b => b.user_id === bookingUserId);
-      console.log('isBooked:', isBooked, 'bookings for dateKey:', bookings[dateKey]);
 
       if (isBooked) {
         // Check if cancellation is at least 1 hour before class (only for regular users)
@@ -332,22 +323,15 @@ export default function ClassDetail() {
         });
       } else {
         // Create booking with specific date
-        const insertData = {
-          schedule_id: scheduleId,
-          user_id: bookingUserId,
-          class_date: format(classDate, 'yyyy-MM-dd'),
-        };
-        console.log('Attempting to insert booking:', insertData);
-        
         const { error } = await supabase
           .from("class_bookings")
-          .insert(insertData);
+          .insert({
+            schedule_id: scheduleId,
+            user_id: bookingUserId,
+            class_date: format(classDate, 'yyyy-MM-dd'),
+          });
 
-        if (error) {
-          console.error('Supabase insert error:', error);
-          throw error;
-        }
-        console.log('Booking inserted successfully');
+        if (error) throw error;
 
         toast({
           title: "¡Apuntado!",
