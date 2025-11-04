@@ -8,10 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail, User, Phone, GraduationCap } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar as CalendarIcon, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail, User, Phone, GraduationCap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { startOfMonth, endOfMonth, isBefore, parseISO } from "date-fns";
+import { startOfMonth, endOfMonth, isBefore, parseISO, format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 interface UserProfile {
   id: string;
@@ -46,6 +49,8 @@ export default function UserDetail() {
   const [newApellidos, setNewApellidos] = useState("");
   const [editingTelefono, setEditingTelefono] = useState(false);
   const [newTelefono, setNewTelefono] = useState("");
+  const [editingCreatedAt, setEditingCreatedAt] = useState(false);
+  const [newCreatedAt, setNewCreatedAt] = useState<Date>();
   const [monthlyBookings, setMonthlyBookings] = useState<{used: number, booked: number, available: number}>({ used: 0, booked: 0, available: 0 });
 
   useEffect(() => {
@@ -95,6 +100,7 @@ export default function UserDetail() {
       setNewName(profileData.full_name || "");
       setNewApellidos(profileData.apellidos || "");
       setNewTelefono(profileData.telefono || "");
+      setNewCreatedAt(new Date(profileData.created_at));
       setLoading(false);
     };
 
@@ -353,6 +359,32 @@ export default function UserDetail() {
     toast({
       title: "Teléfono actualizado",
       description: "El teléfono se ha actualizado correctamente.",
+    });
+  };
+
+  const handleCreatedAtUpdate = async () => {
+    if (!id || !user || !newCreatedAt) return;
+
+    setEditingCreatedAt(false);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ created_at: newCreatedAt.toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la fecha de inscripción",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUser({ ...user, created_at: newCreatedAt.toISOString() });
+    toast({
+      title: "Fecha actualizada",
+      description: "La fecha de inscripción se ha actualizado correctamente.",
     });
   };
 
@@ -744,16 +776,70 @@ export default function UserDetail() {
             </div>
 
             <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
-              <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <CalendarIcon className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground">Fecha de Registro</p>
-                <p className="font-medium text-sm sm:text-base break-words">
-                  {new Date(user.created_at).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
+                <p className="text-sm text-muted-foreground mb-2">Fecha de Inscripción</p>
+                {editingCreatedAt ? (
+                  <div className="flex flex-col gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !newCreatedAt && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {newCreatedAt ? format(newCreatedAt, "PPP") : <span>Seleccionar fecha</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={newCreatedAt}
+                          onSelect={setNewCreatedAt}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleCreatedAtUpdate} className="flex-1 xs:flex-none text-xs">
+                        Guardar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => {
+                          setEditingCreatedAt(false);
+                          setNewCreatedAt(new Date(user.created_at));
+                        }}
+                        className="flex-1 xs:flex-none text-xs"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+                    <p className="font-medium text-sm sm:text-base break-words flex-1">
+                      {new Date(user.created_at).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setEditingCreatedAt(true)}
+                      className="self-start xs:self-auto text-xs"
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
