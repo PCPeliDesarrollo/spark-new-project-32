@@ -76,7 +76,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="relative">
         <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-          <img src={pantheraLogo} alt="" className="w-32 h-auto object-contain" />
+          <img src={pantheraLogo} alt="" className="h-full w-auto object-contain rotate-90" />
         </div>
         <SidebarGroup className="relative z-10">
           <SidebarGroupLabel className="text-base md:text-lg font-bold text-primary">
