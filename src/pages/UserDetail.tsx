@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail, User, Phone } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail, User, Phone, GraduationCap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { startOfMonth, endOfMonth, isBefore, parseISO } from "date-fns";
 
 interface UserProfile {
   id: string;
@@ -45,6 +46,7 @@ export default function UserDetail() {
   const [newApellidos, setNewApellidos] = useState("");
   const [editingTelefono, setEditingTelefono] = useState(false);
   const [newTelefono, setNewTelefono] = useState("");
+  const [monthlyBookings, setMonthlyBookings] = useState<{used: number, booked: number, available: number}>({ used: 0, booked: 0, available: 0 });
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -100,6 +102,55 @@ export default function UserDetail() {
       fetchUserDetail();
     }
   }, [isAdmin, id, toast]);
+
+  useEffect(() => {
+    const loadUserBookings = async () => {
+      if (!user || !id) return;
+      
+      const role = user.role;
+      if (role !== "basica_clases" && role !== "full") return;
+
+      const now = new Date();
+      const monthStart = startOfMonth(now);
+      const monthEnd = endOfMonth(now);
+
+      const { data: bookingsData } = await supabase
+        .from("class_bookings")
+        .select(`
+          id,
+          status,
+          class_date,
+          schedule_id,
+          class_schedules (
+            start_time,
+            day_of_week
+          )
+        `)
+        .eq("user_id", id)
+        .eq("status", "confirmed")
+        .gte("class_date", monthStart.toISOString().split('T')[0])
+        .lte("class_date", monthEnd.toISOString().split('T')[0]);
+
+      if (bookingsData) {
+        let used = 0;
+        let booked = 0;
+
+        bookingsData.forEach((booking: any) => {
+          const classDateTime = parseISO(`${booking.class_date}T${booking.class_schedules.start_time}`);
+          if (isBefore(classDateTime, now)) {
+            used++;
+          } else {
+            booked++;
+          }
+        });
+
+        const available = 12 - used - booked;
+        setMonthlyBookings({ used, booked, available });
+      }
+    };
+
+    loadUserBookings();
+  }, [user, id]);
 
   const handleRoleChange = async (newRole: string) => {
     if (!id || !user) return;
@@ -641,6 +692,56 @@ export default function UserDetail() {
                   </div>
                 </div>
               </div>
+
+            {/* Clases mensuales indicator */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
+              <GraduationCap className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground mb-2">Clases mensuales</p>
+                {user.role === "basica" ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    Este usuario no tiene suscripción a clases
+                  </p>
+                ) : user.role === "admin" ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    Sin límite (Admin)
+                  </p>
+                ) : (user.role === "basica_clases" || user.role === "full") ? (
+                  <div className="space-y-2">
+                    <div className="flex gap-1">
+                      {Array.from({ length: 12 }).map((_, index) => {
+                        let colorClass = "bg-green-500";
+                        if (index < monthlyBookings.used) {
+                          colorClass = "bg-red-500";
+                        } else if (index < monthlyBookings.used + monthlyBookings.booked) {
+                          colorClass = "bg-yellow-500";
+                        }
+                        return (
+                          <div
+                            key={index}
+                            className={`h-6 flex-1 rounded ${colorClass}`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded bg-red-500" />
+                        <span>Usadas: {monthlyBookings.used}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded bg-yellow-500" />
+                        <span>Reservadas: {monthlyBookings.booked}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded bg-green-500" />
+                        <span>Disponibles: {monthlyBookings.available}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
 
             <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
               <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
