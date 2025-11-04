@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/AppSidebar";
 import { NotificationBell } from "./components/NotificationBell";
-import pantheraLogo from "@/assets/panthera-logo.jpeg";
 import { ChangePasswordDialog } from "./components/ChangePasswordDialog";
 import { NotificationPermissionRequest } from "./components/NotificationPermissionRequest";
 import Profile from "./pages/Profile";
@@ -77,7 +76,6 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 </svg>
               </a>
               <NotificationBell />
-              <img src={pantheraLogo} alt="Panthera Logo" className="h-8 opacity-30 hidden sm:block" />
             </div>
           </header>
           <main className="flex-1 overflow-auto">
