@@ -46,9 +46,10 @@ serve(async (req) => {
 
       if (session.metadata?.type === "single_class") {
         const userId = session.metadata.user_id;
+        const email = session.metadata.email || session.customer_details?.email;
         const paymentIntentId = session.payment_intent as string;
 
-        console.log("Processing single class payment for user:", userId);
+        console.log("Processing single class payment for:", email);
 
         // Initialize Supabase with service role key
         const supabaseAdmin = createClient(
@@ -56,30 +57,41 @@ serve(async (req) => {
           Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
         );
 
-        // Get user profile
-        const { data: profile, error: profileError } = await supabaseAdmin
-          .from("profiles")
-          .select("full_name, email")
-          .eq("id", userId)
-          .single();
+        let fullName = "";
+        let userEmail = email;
 
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          throw new Error("No se pudo obtener el perfil del usuario");
+        // If user_id exists, get profile info
+        if (userId) {
+          const { data: profile, error: profileError } = await supabaseAdmin
+            .from("profiles")
+            .select("full_name, email")
+            .eq("id", userId)
+            .single();
+
+          if (!profileError && profile) {
+            fullName = profile.full_name || "";
+            userEmail = profile.email;
+          }
         }
 
-        // Generate QR code (using user ID as QR content)
-        const qrCode = userId;
+        // Generate unique QR code
+        const qrCode = userId || `guest-${paymentIntentId}`;
 
         // Insert purchase record
+        const purchaseData: any = {
+          stripe_payment_id: paymentIntentId,
+          amount: 450, // €4.50 in cents
+          qr_code: qrCode,
+        };
+
+        // Only add user_id if it exists (registered user)
+        if (userId) {
+          purchaseData.user_id = userId;
+        }
+
         const { data: purchase, error: insertError } = await supabaseAdmin
           .from("single_class_purchases")
-          .insert({
-            user_id: userId,
-            stripe_payment_id: paymentIntentId,
-            amount: 1500,
-            qr_code: qrCode,
-          })
+          .insert(purchaseData)
           .select()
           .single();
 
@@ -96,12 +108,12 @@ serve(async (req) => {
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #3B82F6;">¡Gracias por tu compra!</h1>
-            <p>Hola ${profile.full_name || ""},</p>
+            <p>Hola${fullName ? ` ${fullName}` : ""},</p>
             <p>Has comprado con éxito una clase individual en Pantera Fitness.</p>
             <p><strong>Detalles de tu compra:</strong></p>
             <ul>
               <li>Producto: Clase Individual</li>
-              <li>Precio: €15.00</li>
+              <li>Precio: €4.50</li>
               <li>Fecha: ${new Date().toLocaleDateString("es-ES")}</li>
             </ul>
             <p>Tu código QR para acceder al gimnasio es:</p>
@@ -121,7 +133,7 @@ serve(async (req) => {
 
         const { error: emailError } = await resend.emails.send({
           from: "Pantera Fitness <onboarding@resend.dev>",
-          to: [profile.email],
+          to: [userEmail],
           subject: "Tu clase individual en Pantera Fitness 🎉",
           html: emailHtml,
         });
@@ -130,16 +142,18 @@ serve(async (req) => {
           console.error("Error sending email:", emailError);
           // Don't throw - payment was successful, just log the error
         } else {
-          console.log("Email sent successfully to:", profile.email);
+          console.log("Email sent successfully to:", userEmail);
         }
 
-        // Create notification
-        await supabaseAdmin.from("notifications").insert({
-          user_id: userId,
-          title: "¡Compra exitosa!",
-          message: "Has comprado una clase individual. Revisa tu email para ver el código QR.",
-          type: "success",
-        });
+        // Create notification only for registered users
+        if (userId) {
+          await supabaseAdmin.from("notifications").insert({
+            user_id: userId,
+            title: "¡Compra exitosa!",
+            message: "Has comprado una clase individual. Revisa tu email para ver el código QR.",
+            type: "success",
+          });
+        }
       }
     }
 

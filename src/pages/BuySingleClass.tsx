@@ -1,34 +1,32 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, Loader2, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CheckCircle2, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function BuySingleClass() {
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handlePurchase = async () => {
+  const handlePurchase = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes("@")) {
+      toast.error("Por favor ingresa un email válido");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Debes iniciar sesión para comprar");
-        navigate("/auth");
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke(
-        "create-single-class-checkout",
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
+      const { data, error } = await supabase.functions.invoke("create-single-class-checkout", {
+        body: { email },
+      });
 
       if (error) throw error;
 
@@ -44,115 +42,171 @@ export default function BuySingleClass() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="font-bebas text-5xl md:text-6xl mb-4 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <img 
+            src="/pantera-logo.png" 
+            alt="Pantera Fitness" 
+            className="h-12 cursor-pointer"
+            onClick={() => navigate("/")}
+          />
+          <Button variant="outline" onClick={() => navigate("/auth")}>
+            Iniciar Sesión
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16 space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
             Compra una Clase Individual
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Accede al gimnasio cuando quieras con tu código QR personal
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Prueba nuestras clases sin compromiso. Válida para cualquier clase disponible.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-          <Card className="border-primary/30 hover:border-primary/60 transition-all">
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          {/* Purchase Form */}
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-bebas text-2xl">¿Qué incluye?</CardTitle>
+              <CardTitle className="text-2xl">Comprar Clase</CardTitle>
+              <CardDescription>
+                Ingresa tu email para recibir el código QR de acceso
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Una clase individual para usar cuando quieras</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Código QR personal enviado por email</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Acceso completo a todas las instalaciones</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Sin fecha de caducidad</span>
-                </li>
-              </ul>
+              <form onSubmit={handlePurchase} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-lg font-semibold">Precio:</span>
+                    <span className="text-3xl font-bold text-primary">€4.50</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Pago único • Sin suscripción
+                  </p>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  size="lg"
+                  disabled={loading}
+                >
+                  {loading ? "Procesando..." : "Comprar Ahora"}
+                </Button>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Al hacer clic en "Comprar Ahora", serás redirigido a Stripe para completar el pago de forma segura.
+                </p>
+              </form>
             </CardContent>
           </Card>
 
-          <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary-glow/5">
+          {/* What's Included */}
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-bebas text-3xl">Precio</CardTitle>
-              <CardDescription>Pago único</CardDescription>
+              <CardTitle className="text-2xl">¿Qué Incluye?</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <div className="text-6xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent mb-2">
-                  €15
+            <CardContent className="space-y-4">
+              <div className="flex gap-3">
+                <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold mb-1">Acceso a una Clase</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Elige cualquier clase disponible en nuestro horario
+                  </p>
                 </div>
-                <p className="text-muted-foreground">Una sola clase</p>
               </div>
-              <Button
-                onClick={handlePurchase}
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] font-semibold text-lg py-6"
-                size="lg"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Procesando...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Comprar Ahora
-                  </>
-                )}
-              </Button>
+
+              <div className="flex gap-3">
+                <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold mb-1">Código QR por Email</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Recibirás tu código QR de acceso inmediatamente después del pago
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold mb-1">Sin Compromiso</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Pago único, sin mensualidades ni contratos
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold mb-1">Instructores Profesionales</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Entrenamientos guiados por expertos certificados
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle className="font-bebas text-2xl">¿Cómo funciona?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 text-2xl font-bold text-primary">
-                  1
-                </div>
-                <h3 className="font-semibold mb-2">Compra</h3>
-                <p className="text-sm text-muted-foreground">
-                  Realiza el pago de forma segura con Stripe
-                </p>
+        {/* How it Works */}
+        <div className="max-w-4xl mx-auto mt-16">
+          <h2 className="text-3xl font-bold text-center mb-8">¿Cómo Funciona?</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-primary">1</span>
               </div>
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 text-2xl font-bold text-primary">
-                  2
-                </div>
-                <h3 className="font-semibold mb-2">Recibe tu QR</h3>
-                <p className="text-sm text-muted-foreground">
-                  Te enviamos por email tu código QR personal
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 text-2xl font-bold text-primary">
-                  3
-                </div>
-                <h3 className="font-semibold mb-2">Accede</h3>
-                <p className="text-sm text-muted-foreground">
-                  Presenta tu QR en la entrada del gimnasio
-                </p>
-              </div>
+              <h3 className="font-semibold text-lg">Ingresa tu Email</h3>
+              <p className="text-sm text-muted-foreground">
+                Completa el formulario con tu dirección de correo electrónico
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-primary">2</span>
+              </div>
+              <h3 className="font-semibold text-lg">Completa el Pago</h3>
+              <p className="text-sm text-muted-foreground">
+                Paga de forma segura a través de Stripe (tarjeta de crédito o débito)
+              </p>
+            </div>
+
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-primary">3</span>
+              </div>
+              <h3 className="font-semibold text-lg">Recibe tu QR</h3>
+              <p className="text-sm text-muted-foreground">
+                Revisa tu email y muestra el código QR en tu próxima visita
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

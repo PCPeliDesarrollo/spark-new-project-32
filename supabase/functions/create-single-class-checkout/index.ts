@@ -13,19 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
-    const user = data.user;
-
-    if (!user?.email) {
-      throw new Error("Usuario no autenticado");
+    // Get email from request body (no authentication required)
+    const { email } = await req.json();
+    
+    if (!email || !email.includes("@")) {
+      throw new Error("Email válido requerido");
     }
 
     // Initialize Stripe
@@ -34,7 +26,7 @@ serve(async (req) => {
     });
 
     // Check if Stripe customer exists
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
@@ -43,7 +35,7 @@ serve(async (req) => {
     // Create checkout session for single class (€4.50)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      customer_email: customerId ? undefined : email,
       line_items: [
         {
           price: "price_1QZAW2P6RQrI6XRYqyVMTnzI", // €4.50
@@ -52,9 +44,9 @@ serve(async (req) => {
       ],
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/classes`,
+      cancel_url: `${req.headers.get("origin")}/buy-single-class`,
       metadata: {
-        user_id: user.id,
+        email: email,
         type: "single_class",
       },
     });

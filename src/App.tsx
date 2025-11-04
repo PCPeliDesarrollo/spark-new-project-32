@@ -222,14 +222,7 @@ const App = () => {
                 </AppLayout>
               }
             />
-            <Route
-              path="/buy-single-class"
-              element={
-                <AppLayout>
-                  <BuySingleClass />
-                </AppLayout>
-              }
-            />
+            <Route path="/buy-single-class" element={<BuySingleClass />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
