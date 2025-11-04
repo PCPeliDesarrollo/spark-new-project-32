@@ -191,12 +191,15 @@ export default function Users() {
                             <td className="py-3 px-4">
                               <div className="flex gap-2">
                                 <Badge
-                                  variant={
-                                    user.role === "admin" 
-                                      ? "default" 
-                                      : user.role === "full" || user.role === "basica_clases"
-                                      ? "secondary"
-                                      : "outline"
+                                  variant={user.role === "admin" ? "default" : "secondary"}
+                                  className={
+                                    user.role === "full" 
+                                      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 hover:bg-emerald-500/30" 
+                                      : user.role === "basica_clases"
+                                      ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/50 hover:bg-cyan-500/30"
+                                      : user.role === "basica"
+                                      ? "bg-muted/50 text-muted-foreground border-muted"
+                                      : ""
                                   }
                                 >
                                   {user.role === "admin" 
@@ -264,14 +267,16 @@ export default function Users() {
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <Badge
-                              variant={
-                                user.role === "admin" 
-                                  ? "default" 
-                                  : user.role === "full" || user.role === "basica_clases"
-                                  ? "secondary"
-                                  : "outline"
+                              variant={user.role === "admin" ? "default" : "secondary"}
+                              className={
+                                user.role === "full" 
+                                  ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 text-xs" 
+                                  : user.role === "basica_clases"
+                                  ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/50 text-xs"
+                                  : user.role === "basica"
+                                  ? "bg-muted/50 text-muted-foreground border-muted text-xs"
+                                  : "text-xs"
                               }
-                              className="text-xs"
                             >
                               {user.role === "admin" 
                                 ? "Administrador" 
