@@ -109,12 +109,13 @@ All colors MUST be HSL.
     background-image: 
       radial-gradient(circle at 20% 20%, hsl(183 85% 55% / 0.08) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, hsl(183 85% 70% / 0.08) 0%, transparent 50%),
-      url('@/assets/pantera.png');
-    background-size: 100% 100%, 100% 100%, 40%;
-    background-position: 0% 0%, 100% 100%, center;
+      url('@/assets/pantera.png'),
+      url('@/assets/panthera-logo.jpeg');
+    background-size: 100% 100%, 100% 100%, 40%, 40%;
+    background-position: 0% 0%, 100% 100%, center, center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background-blend-mode: normal, normal, soft-light;
+    background-blend-mode: normal, normal, soft-light, soft-light;
   }
   
   @media (max-width: 768px) {
