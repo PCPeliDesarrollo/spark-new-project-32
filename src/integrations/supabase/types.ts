@@ -88,9 +88,9 @@ export type Database = {
           duration_minutes: number
           id: string
           max_capacity: number
+          month_start_date: string
           start_time: string
           updated_at: string
-          week_start_date: string
         }
         Insert: {
           class_id: string
@@ -99,9 +99,9 @@ export type Database = {
           duration_minutes: number
           id?: string
           max_capacity?: number
+          month_start_date: string
           start_time: string
           updated_at?: string
-          week_start_date: string
         }
         Update: {
           class_id?: string
@@ -110,9 +110,9 @@ export type Database = {
           duration_minutes?: number
           id?: string
           max_capacity?: number
+          month_start_date?: string
           start_time?: string
           updated_at?: string
-          week_start_date?: string
         }
         Relationships: [
           {
@@ -313,7 +313,7 @@ export type Database = {
     }
     Functions: {
       check_booking_limit: { Args: { _user_id: string }; Returns: boolean }
-      duplicate_schedules_for_next_week: { Args: never; Returns: undefined }
+      duplicate_schedules_for_next_month: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -326,6 +326,7 @@ export type Database = {
         Returns: boolean
       }
       is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
+      reset_monthly_bookings: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "basica" | "basica_clases" | "full"

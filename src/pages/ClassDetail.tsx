@@ -10,7 +10,7 @@ import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock, UserPlus } from "luci
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { format, addDays, startOfWeek, isBefore, parseISO, setHours, setMinutes } from "date-fns";
+import { format, isBefore, setHours, setMinutes, getDaysInMonth, startOfMonth, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   Dialog,
@@ -54,7 +54,16 @@ interface Schedule {
   duration_minutes: number;
   max_capacity: number;
   bookings: { count: number }[];
-  week_start_date: string;
+  month_start_date: string;
+}
+
+interface ScheduleInstance {
+  scheduleId: string;
+  date: Date;
+  dayOfWeek: number;
+  startTime: string;
+  durationMinutes: number;
+  maxCapacity: number;
 }
 
 interface Booking {
@@ -68,6 +77,21 @@ interface Booking {
 }
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+// Helper function to get all dates in month for a specific day of week
+const getMonthDatesForDayOfWeek = (monthStart: Date, dayOfWeek: number): Date[] => {
+  const dates: Date[] = [];
+  const daysInMonth = getDaysInMonth(monthStart);
+  
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(monthStart.getFullYear(), monthStart.getMonth(), day);
+    if (getDay(date) === dayOfWeek) {
+      dates.push(date);
+    }
+  }
+  
+  return dates;
+};
 
 export default function ClassDetail() {
   const { id } = useParams();
@@ -152,7 +176,7 @@ export default function ClassDetail() {
       if (classError) throw classError;
       setClassData(classInfo);
 
-      // Load schedules for current week
+      // Load schedules for current month
       const { data: schedulesData, error: schedulesError } = await supabase
         .from("class_schedules")
         .select(`
@@ -165,14 +189,18 @@ export default function ClassDetail() {
 
       if (schedulesError) throw schedulesError;
       
-      // Filter out past schedules (by specific day and time)
+      // Filter out past schedules
       const now = new Date();
       const filteredSchedules = (schedulesData || []).filter(schedule => {
-        const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
-        const scheduleDate = addDays(weekStart, schedule.day_of_week);
-        const [hours, minutes] = schedule.start_time.split(':').map(Number);
-        const scheduleDateTime = setMinutes(setHours(scheduleDate, hours), minutes);
-        return !isBefore(scheduleDateTime, now);
+        const monthStart = startOfMonth(new Date(schedule.month_start_date));
+        const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
+        
+        // Check if any instance of this schedule is in the future
+        return scheduleDates.some(date => {
+          const [hours, minutes] = schedule.start_time.split(':').map(Number);
+          const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
+          return !isBefore(scheduleDateTime, now);
+        });
       });
       
       setSchedules(filteredSchedules);
@@ -243,19 +271,27 @@ export default function ClassDetail() {
         if (!targetUserId) {
           const schedule = schedules.find(s => s.id === scheduleId);
           if (schedule) {
-            const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
-            const scheduleDate = addDays(weekStart, schedule.day_of_week);
-            const [hours, minutes] = schedule.start_time.split(':').map(Number);
-            const scheduleDateTime = setMinutes(setHours(scheduleDate, hours), minutes);
-            const oneHourBefore = new Date(scheduleDateTime.getTime() - 60 * 60 * 1000);
-            
-            if (new Date() >= oneHourBefore) {
-              toast({
-                title: "No se puede cancelar",
-                description: "Debes cancelar con al menos 1 hora de antelación",
-                variant: "destructive",
-              });
-              return;
+            const monthStart = startOfMonth(new Date(schedule.month_start_date));
+            const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
+            const nextDate = scheduleDates.find(date => {
+              const [hours, minutes] = schedule.start_time.split(':').map(Number);
+              const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
+              return !isBefore(scheduleDateTime, new Date());
+            });
+
+            if (nextDate) {
+              const [hours, minutes] = schedule.start_time.split(':').map(Number);
+              const scheduleDateTime = setMinutes(setHours(nextDate, hours), minutes);
+              const oneHourBefore = new Date(scheduleDateTime.getTime() - 60 * 60 * 1000);
+              
+              if (new Date() >= oneHourBefore) {
+                toast({
+                  title: "No se puede cancelar",
+                  description: "Debes cancelar con al menos 1 hora de antelación",
+                  variant: "destructive",
+                });
+                return;
+              }
             }
           }
         }
@@ -396,15 +432,14 @@ export default function ClassDetail() {
             <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
               <CardHeader className="text-center">
                 <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                  HORARIOS DE LA SEMANA
+                  HORARIOS DEL MES
                 </CardTitle>
                 <CardDescription>
                   Selecciona un horario para apuntarte
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {
-                schedules.map((schedule) => {
+                {schedules.map((schedule) => {
                   const userBooking = bookings[schedule.id]?.find(b => b.user_id === userId);
                   const confirmedBookings = bookings[schedule.id]?.filter(b => b.status === 'confirmed') || [];
                   const waitlistBookings = bookings[schedule.id]?.filter(b => b.status === 'waitlist') || [];
@@ -413,10 +448,21 @@ export default function ClassDetail() {
                   const isBooked = !!userBooking;
                   const isOnWaitlist = userBooking?.status === 'waitlist';
                   
-                  // Calculate actual date
-                  const weekStart = startOfWeek(parseISO(schedule.week_start_date), { weekStartsOn: 1 });
-                  const scheduleDate = addDays(weekStart, schedule.day_of_week);
-                  const formattedDate = format(scheduleDate, "EEEE d", { locale: es });
+                  // Get all dates for this schedule in the month
+                  const monthStart = startOfMonth(new Date(schedule.month_start_date));
+                  const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
+                  
+                  // Find the next upcoming date
+                  const now = new Date();
+                  const nextDate = scheduleDates.find(date => {
+                    const [hours, minutes] = schedule.start_time.split(':').map(Number);
+                    const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
+                    return !isBefore(scheduleDateTime, now);
+                  });
+
+                  if (!nextDate) return null; // Skip if no future dates
+
+                  const formattedDate = format(nextDate, "EEEE d 'de' MMMM", { locale: es });
 
                   return (
                     <div
@@ -448,6 +494,11 @@ export default function ClassDetail() {
                                 Posición {userBooking.position}
                               </Badge>
                             )}
+                            {scheduleDates.length > 1 && (
+                              <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-600 dark:text-green-400">
+                                Se repite {scheduleDates.length} veces este mes
+                              </Badge>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-2 w-full sm:w-auto">
@@ -473,9 +524,7 @@ export default function ClassDetail() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setSelectedSchedule(
-                              selectedSchedule === schedule.id ? null : schedule.id
-                            )}
+                            onClick={() => setSelectedSchedule(selectedSchedule === schedule.id ? null : schedule.id)}
                             className="text-xs"
                           >
                             {selectedSchedule === schedule.id ? "Ocultar" : "Ver"}
@@ -483,45 +532,78 @@ export default function ClassDetail() {
                         </div>
                       </div>
                       
-                      {selectedSchedule === schedule.id && bookings[schedule.id] && (
-                        <div className="space-y-3 pt-3 border-t border-primary/10">
+                      {selectedSchedule === schedule.id && (
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">
+                              Participantes ({confirmedCount + waitlistBookings.length})
+                            </span>
+                          </div>
+                          
                           {confirmedBookings.length > 0 && (
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground mb-2">
-                                CONFIRMADOS ({confirmedBookings.length})
-                              </p>
-                              <div className="flex gap-2 flex-wrap">
-                                {confirmedBookings.map((booking, idx) => (
-                                  <UserAvatar
-                                    key={idx}
-                                    avatarUrl={booking.profiles?.avatar_url || null}
-                                    fullName={booking.profiles?.full_name || "Usuario"}
-                                    size="sm"
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {waitlistBookings.length > 0 && (
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground mb-2">
-                                LISTA DE ESPERA ({waitlistBookings.length})
-                              </p>
-                              <div className="flex gap-2 flex-wrap">
-                                {waitlistBookings.map((booking, idx) => (
-                                  <div key={idx} className="relative">
-                                    <UserAvatar
-                                      avatarUrl={booking.profiles?.avatar_url || null}
-                                      fullName={booking.profiles?.full_name || "Usuario"}
-                                      size="sm"
+                            <div className="mb-3">
+                              <p className="text-xs text-muted-foreground mb-2">Confirmados</p>
+                              <div className="flex flex-wrap gap-2">
+                                {confirmedBookings.map((booking) => (
+                                  <div key={booking.user_id} className="flex items-center gap-2 bg-accent/50 rounded-full px-3 py-1.5">
+                                    <UserAvatar 
+                                      fullName={booking.profiles?.full_name || "Usuario"} 
+                                      avatarUrl={booking.profiles?.avatar_url}
+                                      size="xs"
                                     />
-                                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] bg-accent">
-                                      {booking.position}
-                                    </Badge>
+                                    <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
+                                    {isAdmin && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-4 w-4 ml-1"
+                                        onClick={() => handleBooking(schedule.id, booking.user_id)}
+                                      >
+                                        <span className="text-xs">×</span>
+                                      </Button>
+                                    )}
                                   </div>
                                 ))}
                               </div>
                             </div>
+                          )}
+                          
+                          {waitlistBookings.length > 0 && (
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Lista de espera</p>
+                              <div className="flex flex-wrap gap-2">
+                                {waitlistBookings.map((booking) => (
+                                  <div key={booking.user_id} className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
+                                    <Badge variant="secondary" className="text-[10px] h-4 w-4 rounded-full p-0 flex items-center justify-center">
+                                      {booking.position}
+                                    </Badge>
+                                    <UserAvatar 
+                                      fullName={booking.profiles?.full_name || "Usuario"} 
+                                      avatarUrl={booking.profiles?.avatar_url}
+                                      size="xs"
+                                    />
+                                    <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
+                                    {isAdmin && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-4 w-4 ml-1"
+                                        onClick={() => handleBooking(schedule.id, booking.user_id)}
+                                      >
+                                        <span className="text-xs">×</span>
+                                      </Button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {confirmedBookings.length === 0 && waitlistBookings.length === 0 && (
+                            <p className="text-xs text-muted-foreground text-center py-2">
+                              No hay participantes aún
+                            </p>
                           )}
                         </div>
                       )}
@@ -532,128 +614,103 @@ export default function ClassDetail() {
               </CardContent>
             </Card>
           )}
-        </div>
 
-        {schedules.length > 0 && (
-          <div className="lg:sticky lg:top-4">
-            <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-              <CardHeader className="text-center">
-                <CardTitle className="font-bebas text-2xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                  INFORMACIÓN
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {schedules[0]?.duration_minutes && (
-                  <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium mb-1">Duración</p>
-                    <p className="font-bebas text-2xl text-primary">
-                      {schedules[0].duration_minutes} MIN
-                    </p>
-                  </div>
-                )}
-                {schedules[0]?.max_capacity && (
-                  <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium mb-1">Capacidad máxima</p>
-                    <p className="font-bebas text-2xl text-primary">
-                      {schedules[0].max_capacity} PERSONAS
-                    </p>
-                  </div>
-                )}
+          {schedules.length === 0 && (
+            <Card className="mt-4 md:mt-6">
+              <CardContent className="p-8 md:p-12 text-center">
+                <p className="text-muted-foreground">No hay horarios disponibles para esta clase este mes</p>
               </CardContent>
             </Card>
-          </div>
-        )}
+          )}
+        </div>
+
+        <div className="lg:col-span-1">
+          <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30">
+            <CardHeader>
+              <CardTitle className="font-bebas text-xl md:text-2xl tracking-wider">
+                INFORMACIÓN
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-medium mb-2">Duración</h3>
+                <p className="text-sm text-muted-foreground">
+                  {schedules[0]?.duration_minutes || 60} minutos
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium mb-2">Capacidad</h3>
+                <p className="text-sm text-muted-foreground">
+                  Máximo {schedules[0]?.max_capacity || 20} personas
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium mb-2">Reservas</h3>
+                <p className="text-sm text-muted-foreground">
+                  Las reservas se pueden cancelar hasta 1 hora antes de la clase
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
+      {/* Admin booking dialog */}
       <Dialog open={showAdminBookingDialog} onOpenChange={setShowAdminBookingDialog}>
-        <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">Apuntar usuario a la clase</DialogTitle>
-            <DialogDescription className="text-sm">
-              Busca y selecciona el usuario que deseas apuntar a esta clase
+            <DialogTitle>Apuntar usuario a clase</DialogTitle>
+            <DialogDescription>
+              Selecciona un usuario para apuntarlo a esta clase
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="py-4">
             <Popover open={openUserSelect} onOpenChange={setOpenUserSelect}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   role="combobox"
                   aria-expanded={openUserSelect}
-                  className="w-full justify-between text-sm"
+                  className="w-full justify-between"
                 >
-                  <span className="truncate">
-                    {selectedUserId
-                      ? users.find((user) => user.id === selectedUserId)?.full_name
-                      : "Buscar usuario..."}
-                  </span>
+                  {selectedUserId
+                    ? users.find((user) => user.id === selectedUserId)?.full_name
+                    : "Seleccionar usuario..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent 
-                className="w-[calc(95vw-2rem)] sm:w-[460px] p-0 bg-popover z-50" 
-                align="start"
-                sideOffset={5}
-              >
+              <PopoverContent className="w-full p-0">
                 <Command>
-                  <CommandInput placeholder="Buscar por nombre o email..." className="text-sm" />
-                  <CommandEmpty className="text-sm py-6">No se encontraron usuarios.</CommandEmpty>
-                  <CommandGroup className="max-h-[250px] sm:max-h-[300px] overflow-auto">
-                    {users.map((user) => {
-                      const roleLabels: Record<string, string> = {
-                        'basica_clases': 'Básica Clases',
-                        'full': 'Full',
-                        'admin': 'Admin'
-                      };
-                      
-                      return (
-                        <CommandItem
-                          key={user.id}
-                          value={`${user.full_name} ${user.email}`}
-                          onSelect={() => {
-                            setSelectedUserId(user.id);
-                            setOpenUserSelect(false);
-                          }}
-                          className="cursor-pointer px-2 py-3"
-                        >
-                          <Check
-                            className={`mr-2 h-4 w-4 flex-shrink-0 ${
-                              selectedUserId === user.id ? "opacity-100" : "opacity-0"
-                            }`}
-                          />
-                          <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 min-w-0">
-                            <div className="flex flex-col min-w-0">
-                              <span className="font-medium text-sm truncate">{user.full_name}</span>
-                              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-                            </div>
-                            <Badge variant="outline" className="text-xs whitespace-nowrap self-start sm:self-center">
-                              {roleLabels[user.role] || user.role}
-                            </Badge>
-                          </div>
-                        </CommandItem>
-                      );
-                    })}
+                  <CommandInput placeholder="Buscar usuario..." />
+                  <CommandEmpty>No se encontraron usuarios.</CommandEmpty>
+                  <CommandGroup>
+                    {users.map((user) => (
+                      <CommandItem
+                        key={user.id}
+                        value={user.full_name}
+                        onSelect={() => {
+                          setSelectedUserId(user.id);
+                          setOpenUserSelect(false);
+                        }}
+                      >
+                        <Check
+                          className={`mr-2 h-4 w-4 ${
+                            selectedUserId === user.id ? "opacity-100" : "opacity-0"
+                          }`}
+                        />
+                        {user.full_name}
+                      </CommandItem>
+                    )))}
                   </CommandGroup>
                 </Command>
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowAdminBookingDialog(false);
-                setSelectedUserId("");
-                setAdminBookingScheduleId(null);
-                setOpenUserSelect(false);
-              }}
-              className="w-full sm:w-auto"
-            >
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowAdminBookingDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleAdminBooking} className="w-full sm:w-auto">
-              Apuntar usuario
-            </Button>
+            <Button onClick={handleAdminBooking}>Apuntar</Button>
           </div>
         </DialogContent>
       </Dialog>

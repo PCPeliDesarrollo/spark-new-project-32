@@ -10,7 +10,7 @@ interface ClassBooking {
   created_at: string;
   schedule_id: string;
   class_schedules: {
-    week_start_date: string;
+    month_start_date: string;
     start_time: string;
     day_of_week: number;
   };
@@ -46,7 +46,7 @@ export function MonthlyClassesIndicator() {
           created_at,
           schedule_id,
           class_schedules (
-            week_start_date,
+            month_start_date,
             start_time,
             day_of_week
           )
@@ -81,7 +81,7 @@ export function MonthlyClassesIndicator() {
     if (!schedule) return "available";
 
     // Calculate the actual date and time of the class
-    const classDate = new Date(schedule.week_start_date);
+    const classDate = new Date(schedule.month_start_date);
     classDate.setDate(classDate.getDate() + schedule.day_of_week);
     
     const [hours, minutes] = schedule.start_time.split(":");

@@ -27,7 +27,7 @@ interface Schedule {
   start_time: string;
   duration_minutes: number;
   max_capacity: number;
-  week_start_date: string;
+  month_start_date: string;
   classes: { name: string } | null;
   bookings: { count: number }[];
 }
@@ -93,13 +93,9 @@ export default function ManageSchedules() {
   const loadData = async () => {
     setLoading(true);
     
-    // Get current week's Monday
+    // Get current month's first day
     const today = new Date();
-    const currentDay = today.getDay();
-    const diff = currentDay === 0 ? -6 : 1 - currentDay; // If Sunday, go back 6 days, else go to Monday
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diff);
-    const weekStartDate = monday.toISOString().split('T')[0];
+    const monthStartDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
 
     // Load classes
     const { data: classesData } = await supabase
@@ -111,7 +107,7 @@ export default function ManageSchedules() {
       setClasses(classesData);
     }
 
-    // Load schedules for current week
+    // Load schedules for current month
     const { data: schedulesData, error } = await supabase
       .from("class_schedules")
       .select(`
@@ -119,7 +115,7 @@ export default function ManageSchedules() {
         classes:class_id (name),
         bookings:class_bookings(count)
       `)
-      .eq("week_start_date", weekStartDate)
+      .eq("month_start_date", monthStartDate)
       .order("day_of_week")
       .order("start_time");
 
@@ -187,13 +183,9 @@ export default function ManageSchedules() {
       return;
     }
 
-    // Get current week's Monday
+    // Get current month's first day
     const today = new Date();
-    const currentDay = today.getDay();
-    const diff = currentDay === 0 ? -6 : 1 - currentDay;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diff);
-    const weekStartDate = monday.toISOString().split('T')[0];
+    const monthStartDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
 
     const { error } = await supabase
       .from("class_schedules")
@@ -203,7 +195,7 @@ export default function ManageSchedules() {
         start_time: startTime,
         duration_minutes: parseInt(durationMinutes),
         max_capacity: parseInt(maxCapacity),
-        week_start_date: weekStartDate,
+        month_start_date: monthStartDate,
       });
 
     if (error) {
@@ -422,7 +414,7 @@ export default function ManageSchedules() {
               <DialogHeader>
                 <DialogTitle>Crear Nuevo Horario</DialogTitle>
                 <DialogDescription>
-                  Añade un nuevo horario para esta semana. Se replicará automáticamente cada semana.
+                  Añade un nuevo horario para este mes. Se replicará automáticamente cada mes.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -829,8 +821,8 @@ export default function ManageSchedules() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Los horarios que crees esta semana se duplicarán automáticamente para las próximas semanas. 
-            No necesitas crear los horarios cada semana, el sistema los replicará por ti.
+            Los horarios que crees este mes se duplicarán automáticamente para los próximos meses. 
+            No necesitas crear los horarios cada mes, el sistema los replicará por ti.
           </p>
         </CardContent>
       </Card>

@@ -1,9 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -12,44 +12,45 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Starting weekly schedule duplication...');
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Call the database function to duplicate schedules
-    const { error } = await supabase.rpc('duplicate_schedules_for_next_week');
+    console.log('Starting monthly bookings reset...');
+
+    // Call the database function to reset bookings
+    const { error } = await supabase.rpc('reset_monthly_bookings');
 
     if (error) {
-      console.error('Error duplicating schedules:', error);
+      console.error('Error resetting bookings:', error);
       throw error;
     }
 
-    console.log('Weekly schedules duplicated successfully');
+    console.log('Monthly bookings reset successfully');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Weekly schedules duplicated successfully' 
+        message: 'Monthly bookings reset successfully'
       }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200 
       }
     );
+
   } catch (error) {
-    console.error('Error in duplicate-weekly-schedules function:', error);
+    console.error('Error in reset-monthly-bookings function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
       JSON.stringify({ 
-        success: false, 
-        error: errorMessage 
+        error: errorMessage,
+        success: false 
       }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500 
       }
     );
   }
