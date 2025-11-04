@@ -211,8 +211,28 @@ export default function Auth() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-xs md:text-sm text-muted-foreground px-2">
-            <p>Si necesitas una cuenta, contacta con el administrador</p>
+          <div className="mt-6 space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-primary/20" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-primary/30 hover:bg-primary/10 hover:border-primary text-sm md:text-base"
+              onClick={() => navigate("/buy-single-class")}
+            >
+              Comprar Clase Individual - €4.50
+            </Button>
+
+            <p className="text-center text-xs md:text-sm text-muted-foreground px-2">
+              Si necesitas una cuenta, contacta con el administrador
+            </p>
           </div>
         </CardContent>
       </Card>
