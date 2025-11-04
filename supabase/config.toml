@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.send-class-reminders]
 verify_jwt = false
+
+[functions.create-single-class-checkout]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false

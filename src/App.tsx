@@ -19,6 +19,8 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ManageSchedules from "./pages/ManageSchedules";
 import ManageClasses from "./pages/ManageClasses";
+import BuySingleClass from "./pages/BuySingleClass";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -220,6 +222,15 @@ const App = () => {
                 </AppLayout>
               }
             />
+            <Route
+              path="/buy-single-class"
+              element={
+                <AppLayout>
+                  <BuySingleClass />
+                </AppLayout>
+              }
+            />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
