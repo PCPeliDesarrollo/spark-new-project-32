@@ -259,6 +259,39 @@ export type Database = {
         }
         Relationships: []
       }
+      single_class_purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          qr_code: string
+          stripe_payment_id: string
+          used: boolean
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          qr_code: string
+          stripe_payment_id: string
+          used?: boolean
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          qr_code?: string
+          stripe_payment_id?: string
+          used?: boolean
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_renewals: {
         Row: {
           created_at: string | null
