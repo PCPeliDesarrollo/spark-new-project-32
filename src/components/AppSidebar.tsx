@@ -69,11 +69,11 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-primary/20 pb-2">
-        <div className="flex items-center gap-2 px-2">
+        <div className="flex items-center justify-center px-2 py-4">
           {open ? (
-            <img src={pantheraLogo} alt="Panthera Fitness" className="h-12 w-auto object-contain" />
+            <img src={pantheraLogo} alt="Panthera Fitness" className="w-full h-auto object-contain" />
           ) : (
-            <img src={panteraLogo} alt="Panthera" className="w-8 h-8" />
+            <img src={panteraLogo} alt="Panthera" className="w-10 h-10" />
           )}
         </div>
       </SidebarHeader>
