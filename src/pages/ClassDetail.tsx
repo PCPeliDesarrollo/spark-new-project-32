@@ -550,7 +550,7 @@ export default function ClassDetail() {
                                     <UserAvatar 
                                       fullName={booking.profiles?.full_name || "Usuario"} 
                                       avatarUrl={booking.profiles?.avatar_url}
-                                      size="xs"
+                                      size="sm"
                                     />
                                     <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
                                     {isAdmin && (
@@ -581,7 +581,7 @@ export default function ClassDetail() {
                                     <UserAvatar 
                                       fullName={booking.profiles?.full_name || "Usuario"} 
                                       avatarUrl={booking.profiles?.avatar_url}
-                                      size="xs"
+                                      size="sm"
                                     />
                                     <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
                                     {isAdmin && (
@@ -609,8 +609,7 @@ export default function ClassDetail() {
                       )}
                     </div>
                   );
-                })
-                }
+                })}
               </CardContent>
             </Card>
           )}
@@ -700,7 +699,7 @@ export default function ClassDetail() {
                         />
                         {user.full_name}
                       </CommandItem>
-                    )))}
+                    ))}
                   </CommandGroup>
                 </Command>
               </PopoverContent>
