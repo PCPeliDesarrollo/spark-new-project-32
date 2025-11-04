@@ -40,20 +40,13 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Create checkout session for single class (€15)
+    // Create checkout session for single class (€4.50)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: "Clase Individual - Pantera Fitness",
-              description: "Una clase individual para usar cuando quieras",
-            },
-            unit_amount: 1500, // €15.00
-          },
+          price: "price_1QZAW2P6RQrI6XRYqyVMTnzI", // €4.50
           quantity: 1,
         },
       ],
