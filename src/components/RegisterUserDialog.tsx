@@ -38,7 +38,7 @@ const formSchema = z.object({
   full_name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
   apellidos: z.string().optional(),
   telefono: z.string().optional(),
-  fecha_nacimiento: z.string().optional(),
+  fecha_nacimiento: z.string().min(1, { message: "La fecha de nacimiento es requerida" }),
   role: z.enum(["basica", "basica_clases", "full", "admin"], {
     required_error: "Selecciona un tipo de cliente",
   }),
@@ -200,7 +200,7 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
               name="fecha_nacimiento"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Fecha de Nacimiento</FormLabel>
+                  <FormLabel>Fecha de Nacimiento *</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>

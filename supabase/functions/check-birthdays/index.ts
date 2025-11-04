@@ -63,13 +63,16 @@ Deno.serve(async (req) => {
         birthdayCount++
 
         const userName = profile.full_name || 'Usuario'
+        const message = `Querido/a ${userName}, toda la familia Panthera te desea un feliz cumpleaños. ¡Que tengas un día increíble lleno de alegría y salud! 💪🎂`
 
-        // Enviar notificación de cumpleaños
-        await supabase.from('notifications').insert({
-          user_id: profile.id,
-          title: '¡Feliz Cumpleaños! 🎉',
-          message: `Querido/a ${userName}, toda la familia Panthera te desea un feliz cumpleaños. ¡Que tengas un día increíble lleno de alegría y salud! 💪🎂`,
-          type: 'success'
+        // Enviar notificación push
+        await supabase.functions.invoke('send-push-notification', {
+          body: {
+            user_id: profile.id,
+            title: '¡Feliz Cumpleaños! 🎉',
+            message: message,
+            type: 'success'
+          }
         })
 
         console.log(`Birthday notification sent to ${profile.full_name}`)
