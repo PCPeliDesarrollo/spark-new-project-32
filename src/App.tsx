@@ -21,7 +21,6 @@ import ManageSchedules from "./pages/ManageSchedules";
 import ManageClasses from "./pages/ManageClasses";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Instagram } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -59,9 +58,22 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 href="https://www.instagram.com/pantherafitnessalburquerque/" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:flex items-center text-primary hover:text-primary/80 transition-colors"
+                className="hidden sm:flex items-center hover:opacity-80 transition-opacity"
               >
-                <Instagram size={24} />
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" style={{ stopColor: '#FED373', stopOpacity: 1 }} />
+                      <stop offset="25%" style={{ stopColor: '#F15245', stopOpacity: 1 }} />
+                      <stop offset="50%" style={{ stopColor: '#D92E7F', stopOpacity: 1 }} />
+                      <stop offset="75%" style={{ stopColor: '#9B36B7', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#515ECF', stopOpacity: 1 }} />
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#instagram-gradient)" strokeWidth="2" fill="none"/>
+                  <circle cx="12" cy="12" r="4" stroke="url(#instagram-gradient)" strokeWidth="2" fill="none"/>
+                  <circle cx="18" cy="6" r="1.5" fill="url(#instagram-gradient)"/>
+                </svg>
               </a>
               <NotificationBell />
             </div>
