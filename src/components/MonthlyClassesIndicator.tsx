@@ -7,12 +7,10 @@ import { Loader2 } from "lucide-react";
 interface ClassBooking {
   id: string;
   status: string;
-  created_at: string;
+  class_date: string;
   schedule_id: string;
   class_schedules: {
-    month_start_date: string;
     start_time: string;
-    day_of_week: number;
   };
 }
 
@@ -34,27 +32,27 @@ export function MonthlyClassesIndicator() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get current month start
+      // Get current month start and end
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       
       const { data, error } = await supabase
         .from("class_bookings")
         .select(`
           id,
           status,
-          created_at,
+          class_date,
           schedule_id,
           class_schedules (
-            month_start_date,
-            start_time,
-            day_of_week
+            start_time
           )
         `)
         .eq("user_id", user.id)
-        .gte("created_at", monthStart.toISOString())
+        .gte("class_date", monthStart.toISOString().split('T')[0])
+        .lte("class_date", monthEnd.toISOString().split('T')[0])
         .eq("status", "confirmed")
-        .order("created_at", { ascending: true });
+        .order("class_date", { ascending: true });
 
       if (error) throw error;
       setBookings(data || []);
@@ -80,10 +78,8 @@ export function MonthlyClassesIndicator() {
     const schedule = booking.class_schedules;
     if (!schedule) return "available";
 
-    // Calculate the actual date and time of the class
-    const classDate = new Date(schedule.month_start_date);
-    classDate.setDate(classDate.getDate() + schedule.day_of_week);
-    
+    // Parse the class date and time
+    const classDate = new Date(booking.class_date);
     const [hours, minutes] = schedule.start_time.split(":");
     classDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 

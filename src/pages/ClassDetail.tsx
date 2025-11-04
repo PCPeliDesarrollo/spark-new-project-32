@@ -53,8 +53,10 @@ interface Schedule {
   start_time: string;
   duration_minutes: number;
   max_capacity: number;
-  bookings: { count: number }[];
   month_start_date: string;
+  class_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ScheduleInstance {
@@ -64,12 +66,14 @@ interface ScheduleInstance {
   startTime: string;
   durationMinutes: number;
   maxCapacity: number;
+  monthStartDate: string;
 }
 
 interface Booking {
   user_id: string;
   status: 'confirmed' | 'waitlist';
   position: number | null;
+  class_date: string;
   profiles: {
     full_name: string;
     avatar_url: string;
@@ -104,6 +108,7 @@ export default function ClassDetail() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
+  const [scheduleInstances, setScheduleInstances] = useState<ScheduleInstance[]>([]);
   const [bookings, setBookings] = useState<Record<string, Booking[]>>({});
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [showAdminBookingDialog, setShowAdminBookingDialog] = useState(false);
@@ -176,60 +181,75 @@ export default function ClassDetail() {
       if (classError) throw classError;
       setClassData(classInfo);
 
-      // Load schedules for current month
+      // Load schedules for current and future months
       const { data: schedulesData, error: schedulesError } = await supabase
         .from("class_schedules")
-        .select(`
-          *,
-          bookings:class_bookings(count)
-        `)
+        .select("*")
         .eq("class_id", id)
         .order("day_of_week")
         .order("start_time");
 
       if (schedulesError) throw schedulesError;
       
-      // Filter out past schedules
+      setSchedules(schedulesData || []);
+
+      // Generate all schedule instances (expand schedules into dates)
       const now = new Date();
-      const filteredSchedules = (schedulesData || []).filter(schedule => {
+      const instances: ScheduleInstance[] = [];
+      
+      for (const schedule of schedulesData || []) {
         const monthStart = startOfMonth(new Date(schedule.month_start_date));
         const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
         
-        // Check if any instance of this schedule is in the future
-        return scheduleDates.some(date => {
+        for (const date of scheduleDates) {
           const [hours, minutes] = schedule.start_time.split(':').map(Number);
           const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
-          return !isBefore(scheduleDateTime, now);
-        });
-      });
-      
-      setSchedules(filteredSchedules);
-
-      // Load bookings for each schedule
-      if (filteredSchedules) {
-        const bookingsData: Record<string, Booking[]> = {};
-        for (const schedule of filteredSchedules) {
-          const { data, error } = await supabase
-            .from("class_bookings")
-            .select(`
-              user_id,
-              status,
-              position,
-              profiles!left (
-                full_name,
-                avatar_url
-              )
-            `)
-            .eq("schedule_id", schedule.id)
-            .order("status", { ascending: true })
-            .order("position", { ascending: true, nullsFirst: false });
-
-          if (!error && data) {
-            bookingsData[schedule.id] = data as any;
+          
+          // Only include future dates
+          if (!isBefore(scheduleDateTime, now)) {
+            instances.push({
+              scheduleId: schedule.id,
+              date,
+              dayOfWeek: schedule.day_of_week,
+              startTime: schedule.start_time,
+              durationMinutes: schedule.duration_minutes,
+              maxCapacity: schedule.max_capacity,
+              monthStartDate: schedule.month_start_date
+            });
           }
         }
-        setBookings(bookingsData);
       }
+      
+      // Sort instances by date
+      instances.sort((a, b) => a.date.getTime() - b.date.getTime());
+      setScheduleInstances(instances);
+
+      // Load bookings for each instance (grouped by schedule_id + date)
+      const bookingsData: Record<string, Booking[]> = {};
+      for (const instance of instances) {
+        const dateKey = `${instance.scheduleId}-${format(instance.date, 'yyyy-MM-dd')}`;
+        const { data, error } = await supabase
+          .from("class_bookings")
+          .select(`
+            user_id,
+            status,
+            position,
+            class_date,
+            profiles!left (
+              full_name,
+              avatar_url
+            )
+          `)
+          .eq("schedule_id", instance.scheduleId)
+          .eq("class_date", format(instance.date, 'yyyy-MM-dd'))
+          .order("status", { ascending: true })
+          .order("position", { ascending: true, nullsFirst: false });
+
+        if (!error && data) {
+          bookingsData[dateKey] = data as any;
+        }
+      }
+      setBookings(bookingsData);
     } catch (error) {
       console.error("Error loading class:", error);
       toast({
@@ -242,8 +262,9 @@ export default function ClassDetail() {
     }
   };
 
-  const handleBooking = async (scheduleId: string, targetUserId?: string) => {
+  const handleBooking = async (scheduleId: string, classDate: Date, targetUserId?: string) => {
     const bookingUserId = targetUserId || userId;
+    const dateKey = `${scheduleId}-${format(classDate, 'yyyy-MM-dd')}`;
     
     if (!bookingUserId) {
       toast({
@@ -264,34 +285,24 @@ export default function ClassDetail() {
     }
 
     try {
-      const isBooked = bookings[scheduleId]?.some(b => b.user_id === bookingUserId);
+      const isBooked = bookings[dateKey]?.some(b => b.user_id === bookingUserId);
 
       if (isBooked) {
         // Check if cancellation is at least 1 hour before class (only for regular users)
         if (!targetUserId) {
           const schedule = schedules.find(s => s.id === scheduleId);
           if (schedule) {
-            const monthStart = startOfMonth(new Date(schedule.month_start_date));
-            const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
-            const nextDate = scheduleDates.find(date => {
-              const [hours, minutes] = schedule.start_time.split(':').map(Number);
-              const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
-              return !isBefore(scheduleDateTime, new Date());
-            });
-
-            if (nextDate) {
-              const [hours, minutes] = schedule.start_time.split(':').map(Number);
-              const scheduleDateTime = setMinutes(setHours(nextDate, hours), minutes);
-              const oneHourBefore = new Date(scheduleDateTime.getTime() - 60 * 60 * 1000);
-              
-              if (new Date() >= oneHourBefore) {
-                toast({
-                  title: "No se puede cancelar",
-                  description: "Debes cancelar con al menos 1 hora de antelación",
-                  variant: "destructive",
-                });
-                return;
-              }
+            const [hours, minutes] = schedule.start_time.split(':').map(Number);
+            const scheduleDateTime = setMinutes(setHours(classDate, hours), minutes);
+            const oneHourBefore = new Date(scheduleDateTime.getTime() - 60 * 60 * 1000);
+            
+            if (new Date() >= oneHourBefore) {
+              toast({
+                title: "No se puede cancelar",
+                description: "Debes cancelar con al menos 1 hora de antelación",
+                variant: "destructive",
+              });
+              return;
             }
           }
         }
@@ -301,6 +312,7 @@ export default function ClassDetail() {
           .from("class_bookings")
           .delete()
           .eq("schedule_id", scheduleId)
+          .eq("class_date", format(classDate, 'yyyy-MM-dd'))
           .eq("user_id", bookingUserId);
 
         if (error) throw error;
@@ -310,12 +322,13 @@ export default function ClassDetail() {
           description: targetUserId ? "Usuario dado de baja de la clase" : "Te has dado de baja de esta clase",
         });
       } else {
-        // Create booking
+        // Create booking with specific date
         const { error } = await supabase
           .from("class_bookings")
           .insert({
             schedule_id: scheduleId,
             user_id: bookingUserId,
+            class_date: format(classDate, 'yyyy-MM-dd'),
           });
 
         if (error) throw error;
@@ -337,6 +350,8 @@ export default function ClassDetail() {
     }
   };
 
+  const [adminBookingDate, setAdminBookingDate] = useState<Date | null>(null);
+
   const handleAdminBooking = () => {
     if (!selectedUserId) {
       toast({
@@ -347,16 +362,18 @@ export default function ClassDetail() {
       return;
     }
     
-    if (adminBookingScheduleId) {
-      handleBooking(adminBookingScheduleId, selectedUserId);
+    if (adminBookingScheduleId && adminBookingDate) {
+      handleBooking(adminBookingScheduleId, adminBookingDate, selectedUserId);
       setShowAdminBookingDialog(false);
       setSelectedUserId("");
       setAdminBookingScheduleId(null);
+      setAdminBookingDate(null);
     }
   };
 
-  const openAdminBookingDialog = (scheduleId: string) => {
+  const openAdminBookingDialog = (scheduleId: string, date: Date) => {
     setAdminBookingScheduleId(scheduleId);
+    setAdminBookingDate(date);
     setShowAdminBookingDialog(true);
   };
 
@@ -428,45 +445,32 @@ export default function ClassDetail() {
             </CardHeader>
           </Card>
 
-          {schedules.length > 0 && (
+          {scheduleInstances.length > 0 && (
             <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
               <CardHeader className="text-center">
                 <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
                   HORARIOS DEL MES
                 </CardTitle>
                 <CardDescription>
-                  Selecciona un horario para apuntarte
+                  Selecciona las clases que quieres reservar
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {schedules.map((schedule) => {
-                  const userBooking = bookings[schedule.id]?.find(b => b.user_id === userId);
-                  const confirmedBookings = bookings[schedule.id]?.filter(b => b.status === 'confirmed') || [];
-                  const waitlistBookings = bookings[schedule.id]?.filter(b => b.status === 'waitlist') || [];
+                {scheduleInstances.map((instance) => {
+                  const dateKey = `${instance.scheduleId}-${format(instance.date, 'yyyy-MM-dd')}`;
+                  const userBooking = bookings[dateKey]?.find(b => b.user_id === userId);
+                  const confirmedBookings = bookings[dateKey]?.filter(b => b.status === 'confirmed') || [];
+                  const waitlistBookings = bookings[dateKey]?.filter(b => b.status === 'waitlist') || [];
                   const confirmedCount = confirmedBookings.length;
-                  const isFull = confirmedCount >= schedule.max_capacity;
+                  const isFull = confirmedCount >= instance.maxCapacity;
                   const isBooked = !!userBooking;
                   const isOnWaitlist = userBooking?.status === 'waitlist';
-                  
-                  // Get all dates for this schedule in the month
-                  const monthStart = startOfMonth(new Date(schedule.month_start_date));
-                  const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
-                  
-                  // Find the next upcoming date
-                  const now = new Date();
-                  const nextDate = scheduleDates.find(date => {
-                    const [hours, minutes] = schedule.start_time.split(':').map(Number);
-                    const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
-                    return !isBefore(scheduleDateTime, now);
-                  });
 
-                  if (!nextDate) return null; // Skip if no future dates
-
-                  const formattedDate = format(nextDate, "EEEE d 'de' MMMM", { locale: es });
+                  const formattedDate = format(instance.date, "EEEE d 'de' MMMM", { locale: es });
 
                   return (
                     <div
-                      key={schedule.id}
+                      key={dateKey}
                       className="flex flex-col p-3 md:p-4 border border-primary/20 rounded-lg hover:bg-accent/50 hover:border-primary/40 transition-all"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
@@ -478,11 +482,11 @@ export default function ClassDetail() {
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               <Clock className="mr-1 h-3 w-3" />
-                              {schedule.start_time.slice(0, 5)}
+                              {instance.startTime.slice(0, 5)}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               <Users className="mr-1 h-3 w-3" />
-                              {confirmedCount}/{schedule.max_capacity}
+                              {confirmedCount}/{instance.maxCapacity}
                             </Badge>
                             {waitlistBookings.length > 0 && (
                               <Badge variant="secondary" className="text-xs bg-primary/20">
@@ -494,59 +498,40 @@ export default function ClassDetail() {
                                 Posición {userBooking.position}
                               </Badge>
                             )}
-                            {scheduleDates.length > 1 && (
-                              <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-600 dark:text-green-400">
-                                Se repite {scheduleDates.length} veces este mes
-                              </Badge>
-                            )}
                           </div>
                         </div>
                         <div className="flex gap-2 w-full sm:w-auto">
-                          <Button
-                            variant={isBooked ? "destructive" : "default"}
-                            onClick={() => handleBooking(schedule.id)}
-                            className="flex-1 sm:flex-none text-xs sm:text-sm bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300"
-                            size="sm"
-                            disabled={isBlocked || !canBookClasses}
-                          >
-                            {isBooked ? "Cancelar" : isFull ? "Lista de espera" : !canBookClasses ? "No disponible" : "Apuntarse"}
-                          </Button>
                           {isAdmin && (
                             <Button
-                              variant="secondary"
+                              variant="outline"
                               size="sm"
-                              onClick={() => openAdminBookingDialog(schedule.id)}
-                              className="text-xs"
+                              onClick={() => openAdminBookingDialog(instance.scheduleId, instance.date)}
+                              className="w-full sm:w-auto"
                             >
-                              <UserPlus className="h-3 w-3" />
+                              <UserPlus className="mr-2 h-4 w-4" />
+                              Apuntar Usuario
                             </Button>
                           )}
                           <Button
-                            variant="outline"
+                            onClick={() => handleBooking(instance.scheduleId, instance.date)}
+                            disabled={isBlocked || (!canBookClasses && !isAdmin)}
+                            variant={isBooked ? "destructive" : isFull && !isBooked ? "outline" : "default"}
                             size="sm"
-                            onClick={() => setSelectedSchedule(selectedSchedule === schedule.id ? null : schedule.id)}
-                            className="text-xs"
+                            className="w-full sm:w-auto"
                           >
-                            {selectedSchedule === schedule.id ? "Ocultar" : "Ver"}
+                            {isOnWaitlist ? "Cancelar Lista de Espera" : (isBooked ? "Cancelar" : (isFull ? "Lista de Espera" : "Apuntarse"))}
                           </Button>
                         </div>
                       </div>
-                      
-                      {selectedSchedule === schedule.id && (
-                        <div className="mt-3 pt-3 border-t border-border">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">
-                              Participantes ({confirmedCount + waitlistBookings.length})
-                            </span>
-                          </div>
-                          
+
+                      {(confirmedBookings.length > 0 || waitlistBookings.length > 0) && selectedSchedule === dateKey && (
+                        <div className="mt-3 space-y-3 text-xs">
                           {confirmedBookings.length > 0 && (
-                            <div className="mb-3">
-                              <p className="text-xs text-muted-foreground mb-2">Confirmados</p>
-                              <div className="flex flex-wrap gap-2">
+                            <div className="border-t border-border pt-3">
+                              <h4 className="font-semibold mb-2 text-muted-foreground">Confirmados ({confirmedBookings.length})</h4>
+                              <div className="flex flex-wrap gap-1.5">
                                 {confirmedBookings.map((booking) => (
-                                  <div key={booking.user_id} className="flex items-center gap-2 bg-accent/50 rounded-full px-3 py-1.5">
+                                  <div key={booking.user_id} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
                                     <UserAvatar 
                                       fullName={booking.profiles?.full_name || "Usuario"} 
                                       avatarUrl={booking.profiles?.avatar_url}
@@ -555,12 +540,12 @@ export default function ClassDetail() {
                                     <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
                                     {isAdmin && (
                                       <Button
+                                        size="sm"
                                         variant="ghost"
-                                        size="icon"
-                                        className="h-4 w-4 ml-1"
-                                        onClick={() => handleBooking(schedule.id, booking.user_id)}
+                                        className="h-4 w-4 p-0 hover:bg-destructive/10 ml-1"
+                                        onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
                                       >
-                                        <span className="text-xs">×</span>
+                                        ×
                                       </Button>
                                     )}
                                   </div>
@@ -570,14 +555,12 @@ export default function ClassDetail() {
                           )}
                           
                           {waitlistBookings.length > 0 && (
-                            <div>
-                              <p className="text-xs text-muted-foreground mb-2">Lista de espera</p>
-                              <div className="flex flex-wrap gap-2">
+                            <div className="border-t border-border pt-3">
+                              <h4 className="font-semibold mb-2 text-muted-foreground">Lista de espera ({waitlistBookings.length})</h4>
+                              <div className="space-y-1.5">
                                 {waitlistBookings.map((booking) => (
-                                  <div key={booking.user_id} className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
-                                    <Badge variant="secondary" className="text-[10px] h-4 w-4 rounded-full p-0 flex items-center justify-center">
-                                      {booking.position}
-                                    </Badge>
+                                  <div key={booking.user_id} className="flex items-center gap-1.5 bg-accent/50 px-2 py-1 rounded">
+                                    <Badge variant="outline" className="text-xs">{booking.position}</Badge>
                                     <UserAvatar 
                                       fullName={booking.profiles?.full_name || "Usuario"} 
                                       avatarUrl={booking.profiles?.avatar_url}
@@ -586,12 +569,12 @@ export default function ClassDetail() {
                                     <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
                                     {isAdmin && (
                                       <Button
+                                        size="sm"
                                         variant="ghost"
-                                        size="icon"
-                                        className="h-4 w-4 ml-1"
-                                        onClick={() => handleBooking(schedule.id, booking.user_id)}
+                                        className="h-4 w-4 p-0 hover:bg-destructive/10 ml-auto"
+                                        onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
                                       >
-                                        <span className="text-xs">×</span>
+                                        ×
                                       </Button>
                                     )}
                                   </div>
@@ -599,14 +582,17 @@ export default function ClassDetail() {
                               </div>
                             </div>
                           )}
-                          
-                          {confirmedBookings.length === 0 && waitlistBookings.length === 0 && (
-                            <p className="text-xs text-muted-foreground text-center py-2">
-                              No hay participantes aún
-                            </p>
-                          )}
                         </div>
                       )}
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedSchedule(selectedSchedule === dateKey ? null : dateKey)}
+                        className="text-xs mt-2"
+                      >
+                        {selectedSchedule === dateKey ? "Ocultar" : "Ver"} apuntados
+                      </Button>
                     </div>
                   );
                 })}
@@ -614,7 +600,7 @@ export default function ClassDetail() {
             </Card>
           )}
 
-          {schedules.length === 0 && (
+          {scheduleInstances.length === 0 && (
             <Card className="mt-4 md:mt-6">
               <CardContent className="p-8 md:p-12 text-center">
                 <p className="text-muted-foreground">No hay horarios disponibles para esta clase este mes</p>

@@ -40,6 +40,7 @@ export type Database = {
       }
       class_bookings: {
         Row: {
+          class_date: string
           created_at: string
           id: string
           position: number | null
@@ -48,6 +49,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          class_date?: string
           created_at?: string
           id?: string
           position?: number | null
@@ -56,6 +58,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          class_date?: string
           created_at?: string
           id?: string
           position?: number | null
