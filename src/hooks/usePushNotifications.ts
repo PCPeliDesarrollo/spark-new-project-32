@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const PUBLIC_VAPID_KEY = "BN0D7Hpz0K_dCZLNVQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWXVBQWX"; // This will be replaced by the actual VAPID key
+const PUBLIC_VAPID_KEY = "BF494SjR6g-Xs86XCTRJUWEJQBglMDHT8jJMYzmdaZpMFmMKq3wjSbhh97iM0feDfWPx8X2H8U8KOQzHn8tj1vk";
 
 export function usePushNotifications() {
   const [isSupported, setIsSupported] = useState(false);
