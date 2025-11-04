@@ -70,15 +70,15 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b border-primary/20 pb-2">
         <div className="flex items-center gap-2 px-2">
-          <img src={panteraLogo} alt="Panthera" className="w-6 h-6 md:w-8 md:h-8" />
-          {open && <span className="font-bold text-primary">Panthera Fitness</span>}
+          {open ? (
+            <img src={pantheraLogo} alt="Panthera Fitness" className="h-12 w-auto object-contain" />
+          ) : (
+            <img src={panteraLogo} alt="Panthera" className="w-8 h-8" />
+          )}
         </div>
       </SidebarHeader>
-      <SidebarContent className="relative">
-        <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-          <img src={pantheraLogo} alt="" className="h-full w-auto object-contain rotate-90" />
-        </div>
-        <SidebarGroup className="relative z-10">
+      <SidebarContent>
+        <SidebarGroup>
           <SidebarGroupLabel className="text-base md:text-lg font-bold text-primary">
             {open && <span>MENÚ</span>}
           </SidebarGroupLabel>
