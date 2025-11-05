@@ -294,26 +294,30 @@ export default function ClassDetail() {
       const bookingsData: Record<string, Booking[]> = {};
       for (const instance of instances) {
         const dateKey = `${instance.scheduleId}-${format(instance.date, 'yyyy-MM-dd')}`;
-        const { data, error } = await supabase
+        const { data: bookings, error } = await supabase
           .from("class_bookings")
-          .select(`
-            user_id,
-            status,
-            position,
-            class_date,
-            profiles!left (
-              full_name,
-              apellidos,
-              avatar_url
-            )
-          `)
+          .select("user_id, status, position, class_date")
           .eq("schedule_id", instance.scheduleId)
           .eq("class_date", format(instance.date, 'yyyy-MM-dd'))
           .order("status", { ascending: true })
           .order("position", { ascending: true, nullsFirst: false });
 
-        if (!error && data) {
-          bookingsData[dateKey] = data as any;
+        if (!error && bookings && bookings.length > 0) {
+          // Get user IDs and load profiles separately
+          const userIds = bookings.map(b => b.user_id);
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, full_name, apellidos, avatar_url")
+            .in("id", userIds);
+
+          // Create a map of profiles by user_id
+          const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+          // Merge bookings with their profiles
+          bookingsData[dateKey] = bookings.map(booking => ({
+            ...booking,
+            profiles: profilesMap.get(booking.user_id) || null
+          })) as any;
         }
       }
       setBookings(bookingsData);
