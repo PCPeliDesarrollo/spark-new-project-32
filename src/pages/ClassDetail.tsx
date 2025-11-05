@@ -117,6 +117,9 @@ export default function ClassDetail() {
   const [openUserSelect, setOpenUserSelect] = useState(false);
 
   useEffect(() => {
+    // Force reload when component mounts or id changes
+    setSchedules([]);
+    setScheduleInstances([]);
     loadData();
   }, [id]);
 

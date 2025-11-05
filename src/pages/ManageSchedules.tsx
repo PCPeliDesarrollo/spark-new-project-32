@@ -567,7 +567,7 @@ export default function ManageSchedules() {
         </div>
       </div>
 
-      <Tabs defaultValue="visual" className="w-full">
+      <Tabs defaultValue="visual" className="w-full" key={schedules.length}>
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
           <TabsTrigger value="visual">Vista Semanal</TabsTrigger>
           <TabsTrigger value="list">Vista Lista</TabsTrigger>
