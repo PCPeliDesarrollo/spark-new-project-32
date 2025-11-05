@@ -112,7 +112,7 @@ export default function ManageSchedules() {
       .from("class_schedules")
       .select(`
         *,
-        classes (name),
+        classes!class_schedules_class_id_fkey (name),
         bookings:class_bookings (count)
       `)
       .eq("month_start_date", monthStartDate)
@@ -602,8 +602,8 @@ export default function ManageSchedules() {
                       
                       {/* Time slots */}
                       {timeSlots.map((timeSlot) => (
-                        <>
-                          <div key={`time-${timeSlot}`} className="bg-background p-2 text-xs text-muted-foreground sticky left-0 z-10 border-r">
+                        <div key={`row-${timeSlot}`} className="contents">
+                          <div className="bg-background p-2 text-xs text-muted-foreground sticky left-0 z-10 border-r">
                             {timeSlot}
                           </div>
                           {[1, 2, 3, 4, 5, 6, 0].map((dayNum) => {
@@ -684,7 +684,7 @@ export default function ManageSchedules() {
                               </div>
                             );
                           })}
-                        </>
+                        </div>
                       ))}
                     </div>
                   </div>
