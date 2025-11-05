@@ -95,7 +95,19 @@ export default function ManageSchedules() {
     
     // Get current month's first day
     const today = new Date();
-    const monthStartDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    
+    // Calculate the first Monday of the current month or last Monday of previous month
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const firstDayOfWeek = firstDayOfMonth.getDay();
+    
+    // If month starts on Sunday (0), go back 6 days to Monday
+    // Otherwise go back to previous Monday
+    const daysToSubtract = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    const monthStartDate = new Date(firstDayOfMonth);
+    monthStartDate.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+    const monthStartDateStr = monthStartDate.toISOString().split('T')[0];
 
     // Load classes
     const { data: classesData } = await supabase
@@ -115,7 +127,7 @@ export default function ManageSchedules() {
         classes!class_schedules_class_id_fkey (name),
         bookings:class_bookings (count)
       `)
-      .eq("month_start_date", monthStartDate)
+      .eq("month_start_date", monthStartDateStr)
       .order("day_of_week")
       .order("start_time");
 
@@ -183,9 +195,17 @@ export default function ManageSchedules() {
       return;
     }
 
-    // Get current month's first day
+    // Calculate month_start_date as the first Monday of current week's month
     const today = new Date();
-    const monthStartDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const firstDayOfWeek = firstDayOfMonth.getDay();
+    const daysToSubtract = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    const monthStartDate = new Date(firstDayOfMonth);
+    monthStartDate.setDate(firstDayOfMonth.getDate() - daysToSubtract);
+    const monthStartDateStr = monthStartDate.toISOString().split('T')[0];
 
     const { error } = await supabase
       .from("class_schedules")
@@ -195,7 +215,7 @@ export default function ManageSchedules() {
         start_time: startTime,
         duration_minutes: parseInt(durationMinutes),
         max_capacity: parseInt(maxCapacity),
-        month_start_date: monthStartDate,
+        month_start_date: monthStartDateStr,
       });
 
     if (error) {
