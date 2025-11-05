@@ -394,20 +394,33 @@ export default function ClassDetail() {
         });
       } else {
         // Create booking with specific date
-        const { error } = await supabase
+        const { data: newBooking, error } = await supabase
           .from("class_bookings")
           .insert({
             schedule_id: scheduleId,
             user_id: bookingUserId,
             class_date: format(classDate, 'yyyy-MM-dd'),
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
 
-        toast({
-          title: "¡Apuntado!",
-          description: targetUserId ? "Usuario apuntado a la clase" : "Te has apuntado a esta clase",
-        });
+        // Check if user was placed on waitlist
+        if (newBooking?.status === 'waitlist') {
+          toast({
+            title: "En lista de espera",
+            description: targetUserId 
+              ? `Usuario en lista de espera (posición ${newBooking.position})` 
+              : `Estás en lista de espera (posición ${newBooking.position}). Te avisaremos si se libera una plaza.`,
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "¡Apuntado!",
+            description: targetUserId ? "Usuario apuntado a la clase" : "Te has apuntado a esta clase",
+          });
+        }
       }
 
       loadData();
