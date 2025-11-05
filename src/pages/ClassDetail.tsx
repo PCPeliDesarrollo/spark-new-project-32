@@ -76,6 +76,7 @@ interface Booking {
   class_date: string;
   profiles: {
     full_name: string;
+    apellidos: string;
     avatar_url: string;
   } | null;
 }
@@ -302,6 +303,7 @@ export default function ClassDetail() {
             class_date,
             profiles!left (
               full_name,
+              apellidos,
               avatar_url
             )
           `)
@@ -595,14 +597,20 @@ export default function ClassDetail() {
                             <div className="border-t border-border pt-3">
                               <h4 className="font-semibold mb-2 text-muted-foreground">Confirmados ({confirmedBookings.length})</h4>
                               <div className="flex flex-wrap gap-1.5">
-                                {confirmedBookings.map((booking) => (
-                                  <div key={booking.user_id} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
-                                    <UserAvatar 
-                                      fullName={booking.profiles?.full_name || "Usuario"} 
-                                      avatarUrl={booking.profiles?.avatar_url}
-                                      size="sm"
-                                    />
-                                    <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
+                                {confirmedBookings.map((booking) => {
+                                  const displayName = [
+                                    booking.profiles?.full_name?.trim(),
+                                    booking.profiles?.apellidos?.trim()
+                                  ].filter(Boolean).join(' ') || "Usuario";
+                                  
+                                  return (
+                                    <div key={booking.user_id} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
+                                      <UserAvatar 
+                                        fullName={displayName} 
+                                        avatarUrl={booking.profiles?.avatar_url}
+                                        size="sm"
+                                      />
+                                      <span className="text-xs">{displayName}</span>
                                     {isAdmin && (
                                       <Button
                                         size="sm"
@@ -613,8 +621,9 @@ export default function ClassDetail() {
                                         ×
                                       </Button>
                                     )}
-                                  </div>
-                                ))}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -623,15 +632,21 @@ export default function ClassDetail() {
                             <div className="border-t border-border pt-3">
                               <h4 className="font-semibold mb-2 text-muted-foreground">Lista de espera ({waitlistBookings.length})</h4>
                               <div className="space-y-1.5">
-                                {waitlistBookings.map((booking) => (
-                                  <div key={booking.user_id} className="flex items-center gap-1.5 bg-accent/50 px-2 py-1 rounded">
-                                    <Badge variant="outline" className="text-xs">{booking.position}</Badge>
-                                    <UserAvatar 
-                                      fullName={booking.profiles?.full_name || "Usuario"} 
-                                      avatarUrl={booking.profiles?.avatar_url}
-                                      size="sm"
-                                    />
-                                    <span className="text-xs">{booking.profiles?.full_name || "Usuario"}</span>
+                                {waitlistBookings.map((booking) => {
+                                  const displayName = [
+                                    booking.profiles?.full_name?.trim(),
+                                    booking.profiles?.apellidos?.trim()
+                                  ].filter(Boolean).join(' ') || "Usuario";
+                                  
+                                  return (
+                                    <div key={booking.user_id} className="flex items-center gap-1.5 bg-accent/50 px-2 py-1 rounded">
+                                      <Badge variant="outline" className="text-xs">{booking.position}</Badge>
+                                      <UserAvatar 
+                                        fullName={displayName} 
+                                        avatarUrl={booking.profiles?.avatar_url}
+                                        size="sm"
+                                      />
+                                      <span className="text-xs">{displayName}</span>
                                     {isAdmin && (
                                       <Button
                                         size="sm"
@@ -642,8 +657,9 @@ export default function ClassDetail() {
                                         ×
                                       </Button>
                                     )}
-                                  </div>
-                                ))}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
