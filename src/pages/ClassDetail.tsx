@@ -125,7 +125,10 @@ export default function ClassDetail() {
 
   // Subscribe to real-time updates for bookings
   useEffect(() => {
-    if (!id) return;
+    if (!id || schedules.length === 0) return;
+
+    const scheduleIds = schedules.map(s => s.id);
+    if (scheduleIds.length === 0) return;
 
     const channel = supabase
       .channel(`class-${id}-bookings`)
@@ -134,13 +137,36 @@ export default function ClassDetail() {
         {
           event: '*',
           schema: 'public',
-          table: 'class_bookings',
-          filter: `schedule_id=in.(${schedules.map(s => s.id).join(',')})`
+          table: 'class_bookings'
         },
-        (payload) => {
+        async (payload) => {
           console.log('Booking change detected:', payload);
-          // Reload bookings data when any change occurs
-          loadData();
+          // Reload only the bookings data, not everything
+          const bookingsData: Record<string, Booking[]> = {};
+          for (const instance of scheduleInstances) {
+            const dateKey = `${instance.scheduleId}-${format(instance.date, 'yyyy-MM-dd')}`;
+            const { data, error } = await supabase
+              .from("class_bookings")
+              .select(`
+                user_id,
+                status,
+                position,
+                class_date,
+                profiles!left (
+                  full_name,
+                  avatar_url
+                )
+              `)
+              .eq("schedule_id", instance.scheduleId)
+              .eq("class_date", format(instance.date, 'yyyy-MM-dd'))
+              .order("status", { ascending: true })
+              .order("position", { ascending: true, nullsFirst: false });
+
+            if (!error && data) {
+              bookingsData[dateKey] = data as any;
+            }
+          }
+          setBookings(bookingsData);
         }
       )
       .subscribe();
@@ -148,7 +174,7 @@ export default function ClassDetail() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id, schedules]);
+  }, [id, schedules, scheduleInstances]);
 
   useEffect(() => {
     if (isAdmin) {
