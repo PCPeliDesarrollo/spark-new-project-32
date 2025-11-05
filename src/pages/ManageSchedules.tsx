@@ -189,11 +189,6 @@ export default function ManageSchedules() {
       return;
     }
 
-    // Calculate month_start_date for the current month
-    const today = new Date();
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthStartDateStr = monthStart.toISOString().split('T')[0];
-
     const { error } = await supabase
       .from("class_schedules")
       .insert({
@@ -202,7 +197,6 @@ export default function ManageSchedules() {
         start_time: startTime,
         duration_minutes: parseInt(durationMinutes),
         max_capacity: parseInt(maxCapacity),
-        month_start_date: monthStartDateStr,
       });
 
     if (error) {
@@ -214,7 +208,7 @@ export default function ManageSchedules() {
     } else {
       toast({
         title: "Horario creado",
-        description: "El horario se ha creado correctamente",
+        description: "El horario se repetirá cada semana",
       });
       setIsCreateDialogOpen(false);
       resetForm();
@@ -421,7 +415,7 @@ export default function ManageSchedules() {
               <DialogHeader>
                 <DialogTitle>Crear Nuevo Horario</DialogTitle>
                 <DialogDescription>
-                  Añade un nuevo horario para este mes. Se replicará automáticamente cada mes.
+                  Añade un nuevo horario semanal recurrente. Se repetirá cada semana.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">

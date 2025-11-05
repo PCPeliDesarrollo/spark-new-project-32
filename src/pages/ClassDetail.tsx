@@ -196,28 +196,37 @@ export default function ClassDetail() {
       
       setSchedules(schedulesData || []);
 
-      // Generate all schedule instances (expand schedules into dates)
+      // Generate schedule instances for the next 8 weeks
       const now = new Date();
       const instances: ScheduleInstance[] = [];
       
       for (const schedule of schedulesData || []) {
-        const monthStart = startOfMonth(new Date(schedule.month_start_date));
-        const scheduleDates = getMonthDatesForDayOfWeek(monthStart, schedule.day_of_week);
+        // Get next 8 weeks of dates for this day of week
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        for (const date of scheduleDates) {
+        for (let weekOffset = 0; weekOffset < 8; weekOffset++) {
+          const targetDate = new Date(today);
+          targetDate.setDate(today.getDate() + (7 * weekOffset));
+          
+          // Find the next occurrence of the target day of week
+          const currentDay = targetDate.getDay();
+          const daysUntilTarget = (schedule.day_of_week - currentDay + 7) % 7;
+          targetDate.setDate(targetDate.getDate() + daysUntilTarget);
+          
           const [hours, minutes] = schedule.start_time.split(':').map(Number);
-          const scheduleDateTime = setMinutes(setHours(date, hours), minutes);
+          const scheduleDateTime = setMinutes(setHours(targetDate, hours), minutes);
           
           // Only include future dates
           if (!isBefore(scheduleDateTime, now)) {
             instances.push({
               scheduleId: schedule.id,
-              date,
+              date: targetDate,
               dayOfWeek: schedule.day_of_week,
               startTime: schedule.start_time,
               durationMinutes: schedule.duration_minutes,
               maxCapacity: schedule.max_capacity,
-              monthStartDate: schedule.month_start_date
+              monthStartDate: schedule.month_start_date || format(targetDate, 'yyyy-MM-dd')
             });
           }
         }

@@ -94,7 +94,7 @@ export type Database = {
           duration_minutes: number
           id: string
           max_capacity: number
-          month_start_date: string
+          month_start_date: string | null
           start_time: string
           updated_at: string
         }
@@ -105,7 +105,7 @@ export type Database = {
           duration_minutes: number
           id?: string
           max_capacity?: number
-          month_start_date: string
+          month_start_date?: string | null
           start_time: string
           updated_at?: string
         }
@@ -116,7 +116,7 @@ export type Database = {
           duration_minutes?: number
           id?: string
           max_capacity?: number
-          month_start_date?: string
+          month_start_date?: string | null
           start_time?: string
           updated_at?: string
         }
