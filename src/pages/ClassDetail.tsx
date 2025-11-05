@@ -598,10 +598,17 @@ export default function ClassDetail() {
                               <h4 className="font-semibold mb-2 text-muted-foreground">Confirmados ({confirmedBookings.length})</h4>
                               <div className="flex flex-wrap gap-1.5">
                                 {confirmedBookings.map((booking) => {
-                                  const displayName = [
-                                    booking.profiles?.full_name?.trim(),
-                                    booking.profiles?.apellidos?.trim()
-                                  ].filter(Boolean).join(' ') || "Usuario";
+                                  const fullName = booking.profiles?.full_name?.trim() || '';
+                                  const apellidos = booking.profiles?.apellidos?.trim() || '';
+                                  const displayName = [fullName, apellidos].filter(n => n.length > 0).join(' ') || "Usuario";
+                                  
+                                  console.log('Booking:', { 
+                                    userId: booking.user_id, 
+                                    fullName, 
+                                    apellidos, 
+                                    displayName,
+                                    profiles: booking.profiles 
+                                  });
                                   
                                   return (
                                     <div key={booking.user_id} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
@@ -633,10 +640,9 @@ export default function ClassDetail() {
                               <h4 className="font-semibold mb-2 text-muted-foreground">Lista de espera ({waitlistBookings.length})</h4>
                               <div className="space-y-1.5">
                                 {waitlistBookings.map((booking) => {
-                                  const displayName = [
-                                    booking.profiles?.full_name?.trim(),
-                                    booking.profiles?.apellidos?.trim()
-                                  ].filter(Boolean).join(' ') || "Usuario";
+                                  const fullName = booking.profiles?.full_name?.trim() || '';
+                                  const apellidos = booking.profiles?.apellidos?.trim() || '';
+                                  const displayName = [fullName, apellidos].filter(n => n.length > 0).join(' ') || "Usuario";
                                   
                                   return (
                                     <div key={booking.user_id} className="flex items-center gap-1.5 bg-accent/50 px-2 py-1 rounded">
