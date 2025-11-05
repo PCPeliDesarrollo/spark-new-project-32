@@ -70,9 +70,20 @@ export default function ManageSchedules() {
 
   useEffect(() => {
     if (isAdmin) {
+      // Force reload data when component mounts
       loadData();
     }
   }, [isAdmin]);
+
+  // Force reload on mount to clear cache
+  useEffect(() => {
+    if (isAdmin) {
+      const timer = setTimeout(() => {
+        loadData();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const getWeekDates = () => {
     const today = new Date();
