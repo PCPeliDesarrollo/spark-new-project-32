@@ -78,6 +78,17 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
+        <div className="px-2 py-4 border-b border-primary/20">
+          <Button
+            variant="destructive"
+            size="lg"
+            className="w-full justify-center gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold shadow-lg"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Cerrar Sesión</span>
+          </Button>
+        </div>
         <SidebarGroup>
           <SidebarGroupLabel className="text-base md:text-lg font-bold text-primary">
             {open && <span>MENÚ</span>}
@@ -124,17 +135,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="mt-auto border-t border-primary/20 pt-4 pb-4 px-2">
-        <Button
-          variant="destructive"
-          size="lg"
-          className="w-full justify-center gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold shadow-lg"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Cerrar Sesión</span>
-        </Button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
