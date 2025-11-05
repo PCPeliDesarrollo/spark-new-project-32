@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock, UserPlus } from "lucide-react";
+import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock, UserPlus, X } from "lucide-react";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -637,16 +637,17 @@ export default function ClassDetail() {
                                         size="sm"
                                       />
                                       <span className="text-xs">{displayName}</span>
-                                    {isAdmin && (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-4 w-4 p-0 hover:bg-destructive/10 ml-1"
-                                        onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
-                                      >
-                                        ×
-                                      </Button>
-                                    )}
+                                       {isAdmin && (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="h-5 w-5 p-0 hover:bg-destructive hover:text-destructive-foreground ml-1 rounded-full"
+                                          onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
+                                          title="Cancelar reserva"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </Button>
+                                      )}
                                     </div>
                                   );
                                 })}
@@ -672,16 +673,17 @@ export default function ClassDetail() {
                                         size="sm"
                                       />
                                       <span className="text-xs">{displayName}</span>
-                                    {isAdmin && (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="h-4 w-4 p-0 hover:bg-destructive/10 ml-auto"
-                                        onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
-                                      >
-                                        ×
-                                      </Button>
-                                    )}
+                                      {isAdmin && (
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="h-5 w-5 p-0 hover:bg-destructive hover:text-destructive-foreground ml-auto rounded-full"
+                                          onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
+                                          title="Cancelar reserva"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </Button>
+                                      )}
                                     </div>
                                   );
                                 })}
