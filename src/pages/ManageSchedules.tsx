@@ -112,8 +112,8 @@ export default function ManageSchedules() {
       .from("class_schedules")
       .select(`
         *,
-        classes:class_id (name),
-        bookings:class_bookings(count)
+        classes (name),
+        bookings:class_bookings (count)
       `)
       .eq("month_start_date", monthStartDate)
       .order("day_of_week")
