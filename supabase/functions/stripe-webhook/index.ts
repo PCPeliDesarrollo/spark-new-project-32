@@ -74,14 +74,38 @@ serve(async (req) => {
           }
         }
 
-        // Generate unique QR code
-        const qrCode = userId || `guest-${paymentIntentId}`;
+        // Generate unique 6-digit access code
+        const generateAccessCode = () => {
+          return Math.floor(100000 + Math.random() * 900000).toString();
+        };
+
+        let accessCode = generateAccessCode();
+        
+        // Ensure code is unique
+        let isUnique = false;
+        let attempts = 0;
+        while (!isUnique && attempts < 10) {
+          const { data: existing } = await supabaseAdmin
+            .from("single_class_purchases")
+            .select("id")
+            .eq("access_code", accessCode)
+            .eq("used", false)
+            .maybeSingle();
+          
+          if (!existing) {
+            isUnique = true;
+          } else {
+            accessCode = generateAccessCode();
+            attempts++;
+          }
+        }
 
         // Insert purchase record
         const purchaseData: any = {
           stripe_payment_id: paymentIntentId,
           amount: 450, // €4.50 in cents
-          qr_code: qrCode,
+          qr_code: userId || `guest-${paymentIntentId}`,
+          access_code: accessCode,
         };
 
         // Only add user_id if it exists (registered user)
@@ -109,32 +133,35 @@ serve(async (req) => {
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #3B82F6;">¡Gracias por tu compra!</h1>
             <p>Hola${fullName ? ` ${fullName}` : ""},</p>
-            <p>Has comprado con éxito una clase individual en Pantera Fitness.</p>
+            <p>Has comprado con éxito una clase individual en Panthera Fitness Alburquerque.</p>
             <p><strong>Detalles de tu compra:</strong></p>
             <ul>
               <li>Producto: Clase Individual</li>
               <li>Precio: €4.50</li>
               <li>Fecha: ${new Date().toLocaleDateString("es-ES")}</li>
             </ul>
-            <p>Tu código QR para acceder al gimnasio es:</p>
+            <p style="font-size: 16px; font-weight: bold; margin: 30px 0;">Tu código de acceso es:</p>
             <div style="text-align: center; margin: 30px 0;">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrCode}" 
-                   alt="QR Code" 
-                   style="width: 300px; height: 300px; border: 2px solid #3B82F6; padding: 10px; background: white;" />
+              <div style="background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); color: white; font-size: 48px; font-weight: bold; padding: 30px; border-radius: 15px; letter-spacing: 8px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);">
+                ${accessCode}
+              </div>
             </div>
-            <p><strong>Importante:</strong> Guarda este email para poder acceder a tu clase. Presenta el código QR en la entrada del gimnasio.</p>
+            <p><strong>Importante:</strong> Este código es válido solo para HOY ${new Date().toLocaleDateString("es-ES")}. Guarda este email y presenta el código en la entrada del gimnasio.</p>
+            <p style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0;">
+              ⚠️ <strong>Atención:</strong> El código debe usarse el mismo día de la compra. Una vez usado, no podrás reutilizarlo.
+            </p>
             <p>¡Nos vemos en el gimnasio!</p>
             <p style="color: #666; font-size: 12px; margin-top: 40px;">
-              Pantera Fitness<br/>
-              Este email contiene tu código QR personal. No lo compartas con nadie.
+              Panthera Fitness Alburquerque<br/>
+              Este email contiene tu código de acceso personal. No lo compartas con nadie.
             </p>
           </div>
         `;
 
         const { error: emailError } = await resend.emails.send({
-          from: "Pantera Fitness <onboarding@resend.dev>",
+          from: "Panthera Fitness <onboarding@resend.dev>",
           to: [userEmail],
-          subject: "Tu clase individual en Pantera Fitness 🎉",
+          subject: `Tu código de acceso: ${accessCode} - Panthera Fitness 🎉`,
           html: emailHtml,
         });
 
@@ -150,7 +177,7 @@ serve(async (req) => {
           await supabaseAdmin.from("notifications").insert({
             user_id: userId,
             title: "¡Compra exitosa!",
-            message: "Has comprado una clase individual. Revisa tu email para ver el código QR.",
+            message: `Has comprado una clase individual. Tu código de acceso es: ${accessCode}. Válido solo para hoy.`,
             type: "success",
           });
         }

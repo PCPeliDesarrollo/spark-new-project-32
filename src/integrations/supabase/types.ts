@@ -261,6 +261,7 @@ export type Database = {
       }
       single_class_purchases: {
         Row: {
+          access_code: string | null
           amount: number
           created_at: string
           id: string
@@ -271,6 +272,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          access_code?: string | null
           amount: number
           created_at?: string
           id?: string
@@ -281,6 +283,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          access_code?: string | null
           amount?: number
           created_at?: string
           id?: string
