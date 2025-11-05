@@ -178,8 +178,10 @@ export default function ManageSchedules() {
       return;
     }
 
-    // Use a fixed reference date for month_start_date
-    const monthStartDateStr = "2025-11-01";
+    // Calculate month_start_date for the current month
+    const today = new Date();
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthStartDateStr = monthStart.toISOString().split('T')[0];
 
     const { error } = await supabase
       .from("class_schedules")
