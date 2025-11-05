@@ -317,11 +317,11 @@ export default function ManageSchedules() {
 
   const weekDates = getWeekDates();
 
-  // Generate time slots from 6:00 to 22:00 (every 30 minutes)
+  // Generate time slots from 6:00 to 22:00 (every 15 minutes for better precision)
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 6; hour <= 22; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+      for (let minute = 0; minute < 60; minute += 15) {
         if (hour === 22 && minute > 0) break;
         const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         slots.push(timeStr);
@@ -616,19 +616,19 @@ export default function ManageSchedules() {
                                   const isFull = bookingCount >= schedule.max_capacity;
                                   const scheduleTime = schedule.start_time.substring(0, 5);
                                   
-                                  // Only render the schedule card at its start time
-                                  if (scheduleTime !== timeSlot) return null;
-                                  
-                                  const slots = Math.ceil(schedule.duration_minutes / 30);
+                                   // Only render the schedule card at its start time
+                                   if (scheduleTime !== timeSlot) return null;
+                                   
+                                   const slots = Math.ceil(schedule.duration_minutes / 15);
                                   
                                   return (
-                                    <div
-                                      key={schedule.id}
-                                      className="group relative bg-primary/10 border border-primary/30 rounded p-1.5 mb-1 hover:bg-primary/20 transition-colors"
-                                      style={{ 
-                                        minHeight: `${slots * 60 - 8}px`,
-                                      }}
-                                    >
+                                     <div
+                                       key={schedule.id}
+                                       className="group relative bg-primary/10 border border-primary/30 rounded p-1.5 mb-1 hover:bg-primary/20 transition-colors"
+                                       style={{ 
+                                         minHeight: `${slots * 15 - 8}px`,
+                                       }}
+                                     >
                                       <div className="flex items-start justify-between gap-1 mb-1">
                                         <p className="font-medium text-xs line-clamp-1">{schedule.classes?.name}</p>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
