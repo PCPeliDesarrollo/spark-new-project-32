@@ -123,6 +123,33 @@ export default function ClassDetail() {
     loadData();
   }, [id]);
 
+  // Subscribe to real-time updates for bookings
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`class-${id}-bookings`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'class_bookings',
+          filter: `schedule_id=in.(${schedules.map(s => s.id).join(',')})`
+        },
+        (payload) => {
+          console.log('Booking change detected:', payload);
+          // Reload bookings data when any change occurs
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, schedules]);
+
   useEffect(() => {
     if (isAdmin) {
       loadUsers();
