@@ -589,7 +589,7 @@ export default function ClassDetail() {
                         </div>
                       </div>
 
-                      {(confirmedBookings.length > 0 || waitlistBookings.length > 0) && (
+                      {(confirmedBookings.length > 0 || waitlistBookings.length > 0) && selectedSchedule === dateKey && (
                         <div className="mt-3 space-y-3 text-xs">
                           {confirmedBookings.length > 0 && (
                             <div className="border-t border-border pt-3">
@@ -649,6 +649,15 @@ export default function ClassDetail() {
                           )}
                         </div>
                       )}
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedSchedule(selectedSchedule === dateKey ? null : dateKey)}
+                        className="text-xs mt-2"
+                      >
+                        {selectedSchedule === dateKey ? "Ocultar" : "Ver"} apuntados ({confirmedCount + waitlistBookings.length})
+                      </Button>
                     </div>
                   );
                 })}
