@@ -124,14 +124,15 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="mt-auto sticky bottom-0 bg-sidebar border-t pt-2 pb-2">
+      <SidebarFooter className="mt-auto border-t border-primary/20 pt-4 pb-4 px-2">
         <Button
           variant="destructive"
-          className="w-full justify-start bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+          size="lg"
+          className="w-full justify-center gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold shadow-lg"
           onClick={handleLogout}
         >
-          <LogOut className="h-4 w-4 shrink-0" />
-          {open && <span className="ml-2">Cerrar Sesión</span>}
+          <LogOut className="h-5 w-5" />
+          <span>Cerrar Sesión</span>
         </Button>
       </SidebarFooter>
     </Sidebar>
