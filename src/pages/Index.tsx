@@ -74,23 +74,25 @@ const Index = () => {
       </div>
 
       {/* Header */}
-      <header className="border-b border-primary/20 bg-card/30 backdrop-blur-md sticky top-0 z-50 shadow-lg shadow-primary/5 relative">
-        <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-3 flex-1 justify-center md:justify-start">
-            <div className="relative p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105">
+      <header className="border-b border-primary/20 bg-card/30 backdrop-blur-md sticky top-0 z-50 shadow-lg shadow-primary/5">
+        <div className="container mx-auto px-3 md:px-4 py-3 md:py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+            <div className="relative p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105 flex-shrink-0">
               <img src={panteraLogo} alt="Panthera Fitness" className="w-5 h-5 md:w-7 md:h-7 object-contain" />
             </div>
-            <span className="font-bebas text-base md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">PANTHERA FITNESS ALBURQUERQUE</span>
+            <span className="font-bebas text-sm md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] truncate">
+              <span className="hidden sm:inline">PANTHERA FITNESS ALBURQUERQUE</span>
+              <span className="sm:hidden">PANTHERA</span>
+            </span>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={handleLogout}
-            className="border-primary/30 bg-card/50 backdrop-blur-sm hover:bg-destructive/20 hover:text-destructive hover:border-destructive/50 text-xs md:text-sm transition-all duration-300 hover:scale-105 absolute md:relative right-4 md:right-0"
+            className="border-primary/30 bg-card/50 backdrop-blur-sm hover:bg-destructive/20 hover:text-destructive hover:border-destructive/50 text-xs md:text-sm transition-all duration-300 hover:scale-105 flex-shrink-0"
           >
-            <LogOut className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-            <span className="hidden sm:inline">Cerrar Sesión</span>
-            <span className="sm:hidden">Salir</span>
+            <LogOut className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Cerrar Sesión</span>
           </Button>
         </div>
       </header>
