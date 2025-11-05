@@ -418,7 +418,9 @@ export default function ClassDetail() {
         } else {
           toast({
             title: "¡Apuntado!",
-            description: targetUserId ? "Usuario apuntado a la clase" : "Te has apuntado a esta clase",
+            description: targetUserId 
+              ? "Usuario apuntado a la clase" 
+              : "Te has apuntado a esta clase. Recuerda: si no cancelas con al menos 1 hora de antelación, perderás esta clase.",
           });
         }
       }
