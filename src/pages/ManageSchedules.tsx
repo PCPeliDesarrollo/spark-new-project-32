@@ -92,19 +92,6 @@ export default function ManageSchedules() {
 
   const loadData = async () => {
     setLoading(true);
-    
-    // Get current month range
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    
-    // First day of current month
-    const monthStart = new Date(currentYear, currentMonth, 1);
-    const monthStartStr = monthStart.toISOString().split('T')[0];
-    
-    // First day of next month
-    const nextMonthStart = new Date(currentYear, currentMonth + 1, 1);
-    const nextMonthStartStr = nextMonthStart.toISOString().split('T')[0];
 
     // Load classes
     const { data: classesData } = await supabase
@@ -116,7 +103,7 @@ export default function ManageSchedules() {
       setClasses(classesData);
     }
 
-    // Load schedules where month_start_date is in current month
+    // Load ALL schedules (no month filter)
     const { data: schedulesData, error } = await supabase
       .from("class_schedules")
       .select(`
@@ -124,8 +111,6 @@ export default function ManageSchedules() {
         classes!class_schedules_class_id_fkey (name),
         bookings:class_bookings (count)
       `)
-      .gte("month_start_date", monthStartStr)
-      .lt("month_start_date", nextMonthStartStr)
       .order("day_of_week")
       .order("start_time");
 
@@ -193,12 +178,8 @@ export default function ManageSchedules() {
       return;
     }
 
-    // Calculate month_start_date for the current month
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    const monthStart = new Date(currentYear, currentMonth, 1);
-    const monthStartDateStr = monthStart.toISOString().split('T')[0];
+    // Use a fixed reference date for month_start_date
+    const monthStartDateStr = "2025-11-01";
 
     const { error } = await supabase
       .from("class_schedules")

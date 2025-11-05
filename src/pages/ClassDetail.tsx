@@ -181,25 +181,11 @@ export default function ClassDetail() {
       if (classError) throw classError;
       setClassData(classInfo);
 
-      // Load schedules for current and next month
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth();
-      
-      // Current month start
-      const monthStart = new Date(currentYear, currentMonth, 1);
-      const monthStartStr = monthStart.toISOString().split('T')[0];
-      
-      // Next month start (for filtering)
-      const twoMonthsLater = new Date(currentYear, currentMonth + 2, 1);
-      const twoMonthsLaterStr = twoMonthsLater.toISOString().split('T')[0];
-
+      // Load ALL schedules for this class (no month filter)
       const { data: schedulesData, error: schedulesError } = await supabase
         .from("class_schedules")
         .select("*")
         .eq("class_id", id)
-        .gte("month_start_date", monthStartStr)
-        .lt("month_start_date", twoMonthsLaterStr)
         .order("day_of_week")
         .order("start_time");
 
