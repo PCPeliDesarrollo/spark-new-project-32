@@ -738,7 +738,7 @@ export default function ClassDetail() {
               <div>
                 <h3 className="font-medium mb-2">Reservas</h3>
                 <p className="text-sm text-muted-foreground">
-                  Las reservas se pueden cancelar hasta 1 hora antes de la clase
+                  Las reservas se pueden cancelar hasta 1 hora antes de la clase. Si no cancelas a tiempo, perderás esa clase.
                 </p>
               </div>
             </CardContent>
