@@ -80,7 +80,7 @@ const Index = () => {
             <div className="relative p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105">
               <img src={panteraLogo} alt="Panthera Fitness" className="w-5 h-5 md:w-7 md:h-7 object-contain" />
             </div>
-            <span className="font-bebas text-base md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">PANTHERA FITNESS</span>
+            <span className="font-bebas text-base md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">PANTHERA FITNESS ALBURQUERQUE</span>
           </div>
           <Button
             variant="outline"
@@ -108,7 +108,7 @@ const Index = () => {
             <img src={panteraLogo} alt="Panthera Fitness" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
           </div>
           <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 md:mb-6 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent animate-fade-in leading-tight drop-shadow-[0_4px_20px_rgba(59,130,246,0.8)] [text-shadow:_0_0_40px_rgba(59,130,246,0.6)]">
-            BIENVENIDO A PANTHERA FITNESS
+            BIENVENIDO A PANTHERA FITNESS ALBURQUERQUE
           </h1>
           <p className="text-xl md:text-3xl font-bold text-foreground/90 mb-6 md:mb-8 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] [text-shadow:_0_2px_20px_rgba(59,130,246,0.5)]">
             🔥 TRANSFORMA TU CUERPO, SUPERA TUS LÍMITES 🔥
