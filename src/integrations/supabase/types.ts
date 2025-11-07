@@ -111,6 +111,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "class_bookings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       class_schedules: {
@@ -381,7 +388,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          apellidos: string | null
+          avatar_url: string | null
+          blocked: boolean | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+        }
+        Insert: {
+          apellidos?: string | null
+          avatar_url?: string | null
+          blocked?: boolean | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+        }
+        Update: {
+          apellidos?: string | null
+          avatar_url?: string | null
+          blocked?: boolean | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_booking_limit: { Args: { _user_id: string }; Returns: boolean }
