@@ -21,6 +21,27 @@ export default function Classes() {
 
   useEffect(() => {
     loadData();
+
+    // Suscribirse a cambios en tiempo real en la tabla classes
+    const channel = supabase
+      .channel('classes-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'classes'
+        },
+        (payload) => {
+          console.log('Cambio detectado en classes:', payload);
+          loadData(); // Recargar las clases cuando haya cambios
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadData = async () => {
