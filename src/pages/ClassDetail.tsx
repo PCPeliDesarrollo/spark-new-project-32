@@ -12,6 +12,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { format, isBefore, setHours, setMinutes, getDaysInMonth, startOfMonth, getDay } from "date-fns";
 import { es } from "date-fns/locale";
+import { FreeTrainingBooking } from "@/components/FreeTrainingBooking";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ interface ClassData {
   name: string;
   description: string;
   image_url: string;
+  is_free_training: boolean;
 }
 
 interface UserWithRole {
@@ -531,195 +533,184 @@ export default function ClassDetail() {
             </CardHeader>
           </Card>
 
-          {scheduleInstances.length > 0 && (
-            <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-              <CardHeader className="text-center">
-                <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                  HORARIOS DEL MES
-                </CardTitle>
-                <CardDescription>
-                  Selecciona las clases que quieres reservar
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {scheduleInstances.map((instance) => {
-                  const dateKey = `${instance.scheduleId}-${format(instance.date, 'yyyy-MM-dd')}`;
-                  const userBooking = bookings[dateKey]?.find(b => b.user_id === userId);
-                  const confirmedBookings = bookings[dateKey]?.filter(b => b.status === 'confirmed') || [];
-                  const waitlistBookings = bookings[dateKey]?.filter(b => b.status === 'waitlist') || [];
-                  const confirmedCount = confirmedBookings.length;
-                  const isFull = confirmedCount >= instance.maxCapacity;
-                  const isBooked = !!userBooking;
-                  const isOnWaitlist = userBooking?.status === 'waitlist';
+          {classData.is_free_training ? (
+            <div className="mt-4 md:mt-6">
+              {userId && (
+                <FreeTrainingBooking
+                  classId={classData.id}
+                  className={classData.name}
+                  userId={userId}
+                  onBookingSuccess={loadData}
+                  isBlocked={isBlocked}
+                  canBookClasses={canBookClasses}
+                />
+              )}
+            </div>
+          ) : (
+            <>
+              {scheduleInstances.length > 0 && (
+                <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+                  <CardHeader className="text-center">
+                    <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                      HORARIOS DEL MES
+                    </CardTitle>
+                    <CardDescription>
+                      Selecciona las clases que quieres reservar
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {scheduleInstances.map((instance) => {
+                      const dateKey = `${instance.scheduleId}-${format(instance.date, 'yyyy-MM-dd')}`;
+                      const userBooking = bookings[dateKey]?.find(b => b.user_id === userId);
+                      const confirmedBookings = bookings[dateKey]?.filter(b => b.status === 'confirmed') || [];
+                      const waitlistBookings = bookings[dateKey]?.filter(b => b.status === 'waitlist') || [];
+                      const confirmedCount = confirmedBookings.length;
+                      const isFull = confirmedCount >= instance.maxCapacity;
+                      const isBooked = !!userBooking;
+                      const isOnWaitlist = userBooking?.status === 'waitlist';
 
-                  const formattedDate = format(instance.date, "EEEE d 'de' MMMM", { locale: es });
+                      const formattedDate = format(instance.date, "EEEE d 'de' MMMM", { locale: es });
 
-                  return (
-                    <div
-                      key={dateKey}
-                      className="flex flex-col p-3 md:p-4 border border-primary/20 rounded-lg hover:bg-accent/50 hover:border-primary/40 transition-all"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-xs capitalize">
-                              <Calendar className="mr-1 h-3 w-3" />
-                              {formattedDate}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              <Clock className="mr-1 h-3 w-3" />
-                              {instance.startTime.slice(0, 5)}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              <Users className="mr-1 h-3 w-3" />
-                              {confirmedCount}/{instance.maxCapacity}
-                            </Badge>
-                            {waitlistBookings.length > 0 && (
-                              <Badge variant="secondary" className="text-xs bg-primary/20">
-                                +{waitlistBookings.length} en espera
-                              </Badge>
-                            )}
-                            {isOnWaitlist && (
-                              <Badge variant="secondary" className="text-xs bg-accent">
-                                Posición {userBooking.position}
-                              </Badge>
-                            )}
+                      return (
+                        <div
+                          key={dateKey}
+                          className="flex flex-col p-3 md:p-4 border border-primary/20 rounded-lg hover:bg-accent/50 hover:border-primary/40 transition-all"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  <Calendar className="mr-1 h-3 w-3" />
+                                  {formattedDate}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <Clock className="mr-1 h-3 w-3" />
+                                  {instance.startTime.slice(0, 5)}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <Users className="mr-1 h-3 w-3" />
+                                  {confirmedCount}/{instance.maxCapacity}
+                                </Badge>
+                                {waitlistBookings.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs bg-primary/20">
+                                    +{waitlistBookings.length} en espera
+                                  </Badge>
+                                )}
+                                {isOnWaitlist && (
+                                  <Badge variant="secondary" className="text-xs bg-accent">
+                                    Posición {userBooking.position}
+                                  </Badge>
+                                )}
+                              </div>
+                              {isFull && !isBooked && (
+                                <div className="mt-2 text-xs bg-accent/50 border border-primary/30 rounded p-2">
+                                  <span className="font-semibold text-foreground">COMPLETO</span>
+                                  <span className="text-muted-foreground"> - Puedes apuntarte a la lista de espera y te avisaremos si nos queda algún hueco libre</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                              {isAdmin && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openAdminBookingDialog(instance.scheduleId, instance.date)}
+                                  className="text-xs"
+                                >
+                                  <UserPlus className="h-3 w-3 mr-1" />
+                                  Apuntar usuario
+                                </Button>
+                              )}
+                              {!isBooked ? (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleBooking(instance.scheduleId, instance.date)}
+                                  disabled={isBlocked || !canBookClasses}
+                                  className="text-xs"
+                                >
+                                  Apuntarme
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleBooking(instance.scheduleId, instance.date)}
+                                  disabled={isBlocked}
+                                  className="text-xs"
+                                >
+                                  <X className="h-3 w-3 mr-1" />
+                                  Cancelar
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                          {isFull && !isBooked && (
-                            <div className="mt-2 text-xs bg-accent/50 border border-primary/30 rounded p-2">
-                              <span className="font-semibold text-foreground">COMPLETO</span>
-                              <span className="text-muted-foreground"> - Puedes apuntarte a la lista de espera y te avisaremos si nos queda algún hueco libre</span>
+
+                          {selectedSchedule === dateKey && confirmedBookings.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-border">
+                              <h4 className="text-sm font-medium mb-2">Confirmados:</h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {confirmedBookings.map((booking) => (
+                                  <div key={booking.user_id} className="flex items-center gap-2 p-2 bg-accent/30 rounded">
+                                    <UserAvatar
+                                      avatarUrl={booking.profiles?.avatar_url}
+                                      fullName={booking.profiles?.full_name}
+                                      size="sm"
+                                    />
+                                    <span className="text-sm">
+                                      {booking.profiles?.full_name} {booking.profiles?.apellidos || ""}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                              {waitlistBookings.length > 0 && (
+                                <>
+                                  <h4 className="text-sm font-medium mb-2 mt-3">Lista de espera:</h4>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {waitlistBookings.map((booking) => (
+                                      <div key={booking.user_id} className="flex items-center gap-2 p-2 bg-accent/20 rounded">
+                                        <Badge variant="outline" className="text-xs">
+                                          {booking.position}
+                                        </Badge>
+                                        <UserAvatar
+                                          avatarUrl={booking.profiles?.avatar_url}
+                                          fullName={booking.profiles?.full_name}
+                                          size="sm"
+                                        />
+                                        <span className="text-sm">
+                                          {booking.profiles?.full_name} {booking.profiles?.apellidos || ""}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </>
+                              )}
                             </div>
                           )}
-                        </div>
-                        <div className="flex gap-2 w-full sm:w-auto">
-                          {isAdmin && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openAdminBookingDialog(instance.scheduleId, instance.date)}
-                              className="w-full sm:w-auto"
-                            >
-                              <UserPlus className="mr-2 h-4 w-4" />
-                              Apuntar Usuario
-                            </Button>
-                          )}
+
                           <Button
-                            onClick={() => handleBooking(instance.scheduleId, instance.date)}
-                            disabled={isBlocked || (!canBookClasses && !isAdmin)}
-                            variant={isBooked ? "destructive" : isFull && !isBooked ? "outline" : "default"}
+                            variant="ghost"
                             size="sm"
-                            className="w-full sm:w-auto"
+                            onClick={() => setSelectedSchedule(selectedSchedule === dateKey ? null : dateKey)}
+                            className="text-xs mt-2"
                           >
-                            {isOnWaitlist ? "Cancelar Lista de Espera" : (isBooked ? "Cancelar" : (isFull ? "Lista de Espera" : "Apuntarse"))}
+                            {selectedSchedule === dateKey ? "Ocultar" : "Ver"} apuntados ({confirmedCount + waitlistBookings.length})
                           </Button>
                         </div>
-                      </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              )}
 
-                      {(confirmedBookings.length > 0 || waitlistBookings.length > 0) && selectedSchedule === dateKey && (
-                        <div className="mt-3 space-y-3 text-xs">
-                          {confirmedBookings.length > 0 && (
-                            <div className="border-t border-border pt-3">
-                              <h4 className="font-semibold mb-2 text-muted-foreground">Confirmados ({confirmedBookings.length})</h4>
-                              <div className="flex flex-wrap gap-1.5">
-                                {confirmedBookings.map((booking) => {
-                                  const fullName = booking.profiles?.full_name?.trim() || '';
-                                  const apellidos = booking.profiles?.apellidos?.trim() || '';
-                                  const displayName = [fullName, apellidos].filter(n => n.length > 0).join(' ') || "Usuario";
-                                  
-                                  console.log('Booking:', { 
-                                    userId: booking.user_id, 
-                                    fullName, 
-                                    apellidos, 
-                                    displayName,
-                                    profiles: booking.profiles 
-                                  });
-                                  
-                                  return (
-                                    <div key={booking.user_id} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded">
-                                      <UserAvatar 
-                                        fullName={displayName} 
-                                        avatarUrl={booking.profiles?.avatar_url}
-                                        size="sm"
-                                      />
-                                      <span className="text-xs">{displayName}</span>
-                                       {isAdmin && (
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          className="h-5 w-5 p-0 hover:bg-destructive hover:text-destructive-foreground ml-1 rounded-full"
-                                          onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
-                                          title="Cancelar reserva"
-                                        >
-                                          <X className="h-3 w-3" />
-                                        </Button>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {waitlistBookings.length > 0 && (
-                            <div className="border-t border-border pt-3">
-                              <h4 className="font-semibold mb-2 text-muted-foreground">Lista de espera ({waitlistBookings.length})</h4>
-                              <div className="space-y-1.5">
-                                {waitlistBookings.map((booking) => {
-                                  const fullName = booking.profiles?.full_name?.trim() || '';
-                                  const apellidos = booking.profiles?.apellidos?.trim() || '';
-                                  const displayName = [fullName, apellidos].filter(n => n.length > 0).join(' ') || "Usuario";
-                                  
-                                  return (
-                                    <div key={booking.user_id} className="flex items-center gap-1.5 bg-accent/50 px-2 py-1 rounded">
-                                      <Badge variant="outline" className="text-xs">{booking.position}</Badge>
-                                      <UserAvatar 
-                                        fullName={displayName} 
-                                        avatarUrl={booking.profiles?.avatar_url}
-                                        size="sm"
-                                      />
-                                      <span className="text-xs">{displayName}</span>
-                                      {isAdmin && (
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          className="h-5 w-5 p-0 hover:bg-destructive hover:text-destructive-foreground ml-auto rounded-full"
-                                          onClick={() => handleBooking(instance.scheduleId, instance.date, booking.user_id)}
-                                          title="Cancelar reserva"
-                                        >
-                                          <X className="h-3 w-3" />
-                                        </Button>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedSchedule(selectedSchedule === dateKey ? null : dateKey)}
-                        className="text-xs mt-2"
-                      >
-                        {selectedSchedule === dateKey ? "Ocultar" : "Ver"} apuntados ({confirmedCount + waitlistBookings.length})
-                      </Button>
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          )}
-
-          {scheduleInstances.length === 0 && (
-            <Card className="mt-4 md:mt-6">
-              <CardContent className="p-8 md:p-12 text-center">
-                <p className="text-muted-foreground">No hay horarios disponibles para esta clase este mes</p>
-              </CardContent>
-            </Card>
+              {scheduleInstances.length === 0 && (
+                <Card className="mt-4 md:mt-6">
+                  <CardContent className="p-8 md:p-12 text-center">
+                    <p className="text-muted-foreground">No hay horarios disponibles para esta clase este mes</p>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </div>
 

@@ -163,6 +163,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_free_training: boolean
           name: string
           updated_at: string
         }
@@ -171,6 +172,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_free_training?: boolean
           name: string
           updated_at?: string
         }
@@ -179,6 +181,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_free_training?: boolean
           name?: string
           updated_at?: string
         }
