@@ -75,7 +75,7 @@ export default function BuySingleClass() {
             <CardHeader>
               <CardTitle className="text-2xl">Comprar Clase</CardTitle>
               <CardDescription>
-                Ingresa tu email para recibir el código QR de acceso
+                Ingresa tu email para recibir el código numérico de acceso
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -141,9 +141,9 @@ export default function BuySingleClass() {
               <div className="flex gap-3">
                 <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold mb-1">Código QR por Email</h3>
+                  <h3 className="font-semibold mb-1">Código Numérico por Email</h3>
                   <p className="text-sm text-muted-foreground">
-                    Recibirás tu código QR de acceso inmediatamente después del pago
+                    Recibirás tu código de 6 dígitos inmediatamente después del pago
                   </p>
                 </div>
               </div>
@@ -199,9 +199,9 @@ export default function BuySingleClass() {
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-primary">3</span>
               </div>
-              <h3 className="font-semibold text-lg">Recibe tu QR</h3>
+              <h3 className="font-semibold text-lg">Recibe tu Código</h3>
               <p className="text-sm text-muted-foreground">
-                Revisa tu email y muestra el código QR en tu próxima visita
+                Revisa tu email y muestra el código numérico de 6 dígitos en tu próxima visita
               </p>
             </div>
           </div>

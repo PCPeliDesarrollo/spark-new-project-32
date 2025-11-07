@@ -44,19 +44,19 @@ export default function PaymentSuccess() {
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
                   <span>
-                    Recibirás un email con tu código QR personal en los próximos minutos
+                    Recibirás un email con tu código numérico de acceso en los próximos minutos
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
                   <span>
-                    Guarda el email o descarga el QR en tu dispositivo
+                    Guarda el email con el código de 6 dígitos
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
                   <span>
-                    Presenta el código QR en la entrada del gimnasio cuando vengas a entrenar
+                    Presenta el código numérico en la entrada del gimnasio cuando vengas a entrenar
                   </span>
                 </li>
               </ul>
