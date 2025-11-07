@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, MapPin, Phone, Mail, Users, Navigation } from "lucide-react";
+import { Clock, MapPin, Phone, Mail, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import pan1 from "@/assets/pan1.jpeg";
@@ -14,12 +14,6 @@ import pan9 from "@/assets/pan9.jpeg";
 
 export default function GymInfo() {
   const gymLocation = "CF El prado 3, 06510 Alburquerque Badajoz";
-  const gymCoordinates = "39.2194,-5.7994"; // Coordenadas de Alburquerque, Badajoz
-
-  const handleOpenMaps = () => {
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${gymCoordinates}`;
-    window.open(mapsUrl, "_blank");
-  };
 
   const gymImages = [
     { src: pan7, alt: "Panthera Alburquerque - Exterior del Centro" },
@@ -76,15 +70,8 @@ export default function GymInfo() {
               Ubicación
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent>
             <p className="text-sm md:text-base text-muted-foreground">{gymLocation}</p>
-            <Button
-              onClick={handleOpenMaps}
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary text-sm md:text-base"
-            >
-              <Navigation className="mr-2 h-4 w-4" />
-              Abrir en Google Maps
-            </Button>
           </CardContent>
         </Card>
 
