@@ -317,14 +317,14 @@ export default function ManageSchedules() {
 
   const weekDates = getWeekDates();
 
-  // Generate time slots from 6:00 to 22:00 (every 5 minutes for precision)
+  // Generate time slots from 8:00 to 23:00 (every 15 minutes)
   const generateTimeSlots = () => {
     const slots = new Set<string>();
     
     // Add standard slots every 15 minutes
-    for (let hour = 6; hour <= 22; hour++) {
+    for (let hour = 8; hour <= 23; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
-        if (hour === 22 && minute > 0) break;
+        if (hour === 23 && minute > 0) break;
         const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         slots.add(timeStr);
       }
