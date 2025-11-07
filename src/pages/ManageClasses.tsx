@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ImageCropEditor } from "@/components/ImageCropEditor";
 
 interface ClassData {
   id: string;
@@ -50,6 +51,8 @@ export default function ManageClasses() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string>("");
 
   useEffect(() => {
     loadClasses();
@@ -80,13 +83,26 @@ export default function ManageClasses() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setTempImageUrl(reader.result as string);
+        setIsCropDialogOpen(true);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const croppedFile = new File([croppedBlob], "cropped-image.jpg", {
+      type: "image/jpeg",
+    });
+    setImageFile(croppedFile);
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(croppedFile);
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -531,6 +547,15 @@ export default function ManageClasses() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Crop Editor */}
+      <ImageCropEditor
+        imageUrl={tempImageUrl}
+        open={isCropDialogOpen}
+        onClose={() => setIsCropDialogOpen(false)}
+        onCropComplete={handleCropComplete}
+        aspect={16 / 9}
+      />
     </div>
   );
 }
