@@ -6,10 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, Lock, Download, AlertCircle } from "lucide-react";
+import { Loader2, Upload, Lock, RefreshCw, AlertCircle } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { z } from "zod";
-import { QRCodeSVG } from "qrcode.react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -39,6 +38,10 @@ export default function Profile() {
   const { isBlocked, loading: blockLoading } = useBlockedStatus();
   const { role } = useUserRole();
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [accessCode, setAccessCode] = useState<string>("");
+  const [codeExpiresAt, setCodeExpiresAt] = useState<string>("");
+  const [generatingCode, setGeneratingCode] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -89,28 +92,59 @@ export default function Profile() {
     }
   };
 
-  const downloadQR = () => {
-    const svg = document.getElementById("user-qr-code");
-    if (!svg) return;
+  const generateAccessCode = async () => {
+    try {
+      setGeneratingCode(true);
+      const { data, error } = await supabase.functions.invoke('generate-access-code', {
+        body: {}
+      });
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
+      if (error) throw error;
 
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
-      const pngFile = canvas.toDataURL("image/png");
+      setAccessCode(data.code);
+      setCodeExpiresAt(data.expires_at);
+      
+      toast({
+        title: "Código generado",
+        description: "Tu código de acceso temporal está listo",
+      });
+    } catch (error) {
+      console.error('Error generating code:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar el código de acceso",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingCode(false);
+    }
+  };
 
-      const downloadLink = document.createElement("a");
-      downloadLink.download = `qr-acceso-${profile.full_name || "usuario"}.png`;
-      downloadLink.href = pngFile;
-      downloadLink.click();
-    };
+  // Calcular tiempo restante
+  useEffect(() => {
+    if (!codeExpiresAt) return;
 
-    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+    const interval = setInterval(() => {
+      const now = new Date();
+      const expires = new Date(codeExpiresAt);
+      const diff = Math.floor((expires.getTime() - now.getTime()) / 1000);
+      
+      if (diff <= 0) {
+        setTimeLeft(0);
+        setAccessCode("");
+        setCodeExpiresAt("");
+      } else {
+        setTimeLeft(diff);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [codeExpiresAt]);
+
+  const formatTimeLeft = () => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -261,34 +295,76 @@ export default function Profile() {
 
   return (
     <div className="container max-w-2xl py-4 md:py-8 px-4">
-      {/* Card para el QR de acceso - PRIMERO */}
+      {/* Card para el código de acceso temporal */}
       <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader className="text-center">
           <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
-            MI CÓDIGO QR
+            CÓDIGO DE ACCESO
           </CardTitle>
-          <CardDescription className="text-base">Tu código de acceso al gimnasio</CardDescription>
+          <CardDescription className="text-base">Genera tu código temporal para entrar al gimnasio</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           {isBlocked ? (
             <Alert variant="destructive" className="w-full">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Tu cuenta está bloqueada. No puedes acceder al gimnasio ni usar el código QR hasta que un administrador la desbloquee.
+                Tu cuenta está bloqueada. No puedes acceder al gimnasio hasta que un administrador la desbloquee.
               </AlertDescription>
             </Alert>
           ) : (
             <>
-              <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg">
-                <QRCodeSVG id="user-qr-code" value={userId} size={180} level="H" includeMargin={true} />
-              </div>
-              <p className="text-sm text-muted-foreground text-center max-w-md px-4">
-                Presenta este código QR al entrar al gimnasio para registrar tu acceso
-              </p>
-              <Button onClick={downloadQR} variant="outline" className="w-full md:w-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Descargar QR
-              </Button>
+              {accessCode ? (
+                <div className="flex flex-col items-center gap-4 w-full">
+                  <div className="bg-gradient-to-br from-primary/20 to-primary-glow/10 p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-primary/40 backdrop-blur-sm">
+                    <div className="text-center">
+                      <div className="font-bebas text-6xl md:text-7xl tracking-[0.5em] text-primary drop-shadow-[0_0_20px_rgba(59,130,246,0.8)]">
+                        {accessCode}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-sm text-muted-foreground">Tiempo restante:</p>
+                    <div className="font-mono text-2xl font-bold text-primary">
+                      {formatTimeLeft()}
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center max-w-md px-4">
+                    Proporciona este código de 6 dígitos al personal del gimnasio. El código expira en 10 minutos.
+                  </p>
+                  <Button 
+                    onClick={generateAccessCode} 
+                    variant="outline" 
+                    className="w-full md:w-auto"
+                    disabled={generatingCode}
+                  >
+                    <RefreshCw className={`mr-2 h-4 w-4 ${generatingCode ? 'animate-spin' : ''}`} />
+                    Generar nuevo código
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 w-full">
+                  <p className="text-sm text-muted-foreground text-center max-w-md px-4">
+                    Genera un código temporal de 6 dígitos para acceder al gimnasio. El código será válido durante 10 minutos.
+                  </p>
+                  <Button 
+                    onClick={generateAccessCode} 
+                    className="w-full md:w-auto bg-gradient-to-r from-primary to-primary-glow"
+                    disabled={generatingCode}
+                  >
+                    {generatingCode ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Generar código
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </CardContent>

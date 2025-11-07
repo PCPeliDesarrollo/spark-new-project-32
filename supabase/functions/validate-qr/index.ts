@@ -17,9 +17,9 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { qrCode, accessCode } = await req.json();
+    const { code } = await req.json();
 
-    if (!qrCode && !accessCode) {
+    if (!code) {
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -32,87 +32,19 @@ serve(async (req) => {
       );
     }
 
-    // If accessCode is provided, validate single class purchase
-    if (accessCode) {
-      const today = new Date().toISOString().split('T')[0];
-      
-      const { data: purchase, error: purchaseError } = await supabase
-        .from('single_class_purchases')
-        .select('*')
-        .eq('access_code', accessCode)
-        .eq('used', false)
-        .single();
-
-      if (purchaseError || !purchase) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            message: 'Código inválido o ya utilizado' 
-          }),
-          { 
-            status: 404, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-
-      // Check if purchase is from today
-      const purchaseDate = new Date(purchase.created_at).toISOString().split('T')[0];
-      if (purchaseDate !== today) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            message: 'El código solo es válido el día de la compra' 
-          }),
-          { 
-            status: 403, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-
-      // Mark as used
-      await supabase
-        .from('single_class_purchases')
-        .update({ used: true, used_at: new Date().toISOString() })
-        .eq('id', purchase.id);
-
-      // Log access
-      if (purchase.user_id) {
-        await supabase
-          .from('access_logs')
-          .insert({
-            user_id: purchase.user_id,
-            access_type: 'single_class',
-            timestamp: new Date().toISOString()
-          });
-      }
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Acceso permitido - Clase individual',
-          user: purchase.user_id ? { name: 'Usuario invitado' } : null
-        }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Get user by ID from QR code
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', qrCode)
+    // Validar código de acceso temporal
+    const { data: accessCode, error: codeError } = await supabase
+      .from('access_codes')
+      .select('*, profiles(*)')
+      .eq('code', code)
+      .eq('used', false)
       .single();
 
-    if (profileError || !profile) {
+    if (codeError || !accessCode) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'Usuario no encontrado' 
+          message: 'Código inválido o ya utilizado' 
         }),
         { 
           status: 404, 
@@ -121,8 +53,25 @@ serve(async (req) => {
       );
     }
 
-    // Check if user is blocked
-    if (profile.blocked) {
+    // Verificar que no haya expirado
+    const now = new Date();
+    const expiresAt = new Date(accessCode.expires_at);
+    
+    if (now > expiresAt) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'El código ha expirado' 
+        }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Verificar que el usuario no esté bloqueado
+    if (accessCode.profiles.blocked) {
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -135,26 +84,28 @@ serve(async (req) => {
       );
     }
 
-    // Log access
-    const { error: logError } = await supabase
+    // Marcar código como usado
+    await supabase
+      .from('access_codes')
+      .update({ used: true })
+      .eq('id', accessCode.id);
+
+    // Registrar acceso
+    await supabase
       .from('access_logs')
       .insert({
-        user_id: profile.id,
+        user_id: accessCode.user_id,
         access_type: 'door_entry',
         timestamp: new Date().toISOString()
       });
-
-    if (logError) {
-      console.error('Error logging access:', logError);
-    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: 'Acceso permitido',
         user: {
-          name: `${profile.full_name} ${profile.apellidos || ''}`.trim(),
-          email: profile.email
+          name: `${accessCode.profiles.full_name} ${accessCode.profiles.apellidos || ''}`.trim(),
+          email: accessCode.profiles.email
         }
       }),
       { 

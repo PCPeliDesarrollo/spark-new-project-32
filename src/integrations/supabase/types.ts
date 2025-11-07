@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          used: boolean
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          used?: boolean
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          used?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       access_logs: {
         Row: {
           access_type: string
@@ -355,6 +382,7 @@ export type Database = {
     }
     Functions: {
       check_booking_limit: { Args: { _user_id: string }; Returns: boolean }
+      clean_expired_access_codes: { Args: never; Returns: undefined }
       duplicate_schedules_for_next_month: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { _user_id: string }
