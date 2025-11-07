@@ -585,6 +585,12 @@ export default function ClassDetail() {
                               </Badge>
                             )}
                           </div>
+                          {isFull && !isBooked && (
+                            <div className="mt-2 text-xs bg-accent/50 border border-primary/30 rounded p-2">
+                              <span className="font-semibold text-foreground">COMPLETO</span>
+                              <span className="text-muted-foreground"> - Puedes apuntarte a la lista de espera y te avisaremos si nos queda algún hueco libre</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-2 w-full sm:w-auto">
                           {isAdmin && (
