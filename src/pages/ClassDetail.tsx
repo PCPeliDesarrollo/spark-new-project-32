@@ -543,6 +543,7 @@ export default function ClassDetail() {
                   onBookingSuccess={loadData}
                   isBlocked={isBlocked}
                   canBookClasses={canBookClasses}
+                  isAdmin={isAdmin}
                 />
               )}
             </div>

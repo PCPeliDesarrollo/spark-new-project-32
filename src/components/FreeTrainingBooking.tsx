@@ -8,8 +8,34 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isBefore, setHours, setMinutes, addHours } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar as CalendarIcon, Clock, AlertCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, AlertCircle, UserPlus, Check, ChevronsUpDown, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+interface UserWithRole {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+}
 
 interface FreeTrainingBookingProps {
   classId: string;
@@ -18,6 +44,7 @@ interface FreeTrainingBookingProps {
   onBookingSuccess: () => void;
   isBlocked: boolean;
   canBookClasses: boolean;
+  isAdmin: boolean;
 }
 
 export function FreeTrainingBooking({ 
@@ -26,18 +53,66 @@ export function FreeTrainingBooking({
   userId, 
   onBookingSuccess,
   isBlocked,
-  canBookClasses
+  canBookClasses,
+  isAdmin
 }: FreeTrainingBookingProps) {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string>("09:00");
   const [isBooking, setIsBooking] = useState(false);
   const [myBookings, setMyBookings] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [showAdminBookingDialog, setShowAdminBookingDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [openUserSelect, setOpenUserSelect] = useState(false);
 
   // Load user's bookings on mount
   useEffect(() => {
     loadMyBookings();
   }, [userId]);
+
+  // Load users if admin
+  useEffect(() => {
+    if (isAdmin) {
+      loadUsers();
+    }
+  }, [isAdmin]);
+
+  const loadUsers = async () => {
+    try {
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .order("full_name");
+      
+      if (profilesError) throw profilesError;
+
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+
+      if (rolesError) throw rolesError;
+
+      const roleMap = new Map(rolesData?.map(r => [r.user_id, r.role]) || []);
+
+      const usersWithRoles = (profilesData || [])
+        .map((profile: any) => ({
+          id: profile.id,
+          full_name: profile.full_name || 'Sin nombre',
+          email: profile.email || '',
+          role: roleMap.get(profile.id) || 'basica'
+        }))
+        .filter((user: UserWithRole) => 
+          user.role === 'basica_clases' || 
+          user.role === 'full' || 
+          user.role === 'admin'
+        );
+      
+      setUsers(usersWithRoles);
+    } catch (error) {
+      console.error("Error loading users:", error);
+    }
+  };
 
   const loadMyBookings = async () => {
     const { data, error } = await supabase
@@ -62,7 +137,9 @@ export function FreeTrainingBooking({
     }
   };
 
-  const handleBooking = async () => {
+  const handleBooking = async (targetUserId?: string) => {
+    const bookingUserId = targetUserId || userId;
+
     if (!selectedDate || !selectedTime) {
       toast({
         title: "Error",
@@ -72,7 +149,7 @@ export function FreeTrainingBooking({
       return;
     }
 
-    if (isBlocked) {
+    if (!targetUserId && isBlocked) {
       toast({
         title: "Cuenta bloqueada",
         description: "Tu cuenta está bloqueada. Contacta con un administrador.",
@@ -81,7 +158,7 @@ export function FreeTrainingBooking({
       return;
     }
 
-    if (!canBookClasses) {
+    if (!targetUserId && !canBookClasses) {
       toast({
         title: "No puedes reservar",
         description: "Tu suscripción no incluye clases.",
@@ -108,15 +185,14 @@ export function FreeTrainingBooking({
 
     try {
       // Crear un schedule temporal para este entrenamiento libre
-      // Usamos un schedule "virtual" que se crea por usuario
       const { data: scheduleData, error: scheduleError } = await supabase
         .from("class_schedules")
         .insert({
           class_id: classId,
           day_of_week: selectedDate.getDay(),
           start_time: selectedTime + ":00",
-          duration_minutes: 60, // 1 hora por defecto
-          max_capacity: 1, // Solo este usuario
+          duration_minutes: 60,
+          max_capacity: 1,
         })
         .select()
         .single();
@@ -128,13 +204,12 @@ export function FreeTrainingBooking({
         .from("class_bookings")
         .insert({
           schedule_id: scheduleData.id,
-          user_id: userId,
+          user_id: bookingUserId,
           class_date: format(selectedDate, 'yyyy-MM-dd'),
           status: "confirmed",
         });
 
       if (bookingError) {
-        // Si falla la reserva, eliminar el schedule creado
         await supabase
           .from("class_schedules")
           .delete()
@@ -144,7 +219,9 @@ export function FreeTrainingBooking({
 
       toast({
         title: "¡Reservado!",
-        description: `Entrenamiento libre el ${format(selectedDate, "d 'de' MMMM", { locale: es })} a las ${selectedTime}`,
+        description: targetUserId 
+          ? `Usuario apuntado al entrenamiento libre el ${format(selectedDate, "d 'de' MMMM", { locale: es })} a las ${selectedTime}`
+          : `Entrenamiento libre el ${format(selectedDate, "d 'de' MMMM", { locale: es })} a las ${selectedTime}`,
       });
 
       setSelectedDate(undefined);
@@ -157,7 +234,9 @@ export function FreeTrainingBooking({
       if (error.message?.includes("check_booking_limit")) {
         toast({
           title: "Límite alcanzado",
-          description: "Has alcanzado tu límite de clases este mes",
+          description: targetUserId 
+            ? "El usuario ha alcanzado su límite de clases este mes"
+            : "Has alcanzado tu límite de clases este mes",
           variant: "destructive",
         });
       } else {
@@ -170,6 +249,21 @@ export function FreeTrainingBooking({
     } finally {
       setIsBooking(false);
     }
+  };
+
+  const handleAdminBooking = () => {
+    if (!selectedUserId) {
+      toast({
+        title: "Error",
+        description: "Debes seleccionar un usuario",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    handleBooking(selectedUserId);
+    setShowAdminBookingDialog(false);
+    setSelectedUserId("");
   };
 
   const handleCancelBooking = async (bookingId: string, classDate: string, startTime: string) => {
@@ -325,15 +419,112 @@ export function FreeTrainingBooking({
             </div>
           )}
 
-          <Button
-            onClick={handleBooking}
-            disabled={!selectedDate || !selectedTime || isBooking || isBlocked || !canBookClasses}
-            className="w-full"
-          >
-            {isBooking ? "Reservando..." : "Confirmar Reserva"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => handleBooking()}
+              disabled={!selectedDate || !selectedTime || isBooking || isBlocked || !canBookClasses}
+              className="flex-1"
+            >
+              {isBooking ? "Reservando..." : "Confirmar Reserva"}
+            </Button>
+            
+            {isAdmin && (
+              <Button
+                variant="outline"
+                onClick={() => setShowAdminBookingDialog(true)}
+                disabled={!selectedDate || !selectedTime || isBooking}
+                className="flex items-center gap-2"
+              >
+                <UserPlus className="h-4 w-4" />
+                Apuntar Usuario
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
+
+      <Dialog open={showAdminBookingDialog} onOpenChange={setShowAdminBookingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apuntar usuario a entrenamiento libre</DialogTitle>
+            <DialogDescription>
+              Selecciona el usuario que quieres apuntar al entrenamiento libre
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label>Usuario</Label>
+              <Popover open={openUserSelect} onOpenChange={setOpenUserSelect}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openUserSelect}
+                    className="w-full justify-between"
+                  >
+                    {selectedUserId
+                      ? users.find((user) => user.id === selectedUserId)?.full_name
+                      : "Seleccionar usuario..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Buscar usuario..." />
+                    <CommandEmpty>No se encontró el usuario.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      {users.map((user) => (
+                        <CommandItem
+                          key={user.id}
+                          value={user.full_name}
+                          onSelect={() => {
+                            setSelectedUserId(user.id);
+                            setOpenUserSelect(false);
+                          }}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${
+                              selectedUserId === user.id ? "opacity-100" : "opacity-0"
+                            }`}
+                          />
+                          <div className="flex flex-col">
+                            <span>{user.full_name}</span>
+                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {selectedDate && selectedTime && (
+              <div className="p-4 bg-accent/30 rounded-lg">
+                <p className="text-sm">
+                  <strong>Fecha y hora:</strong> {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })} a las {selectedTime}
+                </p>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAdminBookingDialog(false);
+                  setSelectedUserId("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleAdminBooking}>
+                Confirmar Reserva
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
