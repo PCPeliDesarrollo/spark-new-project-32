@@ -150,9 +150,14 @@ serve(async (req) => {
             <p style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0;">
               ⚠️ <strong>Atención:</strong> El código debe usarse el mismo día de la compra. Una vez usado, no podrás reutilizarlo.
             </p>
+            <p style="background: #E0F2FE; border-left: 4px solid #3B82F6; padding: 15px; margin: 20px 0;">
+              📧 <strong>¿No has recibido el correo en 10 minutos?</strong><br/>
+              Revisa tu carpeta de spam o contacta con nosotros al <strong>623 61 69 50</strong>
+            </p>
             <p>¡Nos vemos en el gimnasio!</p>
             <p style="color: #666; font-size: 12px; margin-top: 40px;">
               Panthera Fitness Alburquerque<br/>
+              Teléfono: 623 61 69 50<br/>
               Este email contiene tu código de acceso personal. No lo compartas con nadie.
             </p>
           </div>
