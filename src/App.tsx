@@ -3,11 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/AppSidebar";
 import { NotificationBell } from "./components/NotificationBell";
 import { ChangePasswordDialog } from "./components/ChangePasswordDialog";
 import { NotificationPermissionRequest } from "./components/NotificationPermissionRequest";
+import panteraMenuIcon from "@/assets/pantera-menu-icon.png";
 import Profile from "./pages/Profile";
 import GymInfo from "./pages/GymInfo";
 import Classes from "./pages/Classes";
@@ -42,54 +43,76 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-10 h-14 border-b border-border flex items-center justify-between px-4 bg-card/95 backdrop-blur-sm">
-            <SidebarTrigger className="md:hidden" />
-            <div className="flex items-center gap-3">
-              <a 
-                href="tel:+34623616950" 
-                className="hidden sm:flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-                <span className="text-sm">623 61 69 50</span>
-              </a>
-              <a 
-                href="https://www.instagram.com/pantherafitnessalburquerque/" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden sm:flex items-center hover:opacity-80 transition-opacity"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#FED373', stopOpacity: 1 }} />
-                      <stop offset="25%" style={{ stopColor: '#F15245', stopOpacity: 1 }} />
-                      <stop offset="50%" style={{ stopColor: '#D92E7F', stopOpacity: 1 }} />
-                      <stop offset="75%" style={{ stopColor: '#9B36B7', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#515ECF', stopOpacity: 1 }} />
-                    </linearGradient>
-                  </defs>
-                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#instagram-gradient)" strokeWidth="2" fill="none"/>
-                  <circle cx="12" cy="12" r="4" stroke="url(#instagram-gradient)" strokeWidth="2" fill="none"/>
-                  <circle cx="18" cy="6" r="1.5" fill="url(#instagram-gradient)"/>
-                </svg>
-              </a>
-              <NotificationBell />
-            </div>
-          </header>
-          <main className="flex-1 overflow-auto">
-            <div className="p-4">
-              {showNotificationRequest && <NotificationPermissionRequest />}
-              {children}
-            </div>
-          </main>
-        </div>
-      </div>
+      <AppLayoutContent showNotificationRequest={showNotificationRequest}>
+        {children}
+      </AppLayoutContent>
     </SidebarProvider>
+  );
+};
+
+const AppLayoutContent = ({ 
+  children, 
+  showNotificationRequest 
+}: { 
+  children: React.ReactNode;
+  showNotificationRequest: boolean;
+}) => {
+  const { toggleSidebar } = useSidebar();
+
+  return (
+    <div className="min-h-screen flex w-full">
+      <AppSidebar />
+      <div className="flex-1 flex flex-col">
+        <header className="sticky top-0 z-10 h-14 border-b border-border flex items-center justify-between px-4 bg-card/95 backdrop-blur-sm">
+          <button 
+            onClick={toggleSidebar}
+            className="md:hidden p-2 hover:bg-accent rounded-md transition-colors"
+            aria-label="Toggle menu"
+          >
+            <img src={panteraMenuIcon} alt="Menu" className="w-8 h-8" />
+          </button>
+          <div className="flex items-center gap-3">
+            <a 
+              href="tel:+34623616950" 
+              className="hidden sm:flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <span className="text-sm">623 61 69 50</span>
+            </a>
+            <a 
+              href="https://www.instagram.com/pantherafitnessalburquerque/" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center hover:opacity-80 transition-opacity"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{ stopColor: '#FED373', stopOpacity: 1 }} />
+                    <stop offset="25%" style={{ stopColor: '#F15245', stopOpacity: 1 }} />
+                    <stop offset="50%" style={{ stopColor: '#D92E7F', stopOpacity: 1 }} />
+                    <stop offset="75%" style={{ stopColor: '#9B36B7', stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: '#515ECF', stopOpacity: 1 }} />
+                  </linearGradient>
+                </defs>
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#instagram-gradient)" strokeWidth="2" fill="none"/>
+                <circle cx="12" cy="12" r="4" stroke="url(#instagram-gradient)" strokeWidth="2" fill="none"/>
+                <circle cx="18" cy="6" r="1.5" fill="url(#instagram-gradient)"/>
+              </svg>
+            </a>
+            <NotificationBell />
+          </div>
+        </header>
+        <main className="flex-1 overflow-auto">
+          <div className="p-4">
+            {showNotificationRequest && <NotificationPermissionRequest />}
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
   );
 };
 
