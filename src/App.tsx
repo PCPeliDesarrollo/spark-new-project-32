@@ -19,6 +19,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ManageSchedules from "./pages/ManageSchedules";
 import ManageClasses from "./pages/ManageClasses";
+import ManagePayments from "./pages/ManagePayments";
 import BuySingleClass from "./pages/BuySingleClass";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import { useEffect, useState } from "react";
@@ -219,6 +220,14 @@ const App = () => {
               element={
                 <AppLayout>
                   <ManageClasses />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/manage-payments"
+              element={
+                <AppLayout>
+                  <ManagePayments />
                 </AppLayout>
               }
             />

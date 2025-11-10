@@ -1,4 +1,4 @@
-import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays, Dumbbell } from "lucide-react";
+import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays, Dumbbell, CreditCard } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logoPanthera from "@/assets/logo-panthera.png";
 import {
@@ -31,6 +31,7 @@ const adminMenuItems = [
   { title: "Usuarios", url: "/users", icon: UsersIcon },
   { title: "Gestionar Clases", url: "/manage-classes", icon: Dumbbell },
   { title: "Gestionar Horarios", url: "/manage-schedules", icon: CalendarDays },
+  { title: "Gestión de Pagos", url: "/manage-payments", icon: CreditCard },
 ];
 
 export function AppSidebar() {
