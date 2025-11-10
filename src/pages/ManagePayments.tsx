@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, AlertCircle, CreditCard, Ban } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, CreditCard, Ban, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -36,6 +37,7 @@ const ManagePayments = () => {
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
   const [togglingBlock, setTogglingBlock] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -204,6 +206,14 @@ const ManagePayments = () => {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      user.full_name.toLowerCase().includes(searchLower) ||
+      user.email.toLowerCase().includes(searchLower)
+    );
+  });
+
   if (roleLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -219,6 +229,17 @@ const ManagePayments = () => {
         <p className="text-muted-foreground mt-2">
           Registra pagos mensuales y gestiona suscripciones
         </p>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Buscar por nombre o email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -284,14 +305,14 @@ const ManagePayments = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.length === 0 ? (
+                {filteredUsers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground">
-                      No hay usuarios registrados
+                      {searchTerm ? "No se encontraron usuarios" : "No hay usuarios registrados"}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((user) => (
+                  filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.full_name}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
@@ -372,12 +393,12 @@ const ManagePayments = () => {
 
           {/* Mobile view */}
           <div className="md:hidden space-y-4 p-4">
-            {users.length === 0 ? (
+            {filteredUsers.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
-                No hay usuarios registrados
+                {searchTerm ? "No se encontraron usuarios" : "No hay usuarios registrados"}
               </div>
             ) : (
-              users.map((user) => (
+              filteredUsers.map((user) => (
                 <Card key={user.id} className="p-4">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
