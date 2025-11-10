@@ -25,12 +25,10 @@ export default function GymInfo() {
   const gymImages = [
     { src: pan7, alt: "Panthera Alburquerque - Exterior del Centro" },
     { src: pan10, alt: "Panthera Alburquerque - Kettlebells y Pesas" },
-    { src: pan11, alt: "Panthera Alburquerque - Señalización Neón" },
     { src: pan12, alt: "Panthera Alburquerque - Vista General del Gimnasio" },
     { src: pan13, alt: "Panthera Alburquerque - Zona de Cardio" },
     { src: pan14, alt: "Panthera Alburquerque - Área de Pesas Libres" },
-    { src: pan15, alt: "Panthera Alburquerque - Logo Neón" },
-    { src: pan16, alt: "Panthera Alburquerque - Fachada Exterior" },
+    { src: pan16, alt: "Panthera Alburquerque - Espejo del Gimnasio" },
     { src: pan8, alt: "Panthera Alburquerque - Entrada y Recepción" },
     { src: pan9, alt: "Panthera Alburquerque - Zona de Entrenamiento" },
     { src: pan1, alt: "Panthera Alburquerque - Sala Principal" },
