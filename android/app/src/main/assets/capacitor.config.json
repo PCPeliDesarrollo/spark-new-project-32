@@ -1,0 +1,10 @@
+{
+  "appId": "com.pantherafitness.alburquerque",
+  "appName": "Panthera Fitness Alburquerque",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#000000",
+    "webContentsDebuggingEnabled": true,
+    "allowMixedContent": true
+  }
+}

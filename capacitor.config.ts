@@ -5,7 +5,14 @@ const config: CapacitorConfig = {
   appName: 'Panthera Fitness Alburquerque',
   webDir: 'dist',
   android: {
-    backgroundColor: '#000000'
+    backgroundColor: '#000000',
+    webContentsDebuggingEnabled: true,
+    allowMixedContent: true
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 0
+    }
   }
 };
 
