@@ -22,6 +22,27 @@ export function MonthlyClassesIndicator() {
   useEffect(() => {
     if (!roleLoading && (role === "basica_clases" || role === "full")) {
       loadBookings();
+
+      // Suscribirse a cambios en tiempo real en las reservas
+      const channel = supabase
+        .channel('bookings-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'class_bookings'
+          },
+          (payload) => {
+            console.log('Cambio detectado en reservas:', payload);
+            loadBookings(); // Recargar cuando haya cambios
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     } else {
       setLoading(false);
     }
