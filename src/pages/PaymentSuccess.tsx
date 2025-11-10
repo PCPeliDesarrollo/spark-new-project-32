@@ -81,7 +81,7 @@ export default function PaymentSuccess() {
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
-            Si no recibes el email en 10 minutos, revisa tu carpeta de spam o contacta con nosotros.
+            Si no recibes el email en 10 minutos, revisa tu carpeta de spam o contacta con nosotros al <strong className="text-foreground">623 61 69 50</strong>.
           </p>
         </CardContent>
       </Card>
