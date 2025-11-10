@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Calendar as CalendarIcon, Weight, Ruler, Cake, UserCog, Trash2, Ban, CheckCircle, Mail, User, Phone, GraduationCap } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar as CalendarIcon, Weight, Ruler, Cake, UserCog, Trash2, Mail, User, Phone, GraduationCap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { startOfMonth, endOfMonth, isBefore, parseISO, format } from "date-fns";
@@ -39,7 +39,6 @@ export default function UserDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [updatingRole, setUpdatingRole] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState("");
@@ -183,36 +182,6 @@ export default function UserDetail() {
     }
 
     setUpdatingRole(false);
-  };
-
-  const handleBlockToggle = async () => {
-    if (!id || !user) return;
-
-    setUpdatingStatus(true);
-    const newBlockedStatus = !user.blocked;
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({ blocked: newBlockedStatus })
-      .eq("id", id);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el estado del usuario",
-        variant: "destructive",
-      });
-    } else {
-      setUser({ ...user, blocked: newBlockedStatus });
-      toast({
-        title: newBlockedStatus ? "Usuario bloqueado" : "Usuario desbloqueado",
-        description: newBlockedStatus 
-          ? "El usuario no podrá acceder a ninguna funcionalidad" 
-          : "El usuario puede acceder nuevamente",
-      });
-    }
-
-    setUpdatingStatus(false);
   };
 
   const handleDeleteUser = async () => {
@@ -413,29 +382,7 @@ export default function UserDetail() {
         </Button>
         
         {user && (
-          <div className="flex flex-col xs:flex-row gap-2">
-            <Button
-              variant={user.blocked ? "default" : "destructive"}
-              onClick={handleBlockToggle}
-              disabled={updatingStatus}
-              className="w-full xs:w-auto text-sm"
-            >
-              {updatingStatus ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : user.blocked ? (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Desbloquear
-                </>
-              ) : (
-                <>
-                  <Ban className="h-4 w-4 mr-2" />
-                  Bloquear
-                </>
-              )}
-            </Button>
-            
-            <AlertDialog>
+          <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={deleting} className="w-full xs:w-auto text-sm">
                   {deleting ? (
@@ -464,7 +411,6 @@ export default function UserDetail() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
         )}
       </div>
 

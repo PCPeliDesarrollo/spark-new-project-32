@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, AlertCircle, CreditCard } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, CreditCard, Ban } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -35,6 +35,7 @@ const ManagePayments = () => {
   const [users, setUsers] = useState<UserPaymentInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState<string | null>(null);
+  const [togglingBlock, setTogglingBlock] = useState<string | null>(null);
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -154,6 +155,39 @@ const ManagePayments = () => {
       });
     } finally {
       setProcessingPayment(null);
+    }
+  };
+
+  const handleBlockToggle = async (userId: string, currentBlockedStatus: boolean) => {
+    try {
+      setTogglingBlock(userId);
+      const newBlockedStatus = !currentBlockedStatus;
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ blocked: newBlockedStatus })
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: newBlockedStatus ? "Usuario bloqueado" : "Usuario desbloqueado",
+        description: newBlockedStatus 
+          ? "El usuario no podrá acceder a ninguna funcionalidad" 
+          : "El usuario puede acceder nuevamente",
+      });
+
+      // Reload data
+      await loadPaymentData();
+    } catch (error) {
+      console.error("Error toggling block status:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el estado del usuario",
+        variant: "destructive",
+      });
+    } finally {
+      setTogglingBlock(null);
     }
   };
 
@@ -285,24 +319,47 @@ const ManagePayments = () => {
                     </TableCell>
                     <TableCell>{getStatusBadge(user.status)}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        onClick={() => handleProcessPayment(user.id)}
-                        disabled={processingPayment === user.id}
-                        className="gap-2"
-                      >
-                        {processingPayment === user.id ? (
-                          <>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          size="sm"
+                          variant={user.blocked ? "default" : "destructive"}
+                          onClick={() => handleBlockToggle(user.id, user.blocked)}
+                          disabled={togglingBlock === user.id}
+                          className="gap-2"
+                        >
+                          {togglingBlock === user.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Procesando...
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="h-4 w-4" />
-                            Registrar Pago
-                          </>
-                        )}
-                      </Button>
+                          ) : user.blocked ? (
+                            <>
+                              <CheckCircle className="h-4 w-4" />
+                              Desbloquear
+                            </>
+                          ) : (
+                            <>
+                              <Ban className="h-4 w-4" />
+                              Bloquear
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleProcessPayment(user.id)}
+                          disabled={processingPayment === user.id}
+                          className="gap-2"
+                        >
+                          {processingPayment === user.id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Procesando...
+                            </>
+                          ) : (
+                            <>
+                              <CreditCard className="h-4 w-4" />
+                              Registrar Pago
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
