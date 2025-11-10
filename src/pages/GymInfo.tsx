@@ -11,12 +11,26 @@ import pan6 from "@/assets/pan6.jpeg";
 import pan7 from "@/assets/pan7.jpeg";
 import pan8 from "@/assets/pan8.jpeg";
 import pan9 from "@/assets/pan9.jpeg";
+import pan10 from "@/assets/pan10.jpeg";
+import pan11 from "@/assets/pan11.jpeg";
+import pan12 from "@/assets/pan12.jpeg";
+import pan13 from "@/assets/pan13.jpeg";
+import pan14 from "@/assets/pan14.jpeg";
+import pan15 from "@/assets/pan15.jpeg";
+import pan16 from "@/assets/pan16.jpeg";
 
 export default function GymInfo() {
   const gymLocation = "CF El prado 3, 06510 Alburquerque Badajoz";
 
   const gymImages = [
     { src: pan7, alt: "Panthera Alburquerque - Exterior del Centro" },
+    { src: pan10, alt: "Panthera Alburquerque - Kettlebells y Pesas" },
+    { src: pan11, alt: "Panthera Alburquerque - Señalización Neón" },
+    { src: pan12, alt: "Panthera Alburquerque - Vista General del Gimnasio" },
+    { src: pan13, alt: "Panthera Alburquerque - Zona de Cardio" },
+    { src: pan14, alt: "Panthera Alburquerque - Área de Pesas Libres" },
+    { src: pan15, alt: "Panthera Alburquerque - Logo Neón" },
+    { src: pan16, alt: "Panthera Alburquerque - Fachada Exterior" },
     { src: pan8, alt: "Panthera Alburquerque - Entrada y Recepción" },
     { src: pan9, alt: "Panthera Alburquerque - Zona de Entrenamiento" },
     { src: pan1, alt: "Panthera Alburquerque - Sala Principal" },
