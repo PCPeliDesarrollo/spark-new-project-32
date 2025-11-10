@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { format, isBefore, setHours, setMinutes, getDaysInMonth, startOfMonth, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { FreeTrainingBooking } from "@/components/FreeTrainingBooking";
+import { MonthlyClassesIndicator } from "@/components/MonthlyClassesIndicator";
 import {
   Dialog,
   DialogContent,
@@ -516,6 +517,8 @@ export default function ClassDetail() {
           </AlertDescription>
         </Alert>
       )}
+
+      <MonthlyClassesIndicator />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2">
