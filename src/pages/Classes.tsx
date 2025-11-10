@@ -90,7 +90,7 @@ export default function Classes() {
 
   return (
     <div className="container py-4 md:py-8 px-4">
-      <h1 className="font-bebas text-4xl md:text-6xl tracking-wider mb-6 md:mb-8 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent text-center">
+      <h1 className="font-bebas text-4xl md:text-6xl tracking-wider mb-6 md:mb-8 text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] [background-clip:text] text-center">
         CLASES DISPONIBLES
       </h1>
 
