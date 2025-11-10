@@ -53,10 +53,23 @@ export function MonthlyClassesIndicator() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get current month start and end
+      // Get current month start and end in local timezone
       const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      
+      // First day of current month at 00:00:00
+      const monthStart = new Date(year, month, 1);
+      // Last day of current month at 23:59:59
+      const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
+      
+      // Format dates as YYYY-MM-DD for database query
+      const formatDate = (date: Date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      };
       
       const { data, error } = await supabase
         .from("class_bookings")
@@ -70,12 +83,14 @@ export function MonthlyClassesIndicator() {
           )
         `)
         .eq("user_id", user.id)
-        .gte("class_date", monthStart.toISOString().split('T')[0])
-        .lte("class_date", monthEnd.toISOString().split('T')[0])
+        .gte("class_date", formatDate(monthStart))
+        .lte("class_date", formatDate(monthEnd))
         .eq("status", "confirmed")
         .order("class_date", { ascending: true });
 
       if (error) throw error;
+      
+      console.log("Bookings cargadas:", data);
       setBookings(data || []);
     } catch (error) {
       console.error("Error loading bookings:", error);
@@ -99,15 +114,16 @@ export function MonthlyClassesIndicator() {
     const schedule = booking.class_schedules;
     if (!schedule) return "available";
 
-    // Parse the class date and time
-    const classDate = new Date(booking.class_date);
-    const [hours, minutes] = schedule.start_time.split(":");
-    classDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-
+    // Create date object from the class date (YYYY-MM-DD format)
+    const [year, month, day] = booking.class_date.split('-').map(Number);
+    const [hours, minutes] = schedule.start_time.split(':').map(Number);
+    
+    // Create the class date/time in local timezone
+    const classDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
     const now = new Date();
     
     // If class date/time has passed, it's used (red)
-    if (classDate < now) {
+    if (classDateTime < now) {
       return "used";
     }
     
