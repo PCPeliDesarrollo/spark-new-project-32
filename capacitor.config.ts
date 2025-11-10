@@ -5,7 +5,6 @@ const config: CapacitorConfig = {
   appName: 'Panthera Fitness Alburquerque',
   webDir: 'dist',
   android: {
-    allowMixedContent: true,
     backgroundColor: '#000000'
   }
 };
