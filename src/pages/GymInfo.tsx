@@ -29,14 +29,14 @@ export default function GymInfo() {
 
   return (
     <div className="container py-4 md:py-8 px-4">
-      <h1 className="font-bebas text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(59,130,246,0.8)] mb-6 md:mb-8 text-center">
+      <h1 className="font-bebas text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-wider text-primary drop-shadow-[0_0_30px_hsl(var(--primary)/0.7)] mb-6 md:mb-8 text-center">
         DATOS DEL CENTRO
       </h1>
 
       {/* Carrusel de imágenes */}
       <Card className="mb-6 md:mb-8 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader>
-          <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl tracking-wider text-center bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent px-4">
+          <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl tracking-wider text-center text-primary px-4">
             NUESTRAS INSTALACIONES
           </CardTitle>
         </CardHeader>

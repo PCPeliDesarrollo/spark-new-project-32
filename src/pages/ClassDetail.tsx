@@ -564,7 +564,7 @@ export default function ClassDetail() {
               />
             </div>
             <CardHeader className="text-center">
-              <CardTitle className="font-bebas text-3xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+              <CardTitle className="font-bebas text-3xl md:text-5xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
                 {classData.name}
               </CardTitle>
               <CardDescription className="text-base">
@@ -592,7 +592,7 @@ export default function ClassDetail() {
               {scheduleInstances.length > 0 && (
                 <Card className="mt-4 md:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
                   <CardHeader className="text-center">
-                    <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                    <CardTitle className="font-bebas text-2xl md:text-4xl tracking-wider text-primary">
                       HORARIOS DEL MES
                     </CardTitle>
                     <CardDescription>

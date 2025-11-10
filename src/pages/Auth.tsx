@@ -138,7 +138,7 @@ export default function Auth() {
       <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-card/95 border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.3)] overflow-hidden">
         <div className="absolute inset-0 bg-[url('/pantera-logo.png')] bg-contain bg-center bg-no-repeat opacity-[0.05] pointer-events-none" />
         <CardHeader className="space-y-1 text-center relative z-10 px-4">
-          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bebas tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent leading-tight">
+          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bebas tracking-wider text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.6)] leading-tight">
             PANTHERA FITNESS ALBURQUERQUE
           </CardTitle>
         </CardHeader>

@@ -298,7 +298,7 @@ export default function Profile() {
       {/* Card para el código de acceso temporal */}
       <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader className="text-center">
-          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
             CÓDIGO DE ACCESO
           </CardTitle>
           <CardDescription className="text-base">Genera tu código temporal para entrar al gimnasio</CardDescription>
@@ -373,7 +373,7 @@ export default function Profile() {
       {/* Card de perfil */}
       <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader className="text-center">
-          <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+          <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
             MI PERFIL
           </CardTitle>
           <CardDescription className="text-base">Tus datos personales</CardDescription>

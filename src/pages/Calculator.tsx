@@ -89,7 +89,7 @@ export default function Calculator() {
   return (
     <div className="container max-w-4xl py-4 md:py-8 px-4">
       <div className="text-center mb-6">
-        <h1 className="font-bebas text-5xl md:text-6xl lg:text-7xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.8)]">
+        <h1 className="font-bebas text-5xl md:text-6xl lg:text-7xl tracking-wider text-primary drop-shadow-[0_0_30px_hsl(var(--primary)/0.7)]">
           CALCULADORAS FITNESS
         </h1>
         <p className="text-muted-foreground mt-2 text-base md:text-lg">
@@ -106,7 +106,7 @@ export default function Calculator() {
         <TabsContent value="imc">
           <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
             <CardHeader className="text-center">
-              <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+              <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
                 ÍNDICE DE MASA CORPORAL
               </CardTitle>
               <CardDescription className="text-base">
@@ -168,7 +168,7 @@ export default function Calculator() {
         <TabsContent value="calorias">
           <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
             <CardHeader className="text-center">
-              <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+              <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
                 CALCULADORA DE CALORÍAS
               </CardTitle>
               <CardDescription className="text-base">
