@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "./useUserRole";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export function useMonthlyClassesRemaining(userId: string | null) {
   const [classesRemaining, setClassesRemaining] = useState<number | null>(null);
@@ -66,8 +66,8 @@ export function useMonthlyClassesRemaining(userId: string | null) {
         .select("id", { count: "exact", head: false })
         .eq("user_id", userId)
         .eq("status", "confirmed")
-        .gte("class_date", monthStart.toISOString().split('T')[0])
-        .lte("class_date", monthEnd.toISOString().split('T')[0]);
+        .gte("class_date", format(monthStart, 'yyyy-MM-dd'))
+        .lte("class_date", format(monthEnd, 'yyyy-MM-dd'));
 
       if (!error) {
         const confirmedCount = data?.length || 0;
