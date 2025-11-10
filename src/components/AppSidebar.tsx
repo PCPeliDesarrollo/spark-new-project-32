@@ -1,7 +1,6 @@
 import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays, Dumbbell } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import panteraLogo from "@/assets/pantera.png";
-import pantheraLogo from "@/assets/panthera-logo.jpeg";
+import logoPanthera from "@/assets/logo-panthera.png";
 import {
   Sidebar,
   SidebarContent,
@@ -70,11 +69,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b border-primary/20 pb-2">
         <div className="flex items-center justify-center px-2 py-4">
-          {open ? (
-            <img src={pantheraLogo} alt="Panthera Fitness" className="w-full h-auto object-contain" />
-          ) : (
-            <img src={panteraLogo} alt="Panthera" className="w-10 h-10" />
-          )}
+          <img src={logoPanthera} alt="Panthera Fitness" className="w-full h-auto object-contain" />
         </div>
       </SidebarHeader>
       <SidebarContent>
