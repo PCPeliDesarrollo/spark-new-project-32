@@ -110,6 +110,20 @@ serve(async (req) => {
       console.error("Error unblocking user:", unblockError);
     }
 
+    // Reset monthly classes: delete all future bookings for this user
+    const todayDate = today.toISOString().split('T')[0];
+    const { error: deleteBookingsError } = await supabaseAdmin
+      .from("class_bookings")
+      .delete()
+      .eq("user_id", userId)
+      .gte("class_date", todayDate);
+
+    if (deleteBookingsError) {
+      console.error("Error deleting future bookings:", deleteBookingsError);
+    } else {
+      console.log("Deleted future bookings for user:", userId);
+    }
+
     // Get user info for notification
     const { data: profile } = await supabaseAdmin
       .from("profiles")

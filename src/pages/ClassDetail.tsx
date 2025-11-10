@@ -260,39 +260,50 @@ export default function ClassDetail() {
       
       setSchedules(schedulesData || []);
 
-      // Generate schedule instances for the next 8 weeks
+      // Generate schedule instances for current month (and next month if in last week)
       const now = new Date();
       const instances: ScheduleInstance[] = [];
       
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Calculate month boundaries
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      const monthEnd = new Date(currentYear, currentMonth + 1, 0); // Last day of current month
+      const daysUntilMonthEnd = Math.ceil((monthEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // If we're in the last 7 days of the month, also show next month
+      const showNextMonth = daysUntilMonthEnd <= 7;
+      const endDate = showNextMonth 
+        ? new Date(currentYear, currentMonth + 2, 0) // Last day of next month
+        : monthEnd;
+      
       for (const schedule of schedulesData || []) {
-        // Get next 8 weeks of dates for this day of week
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Start from today
+        let checkDate = new Date(today);
         
-        for (let weekOffset = 0; weekOffset < 8; weekOffset++) {
-          const targetDate = new Date(today);
-          targetDate.setDate(today.getDate() + (7 * weekOffset));
-          
-          // Find the next occurrence of the target day of week
-          const currentDay = targetDate.getDay();
-          const daysUntilTarget = (schedule.day_of_week - currentDay + 7) % 7;
-          targetDate.setDate(targetDate.getDate() + daysUntilTarget);
-          
-          const [hours, minutes] = schedule.start_time.split(':').map(Number);
-          const scheduleDateTime = setMinutes(setHours(targetDate, hours), minutes);
-          
-          // Only include future dates
-          if (!isBefore(scheduleDateTime, now)) {
-            instances.push({
-              scheduleId: schedule.id,
-              date: targetDate,
-              dayOfWeek: schedule.day_of_week,
-              startTime: schedule.start_time,
-              durationMinutes: schedule.duration_minutes,
-              maxCapacity: schedule.max_capacity,
-              monthStartDate: schedule.month_start_date || format(targetDate, 'yyyy-MM-dd')
-            });
+        // Find all occurrences of this day of week until endDate
+        while (checkDate <= endDate) {
+          if (checkDate.getDay() === schedule.day_of_week) {
+            const [hours, minutes] = schedule.start_time.split(':').map(Number);
+            const scheduleDateTime = setMinutes(setHours(new Date(checkDate), hours), minutes);
+            
+            // Only include future dates
+            if (!isBefore(scheduleDateTime, now)) {
+              instances.push({
+                scheduleId: schedule.id,
+                date: new Date(checkDate),
+                dayOfWeek: schedule.day_of_week,
+                startTime: schedule.start_time,
+                durationMinutes: schedule.duration_minutes,
+                maxCapacity: schedule.max_capacity,
+                monthStartDate: schedule.month_start_date || format(checkDate, 'yyyy-MM-dd')
+              });
+            }
           }
+          // Move to next day
+          checkDate.setDate(checkDate.getDate() + 1);
         }
       }
       
