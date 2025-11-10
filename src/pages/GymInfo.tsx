@@ -26,7 +26,7 @@ export default function GymInfo() {
     { src: pan7, alt: "Panthera Alburquerque - Exterior del Centro" },
     { src: pan10, alt: "Panthera Alburquerque - Kettlebells y Pesas" },
     { src: pan12, alt: "Panthera Alburquerque - Vista General del Gimnasio" },
-    { src: pan13, alt: "Panthera Alburquerque - Zona de Cardio" },
+    { src: pan13, alt: "Panthera Alburquerque - Zona de GAP" },
     { src: pan14, alt: "Panthera Alburquerque - Área de Pesas Libres" },
     { src: pan16, alt: "Panthera Alburquerque - Espejo del Gimnasio" },
     { src: pan8, alt: "Panthera Alburquerque - Entrada y Recepción" },
