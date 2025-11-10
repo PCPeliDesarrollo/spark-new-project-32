@@ -24,7 +24,7 @@ export function ClassCard({ id, name, description, imageUrl }: ClassCardProps) {
         />
       </div>
       <CardHeader>
-        <CardTitle className="font-bebas text-2xl md:text-3xl tracking-wide text-foreground bg-gradient-to-r from-foreground to-primary bg-clip-text [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] [background-clip:text]">{name}</CardTitle>
+        <CardTitle className="font-bebas text-2xl md:text-3xl tracking-wide text-primary">{name}</CardTitle>
         <CardDescription className="text-muted-foreground">{description}</CardDescription>
       </CardHeader>
       <CardContent>

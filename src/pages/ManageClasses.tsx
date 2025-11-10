@@ -309,7 +309,7 @@ export default function ManageClasses() {
   return (
     <div className="container py-4 md:py-8 px-4 max-w-7xl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="font-bebas text-3xl md:text-5xl tracking-wider text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] [background-clip:text]">
+        <h1 className="font-bebas text-3xl md:text-5xl tracking-wider text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.5)]">
           GESTIONAR CLASES
         </h1>
         <Button onClick={openCreateDialog} size="lg">
