@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Calendar, Clock, Users, Lock, UserPlus, X } from "lucide-react";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useMonthlyClassesRemaining } from "@/hooks/useMonthlyClassesRemaining";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { format, isBefore, setHours, setMinutes, getDaysInMonth, startOfMonth, getDay } from "date-fns";
 import { es } from "date-fns/locale";
@@ -107,10 +108,11 @@ export default function ClassDetail() {
   const { toast } = useToast();
   const { isBlocked } = useBlockedStatus();
   const { isAdmin, role, canBookClasses } = useUserRole();
+  const [userId, setUserId] = useState<string | null>(null);
+  const { classesRemaining, hasClassesRemaining, loading: loadingClasses } = useMonthlyClassesRemaining(userId);
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
   const [scheduleInstances, setScheduleInstances] = useState<ScheduleInstance[]>([]);
   const [bookings, setBookings] = useState<Record<string, Booking[]>>({});
@@ -518,6 +520,16 @@ export default function ClassDetail() {
         </Alert>
       )}
 
+      {!isAdmin && canBookClasses && !isBlocked && !hasClassesRemaining && !loadingClasses && (
+        <Alert variant="destructive" className="mb-4 border-destructive/50 bg-destructive/10">
+          <Lock className="h-4 w-4" />
+          <AlertTitle>Límite de clases alcanzado</AlertTitle>
+          <AlertDescription>
+            Has agotado tus {role === "basica_clases" || role === "full" ? "12" : ""} clases mensuales. No puedes reservar más clases hasta el próximo mes.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <MonthlyClassesIndicator />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
@@ -635,7 +647,7 @@ export default function ClassDetail() {
                                   variant="default"
                                   size="sm"
                                   onClick={() => handleBooking(instance.scheduleId, instance.date)}
-                                  disabled={isBlocked || !canBookClasses}
+                                  disabled={isBlocked || !canBookClasses || (!isAdmin && !hasClassesRemaining)}
                                   className="text-xs"
                                 >
                                   Apuntarme

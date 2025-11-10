@@ -5,6 +5,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useMonthlyClassesRemaining } from "@/hooks/useMonthlyClassesRemaining";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isBefore, setHours, setMinutes, addHours } from "date-fns";
 import { es } from "date-fns/locale";
@@ -57,6 +58,7 @@ export function FreeTrainingBooking({
   isAdmin
 }: FreeTrainingBookingProps) {
   const { toast } = useToast();
+  const { classesRemaining, hasClassesRemaining, loading: loadingClasses } = useMonthlyClassesRemaining(userId);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string>("09:00");
   const [isBooking, setIsBooking] = useState(false);
@@ -334,6 +336,15 @@ export function FreeTrainingBooking({
         </AlertDescription>
       </Alert>
 
+      {!isAdmin && !hasClassesRemaining && !loadingClasses && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Has agotado tus clases mensuales. No puedes reservar más entrenamientos hasta el próximo mes.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {myBookings.length > 0 && (
         <Card className="bg-card/80 backdrop-blur-md border-primary/30">
           <CardHeader>
@@ -422,7 +433,7 @@ export function FreeTrainingBooking({
           <div className="flex gap-2">
             <Button
               onClick={() => handleBooking()}
-              disabled={!selectedDate || !selectedTime || isBooking || isBlocked || !canBookClasses}
+              disabled={!selectedDate || !selectedTime || isBooking || isBlocked || !canBookClasses || (!isAdmin && !hasClassesRemaining)}
               className="flex-1"
             >
               {isBooking ? "Reservando..." : "Confirmar Reserva"}
