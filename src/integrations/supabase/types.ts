@@ -70,6 +70,7 @@ export type Database = {
           class_date: string
           created_at: string
           id: string
+          morning_reminder_sent: boolean | null
           position: number | null
           reminder_sent: boolean
           schedule_id: string
@@ -80,6 +81,7 @@ export type Database = {
           class_date?: string
           created_at?: string
           id?: string
+          morning_reminder_sent?: boolean | null
           position?: number | null
           reminder_sent?: boolean
           schedule_id: string
@@ -90,6 +92,7 @@ export type Database = {
           class_date?: string
           created_at?: string
           id?: string
+          morning_reminder_sent?: boolean | null
           position?: number | null
           reminder_sent?: boolean
           schedule_id?: string
