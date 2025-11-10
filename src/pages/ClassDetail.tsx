@@ -436,13 +436,33 @@ export default function ClassDetail() {
       }
 
       loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error with booking:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo procesar la reserva",
-        variant: "destructive",
-      });
+      
+      // Check if it's a booking limit error
+      if (error.message?.includes("check_booking_limit") || 
+          error.code === "P0001" || 
+          error.message?.toLowerCase().includes("limit")) {
+        toast({
+          title: "Clases agotadas",
+          description: targetUserId 
+            ? "El usuario ha agotado sus 12 clases mensuales disponibles. Las clases se renovarán el próximo mes."
+            : "Has agotado tus 12 clases mensuales disponibles. Tus clases se renovarán automáticamente el próximo mes.",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes("row-level security")) {
+        toast({
+          title: "Error de permisos",
+          description: "No tienes permisos para realizar esta reserva. Contacta con un administrador.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error al reservar",
+          description: error.message || "No se pudo procesar la reserva. Inténtalo de nuevo.",
+          variant: "destructive",
+        });
+      }
     }
   };
 

@@ -233,18 +233,27 @@ export function FreeTrainingBooking({
     } catch (error: any) {
       console.error("Error creating booking:", error);
       
-      if (error.message?.includes("check_booking_limit")) {
+      // Check if it's a booking limit error
+      if (error.message?.includes("check_booking_limit") || 
+          error.code === "P0001" || 
+          error.message?.toLowerCase().includes("limit")) {
         toast({
-          title: "Límite alcanzado",
+          title: "Clases agotadas",
           description: targetUserId 
-            ? "El usuario ha alcanzado su límite de clases este mes"
-            : "Has alcanzado tu límite de clases este mes",
+            ? "El usuario ha agotado sus 12 clases mensuales disponibles. Las clases se renovarán el próximo mes."
+            : "Has agotado tus 12 clases mensuales disponibles. Tus clases se renovarán automáticamente el próximo mes.",
+          variant: "destructive",
+        });
+      } else if (error.message?.includes("row-level security")) {
+        toast({
+          title: "Error de permisos",
+          description: "No tienes permisos para realizar esta reserva. Contacta con un administrador.",
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Error",
-          description: "No se pudo realizar la reserva",
+          title: "Error al reservar",
+          description: error.message || "No se pudo realizar la reserva. Inténtalo de nuevo.",
           variant: "destructive",
         });
       }
