@@ -269,103 +269,204 @@ const ManagePayments = () => {
             Usuarios ordenados por prioridad de pago
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Último Pago</TableHead>
-                <TableHead>Próximo Pago</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.length === 0 ? (
+        <CardContent className="p-0 sm:p-6">
+          {/* Desktop view */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    No hay usuarios registrados
-                  </TableCell>
+                  <TableHead>Usuario</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Último Pago</TableHead>
+                  <TableHead>Próximo Pago</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
-              ) : (
-                users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.full_name}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
-                    <TableCell>
-                      {user.last_payment_date
-                        ? new Date(user.last_payment_date).toLocaleDateString("es-ES")
-                        : "-"}
-                    </TableCell>
-                    <TableCell>
-                      {user.next_payment_date ? (
-                        <div>
-                          <div>{new Date(user.next_payment_date).toLocaleDateString("es-ES")}</div>
-                          {user.days_until_due < 0 && (
-                            <div className="text-xs text-destructive">
-                              Vencido hace {Math.abs(user.days_until_due)} días
-                            </div>
-                          )}
-                          {user.days_until_due > 0 && user.days_until_due <= 3 && (
-                            <div className="text-xs text-yellow-600">
-                              En {user.days_until_due} días
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(user.status)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          size="sm"
-                          variant={user.blocked ? "default" : "destructive"}
-                          onClick={() => handleBlockToggle(user.id, user.blocked)}
-                          disabled={togglingBlock === user.id}
-                          className="gap-2"
-                        >
-                          {togglingBlock === user.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : user.blocked ? (
-                            <>
-                              <CheckCircle className="h-4 w-4" />
-                              Desbloquear
-                            </>
-                          ) : (
-                            <>
-                              <Ban className="h-4 w-4" />
-                              Bloquear
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleProcessPayment(user.id)}
-                          disabled={processingPayment === user.id}
-                          className="gap-2"
-                        >
-                          {processingPayment === user.id ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Procesando...
-                            </>
-                          ) : (
-                            <>
-                              <CreditCard className="h-4 w-4" />
-                              Registrar Pago
-                            </>
-                          )}
-                        </Button>
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {users.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                      No hay usuarios registrados
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.full_name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                      <TableCell>
+                        {user.last_payment_date
+                          ? new Date(user.last_payment_date).toLocaleDateString("es-ES")
+                          : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {user.next_payment_date ? (
+                          <div>
+                            <div>{new Date(user.next_payment_date).toLocaleDateString("es-ES")}</div>
+                            {user.days_until_due < 0 && (
+                              <div className="text-xs text-destructive">
+                                Vencido hace {Math.abs(user.days_until_due)} días
+                              </div>
+                            )}
+                            {user.days_until_due > 0 && user.days_until_due <= 3 && (
+                              <div className="text-xs text-yellow-600">
+                                En {user.days_until_due} días
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(user.status)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            size="sm"
+                            variant={user.blocked ? "default" : "destructive"}
+                            onClick={() => handleBlockToggle(user.id, user.blocked)}
+                            disabled={togglingBlock === user.id}
+                            className="gap-2"
+                          >
+                            {togglingBlock === user.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : user.blocked ? (
+                              <>
+                                <CheckCircle className="h-4 w-4" />
+                                Desbloquear
+                              </>
+                            ) : (
+                              <>
+                                <Ban className="h-4 w-4" />
+                                Bloquear
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleProcessPayment(user.id)}
+                            disabled={processingPayment === user.id}
+                            className="gap-2"
+                          >
+                            {processingPayment === user.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Procesando...
+                              </>
+                            ) : (
+                              <>
+                                <CreditCard className="h-4 w-4" />
+                                Registrar Pago
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile view */}
+          <div className="md:hidden space-y-4 p-4">
+            {users.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">
+                No hay usuarios registrados
+              </div>
+            ) : (
+              users.map((user) => (
+                <Card key={user.id} className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium">{user.full_name}</div>
+                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                      </div>
+                      {getStatusBadge(user.status)}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <div className="text-muted-foreground">Último Pago</div>
+                        <div className="font-medium">
+                          {user.last_payment_date
+                            ? new Date(user.last_payment_date).toLocaleDateString("es-ES")
+                            : "-"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Próximo Pago</div>
+                        <div className="font-medium">
+                          {user.next_payment_date ? (
+                            <>
+                              <div>{new Date(user.next_payment_date).toLocaleDateString("es-ES")}</div>
+                              {user.days_until_due < 0 && (
+                                <div className="text-xs text-destructive">
+                                  Vencido {Math.abs(user.days_until_due)}d
+                                </div>
+                              )}
+                              {user.days_until_due > 0 && user.days_until_due <= 3 && (
+                                <div className="text-xs text-yellow-600">
+                                  En {user.days_until_due}d
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            "-"
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={user.blocked ? "default" : "destructive"}
+                        onClick={() => handleBlockToggle(user.id, user.blocked)}
+                        disabled={togglingBlock === user.id}
+                        className="flex-1 gap-2"
+                      >
+                        {togglingBlock === user.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : user.blocked ? (
+                          <>
+                            <CheckCircle className="h-4 w-4" />
+                            Desbloquear
+                          </>
+                        ) : (
+                          <>
+                            <Ban className="h-4 w-4" />
+                            Bloquear
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleProcessPayment(user.id)}
+                        disabled={processingPayment === user.id}
+                        className="flex-1 gap-2"
+                      >
+                        {processingPayment === user.id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Procesando...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="h-4 w-4" />
+                            Pagar
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
