@@ -10,6 +10,10 @@ All colors MUST be HSL.
   :root {
     --background: 0 0% 0%;
     --foreground: 210 40% 98%;
+    
+    /* Mobile-first responsive variables */
+    --header-height: 3rem;
+    --container-padding: 0.5rem;
 
     --card: 0 0% 0%;
     --card-foreground: 210 40% 98%;
@@ -126,6 +130,21 @@ All colors MUST be HSL.
   @media (max-width: 480px) {
     body {
       background-size: 90%;
+    }
+  }
+  
+  /* Responsive utilities */
+  @media (min-width: 640px) {
+    :root {
+      --header-height: 3.5rem;
+      --container-padding: 0.75rem;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    :root {
+      --header-height: 3.5rem;
+      --container-padding: 1rem;
     }
   }
 }

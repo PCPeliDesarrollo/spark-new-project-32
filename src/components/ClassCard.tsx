@@ -23,13 +23,13 @@ export function ClassCard({ id, name, description, imageUrl }: ClassCardProps) {
           className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
         />
       </div>
-      <CardHeader>
-        <CardTitle className="font-bebas text-2xl md:text-3xl tracking-wide text-primary">{name}</CardTitle>
-        <CardDescription className="text-muted-foreground">{description}</CardDescription>
+      <CardHeader className="p-3 sm:p-4 md:p-6">
+        <CardTitle className="font-bebas text-xl sm:text-2xl md:text-3xl tracking-wide text-primary">{name}</CardTitle>
+        <CardDescription className="text-xs sm:text-sm text-muted-foreground">{description}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] font-semibold" variant="default">
-          <Calendar className="mr-2 h-4 w-4" />
+      <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+        <Button className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] font-semibold text-xs sm:text-sm" variant="default">
+          <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
           Ver horarios
         </Button>
       </CardContent>

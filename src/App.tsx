@@ -63,15 +63,15 @@ const AppLayoutContent = ({
     <div className="min-h-screen flex w-full">
       <AppSidebar />
       <div className="flex-1 flex flex-col">
-        <header className="sticky top-0 z-10 h-14 border-b border-border flex items-center justify-between px-4 bg-card/95 backdrop-blur-sm">
+        <header className="sticky top-0 z-10 h-12 sm:h-14 border-b border-border flex items-center justify-between px-2 sm:px-4 bg-card/95 backdrop-blur-sm">
           <button 
             onClick={toggleSidebar}
-            className="md:hidden p-2 hover:bg-accent rounded-md transition-colors"
+            className="md:hidden p-1.5 sm:p-2 hover:bg-accent rounded-md transition-colors"
             aria-label="Toggle menu"
           >
-            <img src={panteraMenuIcon} alt="Menu" className="w-8 h-8" />
+            <img src={panteraMenuIcon} alt="Menu" className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <a 
               href="tel:+34623616950" 
               className="hidden sm:flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors"
@@ -106,7 +106,7 @@ const AppLayoutContent = ({
           </div>
         </header>
         <main className="flex-1 overflow-auto">
-          <div className="p-4">
+          <div className="p-2 sm:p-3 md:p-4">
             {showNotificationRequest && <NotificationPermissionRequest />}
             {children}
           </div>

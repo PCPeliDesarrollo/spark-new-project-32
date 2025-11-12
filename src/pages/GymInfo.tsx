@@ -40,27 +40,27 @@ export default function GymInfo() {
   ];
 
   return (
-    <div className="container py-4 md:py-8 px-4">
-      <h1 className="font-bebas text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-wider text-primary drop-shadow-[0_0_30px_hsl(var(--primary)/0.7)] mb-6 md:mb-8 text-center">
+    <div className="container py-2 sm:py-4 md:py-8 px-2 sm:px-4">
+      <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-wider text-primary drop-shadow-[0_0_30px_hsl(var(--primary)/0.7)] mb-4 sm:mb-6 md:mb-8 text-center">
         DATOS DEL CENTRO
       </h1>
 
       {/* Carrusel de imágenes */}
-      <Card className="mb-6 md:mb-8 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader>
-          <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl tracking-wider text-center text-primary px-4">
+      <Card className="mb-4 sm:mb-6 md:mb-8 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+        <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
+          <CardTitle className="font-bebas text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-wider text-center text-primary px-2">
             NUESTRAS INSTALACIONES
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-2 md:px-6">
+        <CardContent className="px-1 sm:px-2 md:px-6">
           <Carousel className="w-full max-w-4xl mx-auto">
             <CarouselContent>
               {gymImages.map((image, index) => (
                 <CarouselItem key={index}>
                   <div className="relative aspect-video rounded-lg overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4">
-                      <p className="text-white font-bebas text-base sm:text-lg md:text-xl lg:text-2xl tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 sm:p-3 md:p-4">
+                      <p className="text-white font-bebas text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                         {image.alt}
                       </p>
                     </div>
@@ -68,34 +68,34 @@ export default function GymInfo() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-1 md:left-2 h-8 w-8 md:h-10 md:w-10" />
-            <CarouselNext className="right-1 md:right-2 h-8 w-8 md:h-10 md:w-10" />
+            <CarouselPrevious className="left-0.5 sm:left-1 md:left-2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
+            <CarouselNext className="right-0.5 sm:right-1 md:right-2 h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
           </Carousel>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
         <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-bebas text-xl md:text-2xl tracking-wider">
-              <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
+          <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+            <CardTitle className="flex items-center gap-2 font-bebas text-base sm:text-lg md:text-xl lg:text-2xl tracking-wider">
+              <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               Ubicación
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm md:text-base text-muted-foreground">{gymLocation}</p>
+          <CardContent className="px-3 sm:px-4 md:px-6">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">{gymLocation}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-bebas text-xl md:text-2xl tracking-wider">
-              <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
+          <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+            <CardTitle className="flex items-center gap-2 font-bebas text-base sm:text-lg md:text-xl lg:text-2xl tracking-wider">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               Horario Provisional
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-1 text-sm md:text-base text-muted-foreground">
+          <CardContent className="px-3 sm:px-4 md:px-6">
+            <div className="space-y-1 text-xs sm:text-sm md:text-base text-muted-foreground">
               <p>Mañanas: 9:00 - 14:00</p>
               <p>Tardes: 17:00 - 22:00</p>
             </div>
@@ -103,26 +103,26 @@ export default function GymInfo() {
         </Card>
 
         <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-bebas text-xl md:text-2xl tracking-wider">
-              <Phone className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
+          <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+            <CardTitle className="flex items-center gap-2 font-bebas text-base sm:text-lg md:text-xl lg:text-2xl tracking-wider">
+              <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               Teléfono
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm md:text-base text-muted-foreground">+34 623616950</p>
+          <CardContent className="px-3 sm:px-4 md:px-6">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">+34 623616950</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-bebas text-xl md:text-2xl tracking-wider">
-              <Mail className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
+          <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+            <CardTitle className="flex items-center gap-2 font-bebas text-base sm:text-lg md:text-xl lg:text-2xl tracking-wider">
+              <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               Email
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs md:text-sm text-muted-foreground break-all">pantherafitnessalburquerque@gmail.com</p>
+          <CardContent className="px-3 sm:px-4 md:px-6">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground break-all">pantherafitnessalburquerque@gmail.com</p>
           </CardContent>
         </Card>
       </div>

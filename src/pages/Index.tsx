@@ -76,12 +76,12 @@ const Index = () => {
 
       {/* Header */}
       <header className="border-b border-primary/20 bg-card/30 backdrop-blur-md sticky top-0 z-50 shadow-lg shadow-primary/5">
-        <div className="container mx-auto px-3 md:px-4 py-3 md:py-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-            <div className="relative p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105 flex-shrink-0">
-              <img src={panteraLogo} alt="Panthera Fitness" className="w-5 h-5 md:w-7 md:h-7 object-contain" />
+        <div className="container mx-auto px-2 sm:px-3 md:px-4 py-2 sm:py-3 md:py-4 flex items-center justify-between gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-1 min-w-0">
+            <div className="relative p-1.5 sm:p-2 md:p-2.5 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105 flex-shrink-0">
+              <img src={panteraLogo} alt="Panthera Fitness" className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7 object-contain" />
             </div>
-            <span className="font-bebas text-sm md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] truncate">
+            <span className="font-bebas text-xs sm:text-sm md:text-xl tracking-wider bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] truncate">
               <span className="hidden sm:inline">PANTHERA FITNESS ALBURQUERQUE</span>
               <span className="sm:hidden">PANTHERA</span>
             </span>
@@ -106,17 +106,17 @@ const Index = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-accent/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }}></div>
         </div>
         
-        <div className="container mx-auto px-4 py-16 md:py-24 text-center relative z-10">
-          <div className="inline-block mb-6 md:mb-8 p-3 md:p-4 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.3)] backdrop-blur-sm border border-primary/20">
-            <img src={panteraLogo} alt="Panthera Fitness" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
+        <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12 md:py-16 lg:py-24 text-center relative z-10">
+          <div className="inline-block mb-4 sm:mb-6 md:mb-8 p-2 sm:p-3 md:p-4 bg-gradient-to-br from-primary/20 to-primary-glow/20 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.3)] backdrop-blur-sm border border-primary/20">
+            <img src={panteraLogo} alt="Panthera Fitness" className="w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 object-contain" />
           </div>
-          <h1 className="font-bebas text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider mb-4 md:mb-6 text-primary animate-fade-in leading-tight drop-shadow-[0_4px_30px_hsl(var(--primary)/0.8)]">
+          <h1 className="font-bebas text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl tracking-wider mb-3 sm:mb-4 md:mb-6 text-primary animate-fade-in leading-tight drop-shadow-[0_4px_30px_hsl(var(--primary)/0.8)] px-2">
             BIENVENIDO A PANTHERA FITNESS ALBURQUERQUE
           </h1>
-          <p className="text-xl md:text-3xl font-bold text-foreground/90 mb-6 md:mb-8 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] [text-shadow:_0_2px_20px_rgba(59,130,246,0.5)]">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-foreground/90 mb-4 sm:mb-6 md:mb-8 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] [text-shadow:_0_2px_20px_rgba(59,130,246,0.5)] px-2">
             🔥 TRANSFORMA TU CUERPO, SUPERA TUS LÍMITES 🔥
           </p>
-          <p className="text-lg md:text-2xl text-foreground/80 mb-8 md:mb-10 max-w-3xl mx-auto px-4 leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-foreground/80 mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-auto px-3 sm:px-4 leading-relaxed">
             <span className="text-primary font-semibold">Gestiona tus clases y alcanza tus objetivos de fitness.</span>
           </p>
           

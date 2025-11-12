@@ -294,14 +294,14 @@ export default function Profile() {
   }
 
   return (
-    <div className="container max-w-2xl py-4 md:py-8 px-4">
+    <div className="container max-w-2xl py-2 sm:py-4 md:py-8 px-2 sm:px-4">
       {/* Card para el código de acceso temporal */}
       <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader className="text-center">
-          <CardTitle className="font-bebas text-3xl md:text-4xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
+        <CardHeader className="text-center px-4 py-4 sm:py-6">
+          <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
             CÓDIGO DE ACCESO
           </CardTitle>
-          <CardDescription className="text-base">Genera tu código temporal para entrar al gimnasio</CardDescription>
+          <CardDescription className="text-sm sm:text-base">Genera tu código temporal para entrar al gimnasio</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           {isBlocked ? (
@@ -314,21 +314,21 @@ export default function Profile() {
           ) : (
             <>
               {accessCode ? (
-                <div className="flex flex-col items-center gap-4 w-full">
-                  <div className="bg-gradient-to-br from-primary/20 to-primary-glow/10 p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-primary/40 backdrop-blur-sm">
+                <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
+                  <div className="bg-gradient-to-br from-primary/20 to-primary-glow/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-primary/40 backdrop-blur-sm">
                     <div className="text-center">
-                      <div className="font-bebas text-6xl md:text-7xl tracking-[0.5em] text-primary drop-shadow-[0_0_20px_rgba(59,130,246,0.8)]">
+                      <div className="font-bebas text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[0.3em] sm:tracking-[0.5em] text-primary drop-shadow-[0_0_20px_rgba(59,130,246,0.8)]">
                         {accessCode}
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center gap-2">
-                    <p className="text-sm text-muted-foreground">Tiempo restante:</p>
-                    <div className="font-mono text-2xl font-bold text-primary">
+                  <div className="flex flex-col items-center gap-1 sm:gap-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Tiempo restante:</p>
+                    <div className="font-mono text-xl sm:text-2xl font-bold text-primary">
                       {formatTimeLeft()}
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground text-center max-w-md px-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md px-2 sm:px-4">
                     Proporciona este código de 6 dígitos al personal del gimnasio. El código expira en 10 minutos.
                   </p>
                   <Button 
@@ -371,12 +371,12 @@ export default function Profile() {
       </Card>
 
       {/* Card de perfil */}
-      <Card className="mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader className="text-center">
-          <CardTitle className="font-bebas text-4xl md:text-5xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
+      <Card className="mt-4 sm:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+        <CardHeader className="text-center px-4 py-4 sm:py-6">
+          <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
             MI PERFIL
           </CardTitle>
-          <CardDescription className="text-base">Tus datos personales</CardDescription>
+          <CardDescription className="text-sm sm:text-base">Tus datos personales</CardDescription>
           <div className="flex justify-center mt-2">
             <Badge
               variant={

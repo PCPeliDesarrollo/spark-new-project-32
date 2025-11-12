@@ -89,14 +89,14 @@ export default function Classes() {
   }
 
   return (
-    <div className="container py-4 md:py-8 px-4">
-      <h1 className="font-bebas text-4xl md:text-6xl tracking-wider mb-6 md:mb-8 text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)] text-center">
+    <div className="container py-2 sm:py-4 md:py-8 px-2 sm:px-4">
+      <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-wider mb-4 sm:mb-6 md:mb-8 text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)] text-center">
         CLASES DISPONIBLES
       </h1>
 
       <MonthlyClassesIndicator />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {classes.map((classItem) => (
           <ClassCard
             key={classItem.id}
