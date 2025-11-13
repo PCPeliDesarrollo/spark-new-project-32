@@ -25,6 +25,21 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const handleRemindLater = async () => {
+    try {
+      // Marcar como que ya se mostró el diálogo para no volver a mostrarlo
+      await supabase
+        .from("profiles")
+        .update({ password_changed: true })
+        .eq("id", userId);
+      
+      onClose();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      onClose();
+    }
+  };
+
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
       toast({
@@ -122,7 +137,7 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
-              onClick={onClose}
+              onClick={handleRemindLater}
               variant="outline"
               className="flex-1 text-sm"
               disabled={loading}
