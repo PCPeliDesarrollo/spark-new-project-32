@@ -19,34 +19,44 @@ export function MonthlyClassesIndicator() {
   const [bookings, setBookings] = useState<ClassBooking[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Early return if not basica_clases role
+  if (roleLoading) {
+    return (
+      <div className="flex justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Only show for users with basica_clases subscription
+  if (role !== "basica_clases") {
+    return null;
+  }
+
   useEffect(() => {
-    if (!roleLoading && role === "basica_clases") {
-      loadBookings();
+    loadBookings();
 
-      // Suscribirse a cambios en tiempo real en las reservas
-      const channel = supabase
-        .channel('bookings-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'class_bookings'
-          },
-          (payload) => {
-            console.log('Cambio detectado en reservas:', payload);
-            loadBookings(); // Recargar cuando haya cambios
-          }
-        )
-        .subscribe();
+    // Suscribirse a cambios en tiempo real en las reservas
+    const channel = supabase
+      .channel('bookings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'class_bookings'
+        },
+        (payload) => {
+          console.log('Cambio detectado en reservas:', payload);
+          loadBookings(); // Recargar cuando haya cambios
+        }
+      )
+      .subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    } else {
-      setLoading(false);
-    }
-  }, [role, roleLoading]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const loadBookings = async () => {
     try {
@@ -99,16 +109,13 @@ export function MonthlyClassesIndicator() {
     }
   };
 
-  if (roleLoading || loading) {
+  if (loading) {
     return (
       <div className="flex justify-center p-4">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
-
-  // Only show for users with basica_clases subscription
-  if (role !== "basica_clases") return null;
 
   const getClassStatus = (booking: ClassBooking): "used" | "booked" | "available" => {
     const schedule = booking.class_schedules;

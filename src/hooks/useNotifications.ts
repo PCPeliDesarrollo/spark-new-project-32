@@ -72,36 +72,44 @@ export function useNotifications() {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    const initNotifications = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    // Subscribe to real-time notifications
-    const channel = supabase
-      .channel("notifications")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-        },
-        (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications((prev) => [newNotification, ...prev]);
-          setUnreadCount((prev) => prev + 1);
+      fetchNotifications();
 
-          // Show toast notification
-          toast({
-            title: newNotification.title,
-            description: newNotification.message,
-            variant: newNotification.type === "success" ? "default" : "default",
-          });
-        }
-      )
-      .subscribe();
+      // Subscribe to real-time notifications for this specific user only
+      const channel = supabase
+        .channel("notifications")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${user.id}`, // Filter by current user
+          },
+          (payload) => {
+            const newNotification = payload.new as Notification;
+            setNotifications((prev) => [newNotification, ...prev]);
+            setUnreadCount((prev) => prev + 1);
 
-    return () => {
-      supabase.removeChannel(channel);
+            // Show toast notification
+            toast({
+              title: newNotification.title,
+              description: newNotification.message,
+              variant: newNotification.type === "success" ? "default" : "default",
+            });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     };
+
+    initNotifications();
   }, []);
 
   return {
