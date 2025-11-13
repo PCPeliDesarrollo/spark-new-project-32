@@ -37,7 +37,7 @@ export function useUserRole() {
     role, 
     isAdmin: role === "admin",
     canBookClasses: role === "basica_clases" || role === "full" || role === "admin",
-    hasClassLimit: role === "basica_clases" || role === "full",
+    hasClassLimit: role === "basica_clases",
     loading 
   };
 }

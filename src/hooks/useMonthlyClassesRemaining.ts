@@ -41,8 +41,8 @@ export function useMonthlyClassesRemaining(userId: string | null) {
   const loadClassesRemaining = async () => {
     if (!userId || !role) return;
 
-    // Admins have unlimited classes
-    if (isAdmin) {
+    // Admins and full members have unlimited classes
+    if (isAdmin || role === "full") {
       setClassesRemaining(999);
       setLoading(false);
       return;
@@ -55,8 +55,8 @@ export function useMonthlyClassesRemaining(userId: string | null) {
       return;
     }
 
-    // For "basica_clases" and "full" roles: 12 classes per month
-    if (role === "basica_clases" || role === "full") {
+    // For "basica_clases" role: 12 classes per month
+    if (role === "basica_clases") {
       const now = new Date();
       const monthStart = startOfMonth(now);
       const monthEnd = endOfMonth(now);

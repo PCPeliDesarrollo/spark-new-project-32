@@ -20,7 +20,7 @@ export function MonthlyClassesIndicator() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!roleLoading && (role === "basica_clases" || role === "full")) {
+    if (!roleLoading && role === "basica_clases") {
       loadBookings();
 
       // Suscribirse a cambios en tiempo real en las reservas
@@ -107,8 +107,8 @@ export function MonthlyClassesIndicator() {
     );
   }
 
-  // Only show for users with basica_clases or full subscription
-  if (role !== "basica_clases" && role !== "full") return null;
+  // Only show for users with basica_clases subscription
+  if (role !== "basica_clases") return null;
 
   const getClassStatus = (booking: ClassBooking): "used" | "booked" | "available" => {
     const schedule = booking.class_schedules;
