@@ -32,13 +32,13 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Create checkout session for single class (€4.50)
+    // Create checkout session for single day entry (€5.00)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : email,
       line_items: [
         {
-          price: "price_1SQ1ftHYelRwAwLF2fBqRAb0", // €4.50
+          price: "price_1SQ1ftHYelRwAwLF2fBqRAb0", // €5.00 - Cambiar este price ID con el real
           quantity: 1,
         },
       ],
