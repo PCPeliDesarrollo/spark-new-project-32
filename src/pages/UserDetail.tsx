@@ -441,7 +441,7 @@ export default function UserDetail() {
                   {user.role === "admin" 
                     ? "Administrador" 
                     : user.role === "full"
-                    ? "Full"
+                    ? "Full (Basica+clases ilimitadas)"
                     : user.role === "basica_clases"
                     ? "Básica Clases"
                     : "Básica"}
