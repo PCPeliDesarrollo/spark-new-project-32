@@ -391,7 +391,7 @@ export default function Profile() {
               {role === "admin" 
                 ? "Administrador" 
                 : role === "full"
-                ? "Suscripción Full"
+                ? "Full (Basica+clases ilimitadas)"
                 : role === "basica_clases"
                 ? "Suscripción Básica Clases"
                 : "Suscripción Básica"}
