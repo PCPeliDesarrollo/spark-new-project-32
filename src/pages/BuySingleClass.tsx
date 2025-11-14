@@ -62,10 +62,10 @@ export default function BuySingleClass() {
         {/* Hero Section */}
         <div className="text-center mb-16 space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-            Compra una Clase Individual
+            Compra tu Entrada Diaria
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Prueba nuestras clases sin compromiso. Válida para cualquier clase disponible.
+            Accede al gimnasio por un día completo sin compromiso.
           </p>
         </div>
 
@@ -73,9 +73,9 @@ export default function BuySingleClass() {
           {/* Purchase Form */}
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-2xl">Comprar Clase</CardTitle>
+              <CardTitle className="text-2xl">Comprar Entrada</CardTitle>
               <CardDescription>
-                Ingresa tu email para recibir el código numérico de acceso
+                Ingresa tu email para recibir el código numérico de acceso al gimnasio
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -99,10 +99,10 @@ export default function BuySingleClass() {
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-lg font-semibold">Precio:</span>
-                    <span className="text-3xl font-bold text-primary">€4.50</span>
+                    <span className="text-3xl font-bold text-primary">€5.00</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Pago único • Sin suscripción
+                    Pago único • Acceso por un día
                   </p>
                 </div>
 
@@ -131,9 +131,9 @@ export default function BuySingleClass() {
               <div className="flex gap-3">
                 <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold mb-1">Acceso a una Clase</h3>
+                  <h3 className="font-semibold mb-1">Acceso Completo por un Día</h3>
                   <p className="text-sm text-muted-foreground">
-                    Elige cualquier clase disponible en nuestro horario
+                    Accede a todas las instalaciones del gimnasio
                   </p>
                 </div>
               </div>
@@ -161,9 +161,9 @@ export default function BuySingleClass() {
               <div className="flex gap-3">
                 <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold mb-1">Instructores Profesionales</h3>
+                  <h3 className="font-semibold mb-1">Válido por 30 Días</h3>
                   <p className="text-sm text-muted-foreground">
-                    Entrenamientos guiados por expertos certificados
+                    Usa tu código dentro de los próximos 30 días
                   </p>
                 </div>
               </div>
@@ -191,7 +191,7 @@ export default function BuySingleClass() {
               </div>
               <h3 className="font-semibold text-lg">Completa el Pago</h3>
               <p className="text-sm text-muted-foreground">
-                Paga de forma segura a través de Stripe (tarjeta de crédito o débito)
+                Paga de forma segura a través de Stripe
               </p>
             </div>
 
@@ -199,9 +199,9 @@ export default function BuySingleClass() {
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-primary">3</span>
               </div>
-              <h3 className="font-semibold text-lg">Recibe tu Código</h3>
+              <h3 className="font-semibold text-lg">Accede al Gimnasio</h3>
               <p className="text-sm text-muted-foreground">
-                Revisa tu email y muestra el código numérico de 6 dígitos en tu próxima visita
+                Presenta tu código de 6 dígitos en recepción y disfruta tu día
               </p>
             </div>
           </div>

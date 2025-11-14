@@ -663,7 +663,7 @@ export default function UserDetail() {
                       <SelectContent>
                         <SelectItem value="basica">Básica (solo máquinas)</SelectItem>
                         <SelectItem value="basica_clases">Básica Clases (12 clases/mes)</SelectItem>
-                        <SelectItem value="full">Full (todo + 12 clases/mes)</SelectItem>
+                        <SelectItem value="full">Full (Basica+clases ilimitadas)</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>

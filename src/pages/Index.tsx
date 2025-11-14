@@ -127,10 +127,10 @@ const Index = () => {
               onClick={() => navigate("/buy-single-class")}
               className="bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary text-primary-foreground font-bold text-base md:text-lg px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition-all duration-300 hover:scale-105"
             >
-              💳 Comprar Clase Individual - €4.50
+              🏋️ Comprar Entrada Diaria - €5.00
             </Button>
             <p className="text-sm text-muted-foreground mt-3">
-              ¿Primera vez? Prueba una clase sin compromiso
+              Accede al gimnasio por un día sin compromiso
             </p>
           </div>
 
