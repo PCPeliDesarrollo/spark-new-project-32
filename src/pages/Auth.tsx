@@ -227,7 +227,7 @@ export default function Auth() {
               className="w-full border-primary/30 hover:bg-primary/10 hover:border-primary text-sm md:text-base"
               onClick={() => navigate("/buy-single-class")}
             >
-              Comprar Clase Individual - €4.50
+              Comprar Entrada Diaria - €5.00
             </Button>
 
             <p className="text-center text-xs md:text-sm text-muted-foreground px-2">
