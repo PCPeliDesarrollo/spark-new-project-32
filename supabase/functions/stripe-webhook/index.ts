@@ -138,7 +138,7 @@ serve(async (req) => {
             </ul>
             <p style="font-size: 16px; font-weight: bold; margin: 30px 0;">Tu código de acceso es:</p>
             <div style="text-align: center; margin: 30px 0;">
-              <div style="background: linear-gradient(135deg, #10c3c8 0%, #60A5FA 100%); color: white; font-size: 48px; font-weight: bold; padding: 30px; border-radius: 15px; letter-spacing: 8px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);">
+              <div style="background: #10c3c8; color: white; font-size: 48px; font-weight: bold; padding: 30px; border-radius: 15px; letter-spacing: 8px; box-shadow: 0 10px 30px rgba(16, 195, 200, 0.3);">
                 ${accessCode}
               </div>
             </div>
