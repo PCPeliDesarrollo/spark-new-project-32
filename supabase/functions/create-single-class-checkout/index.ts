@@ -38,7 +38,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : email,
       line_items: [
         {
-          price: "price_1SQ1ftHYelRwAwLF2fBqRAb0", // €5.00 - Cambiar este price ID con el real
+          price: "price_1SUPqOH3OIVtMJ9MQ73aGRrj", // €5.00 - Entrada Diaria Gimnasio
           quantity: 1,
         },
       ],
