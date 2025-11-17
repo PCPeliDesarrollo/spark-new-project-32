@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Phone } from "lucide-react";
 import * as z from "zod";
 
 const authSchema = z.object({
@@ -230,9 +230,18 @@ export default function Auth() {
               Comprar Entrada Diaria - €5.00
             </Button>
 
-            <p className="text-center text-xs md:text-sm text-muted-foreground px-2">
-              Si necesitas una cuenta, contacta con el administrador
-            </p>
+            <div className="text-center space-y-2 px-2">
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Si necesitas una cuenta, contacta con el administrador
+              </p>
+              <a 
+                href="tel:623616950" 
+                className="flex items-center justify-center gap-2 text-xs md:text-sm text-primary hover:text-primary-glow transition-colors"
+              >
+                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="font-medium">623 61 69 50</span>
+              </a>
+            </div>
           </div>
         </CardContent>
       </Card>
