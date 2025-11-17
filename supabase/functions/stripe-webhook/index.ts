@@ -24,11 +24,7 @@ serve(async (req) => {
     // Verify webhook signature
     let event;
     try {
-      event = await stripe.webhooks.constructEventAsync(
-        body,
-        signature!,
-        Deno.env.get("STRIPE_WEBHOOK_SECRET") || ""
-      );
+      event = await stripe.webhooks.constructEventAsync(body, signature!, Deno.env.get("STRIPE_WEBHOOK_SECRET") || "");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
       console.error("Webhook signature verification failed:", errorMessage);
@@ -54,7 +50,7 @@ serve(async (req) => {
         // Initialize Supabase with service role key
         const supabaseAdmin = createClient(
           Deno.env.get("SUPABASE_URL") ?? "",
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
         );
 
         let fullName = "";
@@ -80,7 +76,7 @@ serve(async (req) => {
         };
 
         let accessCode = generateAccessCode();
-        
+
         // Ensure code is unique
         let isUnique = false;
         let attempts = 0;
@@ -91,7 +87,7 @@ serve(async (req) => {
             .eq("access_code", accessCode)
             .eq("used", false)
             .maybeSingle();
-          
+
           if (!existing) {
             isUnique = true;
           } else {
@@ -136,8 +132,8 @@ serve(async (req) => {
             <p>Has comprado con éxito una clase individual en Panthera Fitness Alburquerque.</p>
             <p><strong>Detalles de tu compra:</strong></p>
             <ul>
-              <li>Producto: Clase Individual</li>
-              <li>Precio: €4.50</li>
+              <li>Producto:Entrada diaria individual</li>
+              <li>Precio: 5.00€</li>
               <li>Fecha: ${new Date().toLocaleDateString("es-ES")}</li>
             </ul>
             <p style="font-size: 16px; font-weight: bold; margin: 30px 0;">Tu código de acceso es:</p>
@@ -164,7 +160,7 @@ serve(async (req) => {
         `;
 
         const { error: emailError } = await resend.emails.send({
-          from: "Panthera Fitness <onboarding@resend.dev>",
+          from: "Panthera Fitness Alburquerque <onboarding@resend.dev>",
           to: [userEmail],
           subject: `Tu código de acceso: ${accessCode} - Panthera Fitness 🎉`,
           html: emailHtml,
