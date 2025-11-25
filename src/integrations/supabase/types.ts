@@ -14,33 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      access_codes: {
-        Row: {
-          code: string
-          created_at: string
-          expires_at: string
-          id: string
-          used: boolean
-          user_id: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          expires_at: string
-          id?: string
-          used?: boolean
-          user_id: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          expires_at?: string
-          id?: string
-          used?: boolean
-          user_id?: string
-        }
-        Relationships: []
-      }
       access_logs: {
         Row: {
           access_type: string
@@ -229,6 +202,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_code: string | null
           apellidos: string | null
           avatar_url: string | null
           blocked: boolean
@@ -244,6 +218,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_code?: string | null
           apellidos?: string | null
           avatar_url?: string | null
           blocked?: boolean
@@ -259,6 +234,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_code?: string | null
           apellidos?: string | null
           avatar_url?: string | null
           blocked?: boolean

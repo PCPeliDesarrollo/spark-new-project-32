@@ -49,10 +49,32 @@ serve(async (req) => {
       });
     }
 
-    const { email, password, full_name, apellidos, telefono, fecha_nacimiento, role } = await req.json();
+    const { email, password, full_name, apellidos, telefono, fecha_nacimiento, access_code, role } = await req.json();
 
-    if (!email || !password || !fecha_nacimiento) {
-      return new Response(JSON.stringify({ error: "Email, password y fecha de nacimiento son requeridos" }), {
+    if (!email || !password || !fecha_nacimiento || !access_code) {
+      return new Response(JSON.stringify({ error: "Email, password, fecha de nacimiento y código de acceso son requeridos" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate access_code format
+    if (!/^\d{6}$/.test(access_code)) {
+      return new Response(JSON.stringify({ error: "El código de acceso debe tener exactamente 6 dígitos" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if access_code already exists
+    const { data: existingCode } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("access_code", access_code)
+      .maybeSingle();
+
+    if (existingCode) {
+      return new Response(JSON.stringify({ error: "Este código de acceso ya está en uso" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -74,18 +96,23 @@ serve(async (req) => {
     }
 
     if (newUser.user) {
-      // Update profile with additional fields
+      // Update profile with additional fields including access_code
       const { error: profileUpdateError } = await supabaseAdmin
         .from("profiles")
         .update({
           apellidos: apellidos || null,
           telefono: telefono || null,
           fecha_nacimiento: fecha_nacimiento || null,
+          access_code: access_code,
         })
         .eq("id", newUser.user.id);
 
       if (profileUpdateError) {
         console.error("Error updating profile:", profileUpdateError);
+        return new Response(JSON.stringify({ error: "Error al actualizar el perfil del usuario" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       // Update the user's role if specified (default is handled by trigger)
