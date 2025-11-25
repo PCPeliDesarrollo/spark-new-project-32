@@ -32,19 +32,46 @@ serve(async (req) => {
       );
     }
 
-    // Validar código de acceso temporal
-    const { data: accessCode, error: codeError } = await supabase
-      .from('access_codes')
-      .select('*, profiles(*)')
-      .eq('code', code)
-      .eq('used', false)
-      .single();
-
-    if (codeError || !accessCode) {
+    // Validate that code is 6 digits
+    if (!/^\d{6}$/.test(code)) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'Código inválido o ya utilizado' 
+          message: 'Formato de código inválido' 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Check profiles table for permanent access code
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, full_name, apellidos, email, blocked, access_code')
+      .eq('access_code', code)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error('Error checking access code:', profileError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Error al verificar el código' 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    if (!profile) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Código inválido' 
         }),
         { 
           status: 404, 
@@ -53,25 +80,8 @@ serve(async (req) => {
       );
     }
 
-    // Verificar que no haya expirado
-    const now = new Date();
-    const expiresAt = new Date(accessCode.expires_at);
-    
-    if (now > expiresAt) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: 'El código ha expirado' 
-        }),
-        { 
-          status: 403, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Verificar que el usuario no esté bloqueado
-    if (accessCode.profiles.blocked) {
+    // Check if user is blocked
+    if (profile.blocked) {
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -84,17 +94,11 @@ serve(async (req) => {
       );
     }
 
-    // Marcar código como usado
-    await supabase
-      .from('access_codes')
-      .update({ used: true })
-      .eq('id', accessCode.id);
-
-    // Registrar acceso
+    // Log the access
     await supabase
       .from('access_logs')
       .insert({
-        user_id: accessCode.user_id,
+        user_id: profile.id,
         access_type: 'door_entry',
         timestamp: new Date().toISOString()
       });
@@ -104,8 +108,8 @@ serve(async (req) => {
         success: true, 
         message: 'Acceso permitido',
         user: {
-          name: `${accessCode.profiles.full_name} ${accessCode.profiles.apellidos || ''}`.trim(),
-          email: accessCode.profiles.email
+          name: `${profile.full_name} ${profile.apellidos || ''}`.trim(),
+          email: profile.email
         }
       }),
       { 

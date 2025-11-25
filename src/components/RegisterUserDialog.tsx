@@ -39,6 +39,7 @@ const formSchema = z.object({
   apellidos: z.string().optional(),
   telefono: z.string().optional(),
   fecha_nacimiento: z.string().min(1, { message: "La fecha de nacimiento es requerida" }),
+  access_code: z.string().regex(/^\d{6}$/, { message: "El código debe tener exactamente 6 dígitos" }),
   role: z.enum(["basica", "basica_clases", "full", "admin"], {
     required_error: "Selecciona un tipo de cliente",
   }),
@@ -64,6 +65,7 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
       apellidos: "",
       telefono: "",
       fecha_nacimiento: "",
+      access_code: "",
       role: "basica",
     },
   });
@@ -217,6 +219,25 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                   <FormLabel>Contraseña *</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="access_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Código de Acceso *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="text" 
+                      placeholder="123456" 
+                      maxLength={6}
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
