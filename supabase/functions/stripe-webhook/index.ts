@@ -8,6 +8,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Pool de códigos fijos para entradas diarias (Hikvision)
+const ACCESS_CODE_POOL = [
+  "650539",
+  "149220",
+  "321674",
+  "901243",
+  "784224",
+  "015824",
+  "645901",
+  "306839",
+  "947033",
+  "428181",
+];
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -70,31 +84,21 @@ serve(async (req) => {
           }
         }
 
-        // Generate unique 6-digit access code
-        const generateAccessCode = () => {
-          return Math.floor(100000 + Math.random() * 900000).toString();
-        };
+        // Seleccionar código del pool rotativo
+        // Contar cuántas compras hay para determinar el siguiente código
+        const { count, error: countError } = await supabaseAdmin
+          .from("single_class_purchases")
+          .select("*", { count: "exact", head: true });
 
-        let accessCode = generateAccessCode();
-
-        // Ensure code is unique
-        let isUnique = false;
-        let attempts = 0;
-        while (!isUnique && attempts < 10) {
-          const { data: existing } = await supabaseAdmin
-            .from("single_class_purchases")
-            .select("id")
-            .eq("access_code", accessCode)
-            .eq("used", false)
-            .maybeSingle();
-
-          if (!existing) {
-            isUnique = true;
-          } else {
-            accessCode = generateAccessCode();
-            attempts++;
-          }
+        if (countError) {
+          console.error("Error counting purchases:", countError);
         }
+
+        const purchaseCount = count || 0;
+        const codeIndex = purchaseCount % ACCESS_CODE_POOL.length;
+        const accessCode = ACCESS_CODE_POOL[codeIndex];
+
+        console.log(`Assigning code ${accessCode} (index ${codeIndex}) - Total purchases: ${purchaseCount}`);
 
         // Insert purchase record
         const purchaseData: any = {
@@ -122,17 +126,17 @@ serve(async (req) => {
 
         console.log("Purchase recorded:", purchase.id);
 
-        // Send email with QR code
+        // Send email with access code
         const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #3B82F6;">¡Gracias por tu compra!</h1>
             <p>Hola${fullName ? ` ${fullName}` : ""},</p>
-            <p>Has comprado con éxito una clase individual en Panthera Fitness Alburquerque.</p>
+            <p>Has comprado con éxito una entrada diaria en Panthera Fitness Alburquerque.</p>
             <p><strong>Detalles de tu compra:</strong></p>
             <ul>
-              <li>Producto:Entrada diaria individual</li>
+              <li>Producto: Entrada diaria individual</li>
               <li>Precio: 5.00€</li>
               <li>Fecha: ${new Date().toLocaleDateString("es-ES")}</li>
             </ul>
@@ -168,7 +172,6 @@ serve(async (req) => {
 
         if (emailError) {
           console.error("Error sending email:", emailError);
-          // Don't throw - payment was successful, just log the error
         } else {
           console.log("Email sent successfully to:", userEmail);
         }
@@ -178,7 +181,7 @@ serve(async (req) => {
           await supabaseAdmin.from("notifications").insert({
             user_id: userId,
             title: "¡Compra exitosa!",
-            message: `Has comprado una clase individual. Tu código de acceso es: ${accessCode}. Válido solo para hoy.`,
+            message: `Has comprado una entrada diaria. Tu código de acceso es: ${accessCode}. Válido solo para hoy.`,
             type: "success",
           });
         }
