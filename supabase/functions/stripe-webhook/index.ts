@@ -164,7 +164,7 @@ serve(async (req) => {
         `;
 
         const { error: emailError } = await resend.emails.send({
-          from: "Panthera Fitness Alburquerque <onboarding@resend.dev>",
+          from: "Panthera Fitness <info@pantherafitnessalburquerque.es>",
           to: [userEmail],
           subject: `Tu código de acceso: ${accessCode} - Panthera Fitness 🎉`,
           html: emailHtml,
