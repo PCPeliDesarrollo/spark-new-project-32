@@ -143,13 +143,19 @@ serve(async (req) => {
             <p style="font-size: 16px; font-weight: bold; margin: 30px 0;">Tu código de acceso es:</p>
             <div style="text-align: center; margin: 30px 0;">
               <div style="background: #10c3c8; color: white; font-size: 48px; font-weight: bold; padding: 30px; border-radius: 15px; letter-spacing: 8px; box-shadow: 0 10px 30px rgba(16, 195, 200, 0.3);">
-                ${accessCode}
+                ${accessCode}<span style="color: #FFD700;">#</span>
               </div>
             </div>
-            <p><strong>Importante:</strong> Este código es válido solo para HOY ${new Date().toLocaleDateString("es-ES")}. Guarda este email y presenta el código en la entrada del gimnasio.</p>
-            <p style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0;">
-              ⚠️ <strong>Atención:</strong> El código debe usarse el mismo día de la compra. Una vez usado, no podrás reutilizarlo.
-            </p>
+            <div style="background: #DC2626; color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
+              <p style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0;">⚠️ MUY IMPORTANTE ⚠️</p>
+              <p style="font-size: 16px; margin: 0;">Al introducir el código en el teclado, <strong>debes añadir una almohadilla (#) al final</strong>.</p>
+              <p style="font-size: 24px; font-weight: bold; margin: 15px 0; letter-spacing: 4px;">${accessCode}<span style="color: #FFD700; font-size: 28px;">#</span></p>
+            </div>
+            <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0 0 10px 0;"><strong>⚠️ CÓDIGO DE UN SOLO USO:</strong></p>
+              <p style="margin: 0;">Este código es válido <strong>ÚNICAMENTE para un acceso</strong>. Una vez que lo uses para entrar, quedará invalidado y no podrás volver a utilizarlo.</p>
+            </div>
+            <p><strong>Fecha de compra:</strong> ${new Date().toLocaleDateString("es-ES")}. Guarda este email y presenta el código en la entrada del gimnasio.</p>
             <p style="background: #E0F2FE; border-left: 4px solid #3B82F6; padding: 15px; margin: 20px 0;">
               📧 <strong>¿No has recibido el correo en 10 minutos?</strong><br/>
               Revisa tu carpeta de spam o contacta con nosotros al <strong>623 61 69 50</strong>
@@ -181,7 +187,7 @@ serve(async (req) => {
           await supabaseAdmin.from("notifications").insert({
             user_id: userId,
             title: "¡Compra exitosa!",
-            message: `Has comprado una entrada diaria. Tu código de acceso es: ${accessCode}. Válido solo para hoy.`,
+            message: `Has comprado una entrada diaria. Tu código de acceso es: ${accessCode}# (recuerda añadir la almohadilla). Válido para un solo uso.`,
             type: "success",
           });
         }
