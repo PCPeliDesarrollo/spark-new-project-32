@@ -31,7 +31,8 @@ export default function BuySingleClass() {
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, "_blank");
+        // Usar location.href en lugar de window.open para compatibilidad con Safari
+        window.location.href = data.url;
       }
     } catch (error: any) {
       console.error("Error:", error);
