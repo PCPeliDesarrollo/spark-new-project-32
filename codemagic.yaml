@@ -8,7 +8,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: app.lovable.2e7e286f8d87458fb8b6d8c58a91db2a
+        bundle_identifier: com.pantherafitness.alburquerque
       vars:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
