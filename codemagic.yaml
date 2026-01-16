@@ -1,0 +1,44 @@
+workflows:
+  ios-workflow:
+    name: iOS App Store Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: Codemagic
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.lovable.2e7e286f8d87458fb8b6d8c58a91db2a
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+      node: v18.17.0
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install
+      - name: Build web app
+        script: |
+          npm run build
+      - name: Add iOS platform
+        script: |
+          npx cap add ios || true
+          npx cap sync ios
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios/App && pod install
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
