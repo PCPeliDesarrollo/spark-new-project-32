@@ -87,6 +87,19 @@ workflows:
       - name: Set up code signing
         script: |
           xcode-project use-profiles
+      - name: Set iOS build number (avoid duplicate uploads)
+        script: |
+          BUILD_NO="${BUILD_NUMBER:-${CM_BUILD_NUMBER:-1}}"
+          INFO_PLIST="ios/App/App/Info.plist"
+
+          if [ -f "$INFO_PLIST" ]; then
+            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NO" "$INFO_PLIST" || \
+            /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $BUILD_NO" "$INFO_PLIST"
+            echo "Set CFBundleVersion to $BUILD_NO"
+          else
+            echo "Warning: Info.plist not found at $INFO_PLIST"
+            ls -la ios/App/App || true
+          fi
       - name: Build IPA
         script: |
           xcode-project build-ipa \
