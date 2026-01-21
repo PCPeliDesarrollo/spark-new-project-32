@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff, Phone } from "lucide-react";
+import { Loader2, Eye, EyeOff, Phone, AlertTriangle } from "lucide-react";
 import * as z from "zod";
 
 const authSchema = z.object({
@@ -241,6 +241,28 @@ export default function Auth() {
                 <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 <span className="font-medium">623 61 69 50</span>
               </a>
+            </div>
+
+            {/* Medical Disclaimer */}
+            <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-[10px] md:text-xs text-amber-200/80">
+                  <strong>Aviso:</strong> Esta app es solo para fines informativos. Consulta a un 
+                  profesional de la salud antes de comenzar cualquier programa de ejercicios.
+                </p>
+              </div>
+            </div>
+
+            {/* Legal Links */}
+            <div className="flex justify-center gap-4 text-[10px] md:text-xs text-muted-foreground mt-3">
+              <Link to="/terms" className="hover:text-primary transition-colors">
+                Términos y Condiciones
+              </Link>
+              <span>•</span>
+              <Link to="/privacy" className="hover:text-primary transition-colors">
+                Política de Privacidad
+              </Link>
             </div>
           </div>
         </CardContent>
