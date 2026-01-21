@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator as CalculatorIcon, Lock } from "lucide-react";
+import { Calculator as CalculatorIcon, Lock, AlertTriangle, ExternalLink } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
@@ -97,6 +97,19 @@ export default function Calculator() {
         </p>
       </div>
 
+      {/* Medical Disclaimer */}
+      <div className="mb-6 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-200/80">
+            <strong>Aviso importante:</strong> Estas calculadoras proporcionan estimaciones basadas en 
+            fórmulas científicas estándar y son solo para fines informativos. No sustituyen el consejo 
+            médico profesional. Consulta con un profesional de la salud antes de tomar decisiones 
+            sobre tu dieta o ejercicio.
+          </p>
+        </div>
+      </div>
+
       <Tabs defaultValue="imc" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="imc">Calculadora IMC</TabsTrigger>
@@ -161,6 +174,25 @@ export default function Calculator() {
                   </div>
                 </div>
               )}
+
+              {/* IMC Citation */}
+              <div className="mt-4 p-3 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-xs text-muted-foreground mb-2">
+                  <strong>Fuente científica:</strong>
+                </p>
+                <a 
+                  href="https://www.who.int/europe/news-room/fact-sheets/item/body-mass-index---bmi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Organización Mundial de la Salud (OMS) - Body Mass Index Classification
+                </a>
+                <p className="text-[10px] text-muted-foreground mt-2">
+                  Fórmula: IMC = peso (kg) / altura² (m²)
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -262,6 +294,34 @@ export default function Calculator() {
                   </div>
                 </div>
               )}
+
+              {/* Calories Citation */}
+              <div className="mt-4 p-3 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-xs text-muted-foreground mb-2">
+                  <strong>Fuente científica:</strong>
+                </p>
+                <a 
+                  href="https://pubmed.ncbi.nlm.nih.gov/2305711/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Harris JA, Benedict FG. A Biometric Study of Human Basal Metabolism (1918)
+                </a>
+                <a 
+                  href="https://pubmed.ncbi.nlm.nih.gov/2305711/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Roza AM, Shizgal HM. The Harris Benedict equation reevaluated (1984) - PubMed
+                </a>
+                <p className="text-[10px] text-muted-foreground mt-2">
+                  Fórmula Harris-Benedict revisada para estimar la Tasa Metabólica Basal (TMB)
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
