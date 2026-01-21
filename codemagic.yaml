@@ -87,6 +87,23 @@ workflows:
       - name: Set up code signing
         script: |
           xcode-project use-profiles
+      - name: Configure Info.plist permissions
+        script: |
+          INFO_PLIST="ios/App/App/Info.plist"
+          
+          if [ -f "$INFO_PLIST" ]; then
+            # Add Camera usage description (required for profile photo)
+            /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Panthera Fitness necesita acceso a la cámara para tomar fotos de perfil'" "$INFO_PLIST" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Panthera Fitness necesita acceso a la cámara para tomar fotos de perfil'" "$INFO_PLIST"
+            
+            # Add Photo Library usage description
+            /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Panthera Fitness necesita acceso a tus fotos para seleccionar una foto de perfil'" "$INFO_PLIST" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Panthera Fitness necesita acceso a tus fotos para seleccionar una foto de perfil'" "$INFO_PLIST"
+            
+            echo "Info.plist permissions configured successfully"
+          else
+            echo "Warning: Info.plist not found at $INFO_PLIST"
+          fi
       - name: Set iOS build number (avoid duplicate uploads)
         script: |
           BUILD_NO="${BUILD_NUMBER:-${CM_BUILD_NUMBER:-1}}"
