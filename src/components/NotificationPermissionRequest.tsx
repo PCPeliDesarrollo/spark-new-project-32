@@ -74,7 +74,7 @@ export function NotificationPermissionRequest() {
       <AlertTitle>Mantente al tanto</AlertTitle>
       <AlertDescription className="flex flex-col gap-3">
         <p>
-          Activa las notificaciones para recibir recordatorios de tus clases, cumpleaños y noticias importantes de Pantera CrossTraining.
+          Activa las notificaciones para recibir recordatorios de tus clases, cumpleaños y noticias importantes de Panthera Fitness Alburquerque.
         </p>
         <Button 
           onClick={handleRequestPermission} 
