@@ -100,6 +100,12 @@ workflows:
           else
             echo "Warning: App icon not found at $ICON_SOURCE"
           fi
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios/App && pod install
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
       - name: Set iOS build number (avoid duplicate uploads)
         script: |
           BUILD_NO="${BUILD_NUMBER:-${CM_BUILD_NUMBER:-1}}"
