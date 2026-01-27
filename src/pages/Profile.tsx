@@ -13,6 +13,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Badge } from "@/components/ui/badge";
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
+import { Capacitor } from "@capacitor/core";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -198,10 +200,12 @@ export default function Profile() {
 
       setUploading(true);
 
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file.name.split(".").pop() || "jpg";
       const filePath = `${user.id}/avatar.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true, contentType: file.type || "image/jpeg" });
 
       if (uploadError) throw uploadError;
 
@@ -232,6 +236,88 @@ export default function Profile() {
         variant: "destructive",
       });
     } finally {
+      setUploading(false);
+      // Reset input so selecting same photo again still triggers onChange
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const uploadAvatarBlob = async (blob: Blob) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    setUploading(true);
+    try {
+      const filePath = `${user.id}/avatar.jpg`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, blob, { upsert: true, contentType: blob.type || "image/jpeg" });
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+      const avatarUrlWithTimestamp = `${publicUrl}?t=${Date.now()}`;
+
+      setProfile((p) => ({ ...p, avatar_url: avatarUrlWithTimestamp }));
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: avatarUrlWithTimestamp })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Avatar actualizado",
+        description: "Tu foto de perfil se ha guardado correctamente",
+      });
+    } catch (error) {
+      console.error("uploadAvatarBlob error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo subir la imagen",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    // On web, keep the current file picker flow.
+    if (!Capacitor.isNativePlatform()) {
+      fileInputRef.current?.click();
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const photo = await Camera.getPhoto({
+        quality: 85,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        saveToGallery: false,
+      });
+
+      const url = photo.webPath || photo.path;
+      if (!url) throw new Error("No photo path returned");
+
+      const res = await fetch(url);
+      const blob = await res.blob();
+      await uploadAvatarBlob(blob);
+    } catch (error: any) {
+      console.error("Camera.getPhoto error:", error);
+      toast({
+        title: "No se pudo abrir la cámara",
+        description: "Revisa permisos de cámara y vuelve a intentar.",
+        variant: "destructive",
+      });
       setUploading(false);
     }
   };
@@ -406,7 +492,7 @@ export default function Profile() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleTakePhoto}
               disabled={uploading}
               className="mt-4"
             >

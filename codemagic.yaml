@@ -35,6 +35,10 @@ workflows:
             # Add Photo Library usage description
             /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Panthera Fitness necesita acceso a tus fotos para seleccionar una foto de perfil'" "$INFO_PLIST" 2>/dev/null || \
             /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Panthera Fitness necesita acceso a tus fotos para seleccionar una foto de perfil'" "$INFO_PLIST"
+
+            # Add Photo Library Add usage description (some camera flows require it)
+            /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Panthera Fitness necesita permiso para guardar la foto tomada (si el sistema lo requiere)'" "$INFO_PLIST" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Panthera Fitness necesita permiso para guardar la foto tomada (si el sistema lo requiere)'" "$INFO_PLIST"
             
             echo "Info.plist permissions configured successfully"
           else
