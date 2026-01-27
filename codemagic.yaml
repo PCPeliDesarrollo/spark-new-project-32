@@ -25,6 +25,22 @@ workflows:
       - name: Add iOS platform
         script: |
           npx cap add ios || true
+      - name: Set iOS deployment target (required by CapacitorCamera)
+        script: |
+          PODFILE="ios/App/Podfile"
+          if [ -f "$PODFILE" ]; then
+            # Ensure a modern minimum target so CocoaPods can resolve CapacitorCamera.
+            # (Capacitor Camera now requires a higher iOS deployment target.)
+            if grep -q "^platform :ios" "$PODFILE"; then
+              sed -i '' "s/^platform :ios, .*/platform :ios, '14.0'/" "$PODFILE" || true
+            else
+              # Insert at top if missing
+              sed -i '' "1s/^/platform :ios, '14.0'\n/" "$PODFILE" || true
+            fi
+            echo "Podfile iOS deployment target set to 14.0"
+          else
+            echo "Warning: Podfile not found at $PODFILE"
+          fi
       - name: Configure Info.plist permissions
         script: |
           INFO_PLIST="ios/App/App/Info.plist"
