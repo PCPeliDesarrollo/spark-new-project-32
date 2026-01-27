@@ -7,7 +7,7 @@ import { Calendar, Users, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
 import panteraLogo from "@/assets/pantera.png";
-import { MonthlyClassesIndicator } from "@/components/MonthlyClassesIndicator";
+
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -146,7 +146,7 @@ const Index = () => {
 
       {/* Features Section */}
       <section className="container mx-auto px-4 py-12 md:py-20">
-        <MonthlyClassesIndicator />
+        
         
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mt-6">
           <Card className="group relative bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 hover:border-primary/60 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(59,130,246,0.2)] overflow-hidden">

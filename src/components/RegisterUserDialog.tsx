@@ -257,9 +257,9 @@ export function RegisterUserDialog({ onUserCreated }: RegisterUserDialogProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="basica">Básica (solo máquinas)</SelectItem>
-                      <SelectItem value="basica_clases">Básica Clases (12 clases/mes)</SelectItem>
-                      <SelectItem value="full">Full (Basica+clases ilimitadas)</SelectItem>
+                      <SelectItem value="basica">Básica Máquinas - 40€ (solo máquinas)</SelectItem>
+                      <SelectItem value="basica_clases">Básica Clases - 40€ (clases ilimitadas)</SelectItem>
+                      <SelectItem value="full">Full - 60€ (máquinas + clases ilimitadas)</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
