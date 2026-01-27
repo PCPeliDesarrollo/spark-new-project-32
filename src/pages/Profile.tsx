@@ -13,7 +13,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBlockedStatus } from "@/hooks/useBlockedStatus";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Badge } from "@/components/ui/badge";
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { Capacitor } from "@capacitor/core";
 
 export default function Profile() {
@@ -241,6 +240,9 @@ export default function Profile() {
 
     try {
       setUploading(true);
+      // Dynamic import for native platforms only
+      const { Camera, CameraResultType, CameraSource } = await import("@capacitor/camera");
+      
       const photo = await Camera.getPhoto({
         quality: 85,
         allowEditing: false,
@@ -255,7 +257,7 @@ export default function Profile() {
       const res = await fetch(url);
       const blob = await res.blob();
       await uploadAvatarBlob(blob);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Camera.getPhoto error:", error);
       toast({
         title: "No se pudo abrir la cámara",
