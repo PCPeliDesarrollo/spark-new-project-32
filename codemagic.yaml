@@ -33,6 +33,10 @@ workflows:
           
           # Update Podfile
           if [ -f "$PODFILE" ]; then
+            # If there's no platform line yet, add it at the top.
+            if ! grep -q "^platform :ios" "$PODFILE"; then
+              perl -0777 -i -pe "s/^/platform :ios, '14.0'\n/" "$PODFILE"
+            fi
             # Use perl for reliable in-place replacement (macOS sed can be tricky)
             perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '14.0'/g" "$PODFILE"
             echo "Podfile updated:"
