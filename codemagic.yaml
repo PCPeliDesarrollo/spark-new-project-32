@@ -27,7 +27,7 @@ workflows:
           npx cap add ios || true
       - name: Set iOS deployment target (required by CapacitorCamera)
         script: |
-          # CapacitorCamera 8.x requires iOS 14+. Update Podfile and project.pbxproj.
+          # CapacitorCamera 8.x requires iOS 15+. Update Podfile and project.pbxproj.
           PODFILE="ios/App/Podfile"
           PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
           
@@ -35,18 +35,18 @@ workflows:
           if [ -f "$PODFILE" ]; then
             # If there's no platform line yet, add it at the top.
             if ! grep -q "^platform :ios" "$PODFILE"; then
-              perl -0777 -i -pe "s/^/platform :ios, '14.0'\n/" "$PODFILE"
+              perl -0777 -i -pe "s/^/platform :ios, '15.0'\n/" "$PODFILE"
             fi
             # Use perl for reliable in-place replacement (macOS sed can be tricky)
-            perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '14.0'/g" "$PODFILE"
+            perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '15.0'/g" "$PODFILE"
             echo "Podfile updated:"
             grep "platform :ios" "$PODFILE" || true
           fi
           
           # Update project.pbxproj deployment target
           if [ -f "$PBXPROJ" ]; then
-            perl -i -pe "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 14.0;/g" "$PBXPROJ"
-            echo "project.pbxproj IPHONEOS_DEPLOYMENT_TARGET updated to 14.0"
+            perl -i -pe "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g" "$PBXPROJ"
+            echo "project.pbxproj IPHONEOS_DEPLOYMENT_TARGET updated to 15.0"
           fi
       - name: Configure Info.plist permissions
         script: |
@@ -140,9 +140,9 @@ workflows:
           if [ -f "$PODFILE" ]; then
             # Ensure platform line
             if ! grep -q "^platform :ios" "$PODFILE"; then
-              perl -0777 -i -pe "s/^/platform :ios, '14.0'\n/" "$PODFILE"
+              perl -0777 -i -pe "s/^/platform :ios, '15.0'\n/" "$PODFILE"
             fi
-            perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '14.0'/g" "$PODFILE"
+            perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '15.0'/g" "$PODFILE"
 
             # Ensure post_install forces deployment target on all pods (using echo to avoid YAML issues)
             if ! grep -q "post_install do" "$PODFILE"; then
@@ -150,21 +150,21 @@ workflows:
               echo "post_install do |installer|" >> "$PODFILE"
               echo "  installer.pods_project.targets.each do |target|" >> "$PODFILE"
               echo "    target.build_configurations.each do |config|" >> "$PODFILE"
-              echo "      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'" >> "$PODFILE"
+              echo "      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'" >> "$PODFILE"
               echo "    end" >> "$PODFILE"
               echo "  end" >> "$PODFILE"
               echo "end" >> "$PODFILE"
             fi
 
-            echo "Podfile platform/deployment target forced to 14.0"
+            echo "Podfile platform/deployment target forced to 15.0"
             cat "$PODFILE"
           else
             echo "Warning: Podfile not found at $PODFILE"
           fi
 
           if [ -f "$PBXPROJ" ]; then
-            perl -i -pe "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 14.0;/g" "$PBXPROJ"
-            echo "project.pbxproj IPHONEOS_DEPLOYMENT_TARGET forced to 14.0"
+            perl -i -pe "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g" "$PBXPROJ"
+            echo "project.pbxproj IPHONEOS_DEPLOYMENT_TARGET forced to 15.0"
           fi
 
           cd ios/App && pod repo update && pod install
