@@ -16,7 +16,9 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          npm install
+          # Deterministic install based on package-lock.
+          # legacy-peer-deps avoids common peer-deps resolution failures in CI.
+          npm ci --legacy-peer-deps
       - name: Build web app
         script: |
           npm run build
