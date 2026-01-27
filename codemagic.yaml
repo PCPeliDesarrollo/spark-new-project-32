@@ -144,22 +144,20 @@ workflows:
             fi
             perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '14.0'/g" "$PODFILE"
 
-            # Ensure post_install forces deployment target on all pods
-            if ! grep -q "post_install do \|installer\|" "$PODFILE"; then
-              cat >> "$PODFILE" << 'EOF'
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
-    end
-  end
-end
-EOF
+            # Ensure post_install forces deployment target on all pods (using echo to avoid YAML issues)
+            if ! grep -q "post_install do" "$PODFILE"; then
+              echo "" >> "$PODFILE"
+              echo "post_install do |installer|" >> "$PODFILE"
+              echo "  installer.pods_project.targets.each do |target|" >> "$PODFILE"
+              echo "    target.build_configurations.each do |config|" >> "$PODFILE"
+              echo "      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'" >> "$PODFILE"
+              echo "    end" >> "$PODFILE"
+              echo "  end" >> "$PODFILE"
+              echo "end" >> "$PODFILE"
             fi
 
             echo "Podfile platform/deployment target forced to 14.0"
-            grep "platform :ios" "$PODFILE" || true
+            cat "$PODFILE"
           else
             echo "Warning: Podfile not found at $PODFILE"
           fi
