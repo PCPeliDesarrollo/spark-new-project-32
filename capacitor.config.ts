@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   ios: {
     // Required for @capacitor/camera 8.x (CapacitorCamera pod)
-    minVersion: '14.0'
+    minVersion: '15.0'
   },
   android: {
     backgroundColor: '#000000',
