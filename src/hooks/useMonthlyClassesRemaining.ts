@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "./useUserRole";
-import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export function useMonthlyClassesRemaining(userId: string | null) {
   const [classesRemaining, setClassesRemaining] = useState<number | null>(null);
@@ -14,35 +12,8 @@ export function useMonthlyClassesRemaining(userId: string | null) {
       return;
     }
 
-    loadClassesRemaining();
-
-    // Subscribe to booking changes to update in real-time
-    const channel = supabase
-      .channel('user-bookings-count')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'class_bookings',
-          filter: `user_id=eq.${userId}`
-        },
-        () => {
-          loadClassesRemaining();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId, role]);
-
-  const loadClassesRemaining = async () => {
-    if (!userId || !role) return;
-
-    // Admins and full members have unlimited classes
-    if (isAdmin || role === "full") {
+    // Admins, full members, and basica_clases all have unlimited classes
+    if (isAdmin || role === "full" || role === "basica_clases") {
       setClassesRemaining(999);
       setLoading(false);
       return;
@@ -55,28 +26,8 @@ export function useMonthlyClassesRemaining(userId: string | null) {
       return;
     }
 
-    // For "basica_clases" role: 12 classes per month
-    if (role === "basica_clases") {
-      const now = new Date();
-      const monthStart = startOfMonth(now);
-      const monthEnd = endOfMonth(now);
-
-      const { data, error } = await supabase
-        .from("class_bookings")
-        .select("id", { count: "exact", head: false })
-        .eq("user_id", userId)
-        .eq("status", "confirmed")
-        .gte("class_date", format(monthStart, 'yyyy-MM-dd'))
-        .lte("class_date", format(monthEnd, 'yyyy-MM-dd'));
-
-      if (!error) {
-        const confirmedCount = data?.length || 0;
-        setClassesRemaining(12 - confirmedCount);
-      }
-    }
-
     setLoading(false);
-  };
+  }, [userId, role, isAdmin]);
 
   return {
     classesRemaining,

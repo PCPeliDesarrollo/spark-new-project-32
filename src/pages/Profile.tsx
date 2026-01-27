@@ -377,10 +377,10 @@ export default function Profile() {
               {role === "admin" 
                 ? "Administrador" 
                 : role === "full"
-                ? "Full (Basica+clases ilimitadas)"
+                ? "Full - 60€ (máquinas + clases ilimitadas)"
                 : role === "basica_clases"
-                ? "Suscripción Básica Clases"
-                : "Suscripción Básica"}
+                ? "Básica Clases - 40€ (clases ilimitadas)"
+                : "Básica Máquinas - 40€ (solo máquinas)"}
             </Badge>
           </div>
         </CardHeader>

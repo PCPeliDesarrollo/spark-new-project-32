@@ -441,10 +441,10 @@ export default function UserDetail() {
                   {user.role === "admin" 
                     ? "Administrador" 
                     : user.role === "full"
-                    ? "Full (Basica+clases ilimitadas)"
+                    ? "Full - 60€"
                     : user.role === "basica_clases"
-                    ? "Básica Clases"
-                    : "Básica"}
+                    ? "Básica Clases - 40€"
+                    : "Básica Máquinas - 40€"}
                 </Badge>
                 {user.blocked && (
                   <Badge variant="destructive">
@@ -661,9 +661,9 @@ export default function UserDetail() {
                         <SelectValue placeholder="Seleccionar rol" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="basica">Básica (solo máquinas)</SelectItem>
-                        <SelectItem value="basica_clases">Básica Clases (12 clases/mes)</SelectItem>
-                        <SelectItem value="full">Full (Basica+clases ilimitadas)</SelectItem>
+                        <SelectItem value="basica">Básica Máquinas - 40€ (solo máquinas)</SelectItem>
+                        <SelectItem value="basica_clases">Básica Clases - 40€ (clases ilimitadas)</SelectItem>
+                        <SelectItem value="full">Full - 60€ (máquinas + clases ilimitadas)</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>
@@ -675,48 +675,23 @@ export default function UserDetail() {
             <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/50">
               <GraduationCap className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground mb-2">Clases mensuales</p>
+                <p className="text-sm text-muted-foreground mb-2">Acceso a clases</p>
                 {user.role === "basica" ? (
                   <p className="text-sm text-muted-foreground italic">
-                    Este usuario no tiene suscripción a clases
+                    Sin acceso a clases (solo máquinas)
                   </p>
                 ) : user.role === "admin" ? (
-                  <p className="text-sm text-muted-foreground italic">
-                    Sin límite (Admin)
+                  <p className="text-sm text-green-600 font-medium">
+                    ✓ Clases ilimitadas (Admin)
                   </p>
-                ) : (user.role === "basica_clases" || user.role === "full") ? (
-                  <div className="space-y-2">
-                    <div className="flex gap-1">
-                      {Array.from({ length: 12 }).map((_, index) => {
-                        let colorClass = "bg-green-500";
-                        if (index < monthlyBookings.used) {
-                          colorClass = "bg-red-500";
-                        } else if (index < monthlyBookings.used + monthlyBookings.booked) {
-                          colorClass = "bg-yellow-500";
-                        }
-                        return (
-                          <div
-                            key={index}
-                            className={`h-6 flex-1 rounded ${colorClass}`}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="flex flex-wrap gap-3 text-xs">
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-red-500" />
-                        <span>Usadas: {monthlyBookings.used}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-yellow-500" />
-                        <span>Reservadas: {monthlyBookings.booked}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 rounded bg-green-500" />
-                        <span>Disponibles: {monthlyBookings.available}</span>
-                      </div>
-                    </div>
-                  </div>
+                ) : user.role === "full" ? (
+                  <p className="text-sm text-green-600 font-medium">
+                    ✓ Clases ilimitadas + Máquinas
+                  </p>
+                ) : user.role === "basica_clases" ? (
+                  <p className="text-sm text-green-600 font-medium">
+                    ✓ Clases ilimitadas
+                  </p>
                 ) : null}
               </div>
             </div>
