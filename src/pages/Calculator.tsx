@@ -110,6 +110,34 @@ export default function Calculator() {
         </div>
       </div>
 
+      {/* Fuentes visibles (para revisión App Store) */}
+      <div className="mb-6 p-4 bg-card/60 rounded-lg border border-border/60">
+        <p className="text-sm font-semibold text-foreground mb-2">Fuentes científicas (citas)</p>
+        <div className="space-y-2">
+          <a
+            href="https://www.who.int/europe/news-room/fact-sheets/item/body-mass-index---bmi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline inline-flex items-center gap-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            OMS — Clasificación de IMC (BMI)
+          </a>
+          <a
+            href="https://pubmed.ncbi.nlm.nih.gov/2305711/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline inline-flex items-center gap-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            PubMed — Harris-Benedict (TMB) y revisión
+          </a>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          Estas referencias están disponibles antes de usar cualquier cálculo, para que sean fáciles de encontrar.
+        </p>
+      </div>
+
       <Tabs defaultValue="imc" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="imc">Calculadora IMC</TabsTrigger>
