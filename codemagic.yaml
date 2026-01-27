@@ -71,7 +71,9 @@ workflows:
           fi
       - name: Sync iOS platform
         script: |
-          npx cap sync ios
+          # Allow this step to continue even if CocoaPods fails here.
+          # We'll run a controlled `pod install` after forcing deployment targets.
+          npx cap sync ios || true
       - name: Configure iOS App Icon
         script: |
           # Copy app icon to iOS project
@@ -131,7 +133,43 @@ workflows:
           fi
       - name: Install CocoaPods dependencies
         script: |
-          cd ios/App && pod install
+          # Force a higher iOS deployment target so CocoaPods can resolve CapacitorCamera.
+          PODFILE="ios/App/Podfile"
+          PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
+
+          if [ -f "$PODFILE" ]; then
+            # Ensure platform line
+            if ! grep -q "^platform :ios" "$PODFILE"; then
+              perl -0777 -i -pe "s/^/platform :ios, '14.0'\n/" "$PODFILE"
+            fi
+            perl -i -pe "s/platform :ios, '[0-9.]+'/platform :ios, '14.0'/g" "$PODFILE"
+
+            # Ensure post_install forces deployment target on all pods
+            if ! grep -q "post_install do \|installer\|" "$PODFILE"; then
+              cat >> "$PODFILE" << 'EOF'
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+    end
+  end
+end
+EOF
+            fi
+
+            echo "Podfile platform/deployment target forced to 14.0"
+            grep "platform :ios" "$PODFILE" || true
+          else
+            echo "Warning: Podfile not found at $PODFILE"
+          fi
+
+          if [ -f "$PBXPROJ" ]; then
+            perl -i -pe "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 14.0;/g" "$PBXPROJ"
+            echo "project.pbxproj IPHONEOS_DEPLOYMENT_TARGET forced to 14.0"
+          fi
+
+          cd ios/App && pod repo update && pod install
       - name: Set up code signing
         script: |
           xcode-project use-profiles
