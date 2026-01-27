@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, Lock, RefreshCw, AlertCircle } from "lucide-react";
+import { Loader2, Upload, Lock, AlertCircle, Key } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { z } from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -40,10 +40,7 @@ export default function Profile() {
   const { isBlocked, loading: blockLoading } = useBlockedStatus();
   const { role } = useUserRole();
   const [showPasswordChange, setShowPasswordChange] = useState(false);
-  const [accessCode, setAccessCode] = useState<string>("");
-  const [codeExpiresAt, setCodeExpiresAt] = useState<string>("");
-  const [generatingCode, setGeneratingCode] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [accessCode, setAccessCode] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -82,6 +79,7 @@ export default function Profile() {
           estatura: profileData.estatura?.toString() || "",
           avatar_url: profileData.avatar_url || "",
         });
+        setAccessCode(profileData.access_code || null);
       }
     } catch (error) {
       toast({
@@ -94,60 +92,6 @@ export default function Profile() {
     }
   };
 
-  const generateAccessCode = async () => {
-    try {
-      setGeneratingCode(true);
-      const { data, error } = await supabase.functions.invoke('generate-access-code', {
-        body: {}
-      });
-
-      if (error) throw error;
-
-      setAccessCode(data.code);
-      setCodeExpiresAt(data.expires_at);
-      
-      toast({
-        title: "Código generado",
-        description: "Tu código de acceso temporal está listo",
-      });
-    } catch (error) {
-      console.error('Error generating code:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo generar el código de acceso",
-        variant: "destructive",
-      });
-    } finally {
-      setGeneratingCode(false);
-    }
-  };
-
-  // Calcular tiempo restante
-  useEffect(() => {
-    if (!codeExpiresAt) return;
-
-    const interval = setInterval(() => {
-      const now = new Date();
-      const expires = new Date(codeExpiresAt);
-      const diff = Math.floor((expires.getTime() - now.getTime()) / 1000);
-      
-      if (diff <= 0) {
-        setTimeLeft(0);
-        setAccessCode("");
-        setCodeExpiresAt("");
-      } else {
-        setTimeLeft(diff);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [codeExpiresAt]);
-
-  const formatTimeLeft = () => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -381,89 +325,45 @@ export default function Profile() {
 
   return (
     <div className="container max-w-2xl py-2 sm:py-4 md:py-8 px-2 sm:px-4">
-      {/* Card para el código de acceso temporal */}
-      <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-        <CardHeader className="text-center px-4 py-4 sm:py-6">
-          <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
-            CÓDIGO DE ACCESO
-          </CardTitle>
-          <CardDescription className="text-sm sm:text-base">Genera tu código temporal para entrar al gimnasio</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4">
-          {isBlocked ? (
-            <Alert variant="destructive" className="w-full">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Tu cuenta está bloqueada. No puedes acceder al gimnasio hasta que un administrador la desbloquee.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <>
-              {accessCode ? (
-                <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
-                  <div className="bg-gradient-to-br from-primary/20 to-primary-glow/10 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-primary/40 backdrop-blur-sm">
-                    <div className="text-center">
-                      <div className="font-bebas text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-[0.3em] sm:tracking-[0.5em] text-primary drop-shadow-[0_0_20px_rgba(59,130,246,0.8)]">
-                        {accessCode}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 sm:gap-2">
-                    <p className="text-xs sm:text-sm text-muted-foreground">Tiempo restante:</p>
-                    <div className="font-mono text-xl sm:text-2xl font-bold text-primary">
-                      {formatTimeLeft()}
-                    </div>
-                  </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md px-2 sm:px-4">
-                    Proporciona este código de 6 dígitos al personal del gimnasio. El código expira en 10 minutos.
-                  </p>
-                  <Button 
-                    onClick={generateAccessCode} 
-                    variant="outline" 
-                    className="w-full md:w-auto"
-                    disabled={generatingCode}
-                  >
-                    <RefreshCw className={`mr-2 h-4 w-4 ${generatingCode ? 'animate-spin' : ''}`} />
-                    Generar nuevo código
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-4 w-full">
-                  <p className="text-sm text-muted-foreground text-center max-w-md px-4">
-                    Genera un código temporal de 6 dígitos para acceder al gimnasio. El código será válido durante 10 minutos.
-                  </p>
-                  <Button 
-                    onClick={generateAccessCode} 
-                    className="w-full md:w-auto bg-gradient-to-r from-primary to-primary-glow"
-                    disabled={generatingCode}
-                  >
-                    {generatingCode ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generando...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Generar código
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Card de perfil */}
-      <Card className="mt-4 sm:mt-6 bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+      <Card className="bg-gradient-to-br from-card/90 to-card/50 backdrop-blur-md border-primary/30 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
         <CardHeader className="text-center px-4 py-4 sm:py-6">
           <CardTitle className="font-bebas text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-wider text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)]">
             MI PERFIL
           </CardTitle>
           <CardDescription className="text-sm sm:text-base">Tus datos personales</CardDescription>
-          <div className="flex justify-center mt-2">
+          
+          {/* Código de acceso permanente */}
+          {isBlocked ? (
+            <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Tu cuenta está bloqueada. No puedes acceder al gimnasio hasta que un administrador la desbloquee.
+              </AlertDescription>
+            </Alert>
+          ) : accessCode ? (
+            <div className="mt-4 bg-gradient-to-br from-primary/20 to-primary-glow/10 p-4 sm:p-6 rounded-xl border-2 border-primary/40">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Key className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-muted-foreground">Tu código de acceso</span>
+              </div>
+              <div className="font-bebas text-3xl sm:text-4xl md:text-5xl tracking-[0.3em] text-primary text-center drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">
+                {accessCode}
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Usa este código para acceder al gimnasio
+              </p>
+            </div>
+          ) : (
+            <Alert className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No tienes un código de acceso asignado. Contacta con un administrador.
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          <div className="flex justify-center mt-4">
             <Badge
               variant={
                 role === "admin" 
