@@ -131,6 +131,18 @@ workflows:
           else
             echo "Warning: App icon not found at $ICON_SOURCE"
           fi
+      - name: Configure device family (iPhone + iPad)
+        script: |
+          PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
+          
+          if [ -f "$PBXPROJ" ]; then
+            # TARGETED_DEVICE_FAMILY: 1 = iPhone, 2 = iPad, "1,2" = Universal
+            perl -i -pe 's/TARGETED_DEVICE_FAMILY = "[^"]*";/TARGETED_DEVICE_FAMILY = "1,2";/g' "$PBXPROJ"
+            perl -i -pe 's/TARGETED_DEVICE_FAMILY = [0-9]+;/TARGETED_DEVICE_FAMILY = "1,2";/g' "$PBXPROJ"
+            echo "TARGETED_DEVICE_FAMILY set to 1,2 (iPhone + iPad)"
+          else
+            echo "Warning: project.pbxproj not found"
+          fi
       - name: Install CocoaPods dependencies
         script: |
           # Force a higher iOS deployment target so CocoaPods can resolve CapacitorCamera.
