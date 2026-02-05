@@ -8,6 +8,10 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* iOS Safe Area - for notch and status bar */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
     --background: 0 0% 0%;
     --foreground: 210 40% 98%;
     

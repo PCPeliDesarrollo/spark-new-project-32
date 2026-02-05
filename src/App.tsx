@@ -62,7 +62,9 @@ const AppLayoutContent = ({
   const { toggleSidebar } = useSidebar();
 
   return (
-    <div className="min-h-screen flex w-full">
+    <div className="min-h-screen flex w-full" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      {/* iOS Safe Area - black bar for status bar */}
+      <div className="fixed top-0 left-0 right-0 bg-black z-50" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
       <AppSidebar />
       <div className="flex-1 flex flex-col">
         <header className="sticky top-0 z-10 h-12 sm:h-14 border-b border-border flex items-center justify-between px-2 sm:px-4 bg-card/95 backdrop-blur-sm">
