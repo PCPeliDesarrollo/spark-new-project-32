@@ -188,8 +188,8 @@ workflows:
           BUILD_NO="${BUILD_NUMBER:-${CM_BUILD_NUMBER:-1}}"
           INFO_PLIST="ios/App/App/Info.plist"
           
-          # Set the marketing version to 1.0.1 (higher than the approved 1.0)
-          NEW_VERSION="1.0.1"
+          # Set the marketing version to 1.0.2 (fix for iOS safe area)
+          NEW_VERSION="1.0.2"
 
           if [ -f "$INFO_PLIST" ]; then
             # Set CFBundleShortVersionString (marketing version shown in App Store)
