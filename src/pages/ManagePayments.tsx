@@ -36,6 +36,7 @@ const ManagePayments = () => {
   const [togglingBlock, setTogglingBlock] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "blocked" | "ok">("all");
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -212,7 +213,23 @@ const ManagePayments = () => {
 
   const filteredUsers = users.filter((user) => {
     const s = searchTerm.toLowerCase();
-    return user.full_name.toLowerCase().includes(s) || user.email.toLowerCase().includes(s);
+    const matchesSearch =
+      user.full_name.toLowerCase().includes(s) || user.email.toLowerCase().includes(s);
+    if (!matchesSearch) return false;
+    if (statusFilter === "all") return true;
+    if (statusFilter === "blocked") return user.blocked;
+    if (statusFilter === "pending") {
+      // Same criteria as pendingCount: unblocked users missing the required month payment
+      const today = new Date();
+      if (year !== today.getFullYear()) return false;
+      const currentMonth = today.getMonth() + 1;
+      const day = today.getDate();
+      const requiredMonth = day > GRACE_DAY ? currentMonth : null;
+      if (!requiredMonth) return false;
+      return !user.paidMonths.has(requiredMonth) && !user.blocked;
+    }
+    if (statusFilter === "ok") return getUserStatus(user) === "ok";
+    return true;
   });
 
   const currentMonthIdx = new Date().getMonth(); // 0-11
@@ -262,7 +279,12 @@ const ManagePayments = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card
+          onClick={() => setStatusFilter("all")}
+          className={`cursor-pointer transition-colors hover:bg-muted/40 ${
+            statusFilter === "all" ? "ring-2 ring-primary" : ""
+          }`}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
           </CardHeader>
@@ -270,7 +292,12 @@ const ManagePayments = () => {
             <div className="text-2xl font-bold">{users.length}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          onClick={() => setStatusFilter(statusFilter === "pending" ? "all" : "pending")}
+          className={`cursor-pointer transition-colors hover:bg-muted/40 ${
+            statusFilter === "pending" ? "ring-2 ring-primary" : ""
+          }`}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Pendiente de pago</CardTitle>
           </CardHeader>
@@ -278,7 +305,12 @@ const ManagePayments = () => {
             <div className="text-2xl font-bold text-destructive">{pendingCount}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          onClick={() => setStatusFilter(statusFilter === "blocked" ? "all" : "blocked")}
+          className={`cursor-pointer transition-colors hover:bg-muted/40 ${
+            statusFilter === "blocked" ? "ring-2 ring-primary" : ""
+          }`}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Bloqueados</CardTitle>
           </CardHeader>
@@ -286,7 +318,12 @@ const ManagePayments = () => {
             <div className="text-2xl font-bold text-destructive">{blockedCount}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          onClick={() => setStatusFilter(statusFilter === "ok" ? "all" : "ok")}
+          className={`cursor-pointer transition-colors hover:bg-muted/40 ${
+            statusFilter === "ok" ? "ring-2 ring-primary" : ""
+          }`}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Al día</CardTitle>
           </CardHeader>
