@@ -67,7 +67,7 @@ const AppLayoutContent = ({
       {/* iOS Safe Area - black bar for status bar */}
       <div className="fixed top-0 left-0 right-0 bg-black z-50" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
       <AppSidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 w-full">
         <header className="sticky top-0 z-10 h-12 sm:h-14 border-b border-border flex items-center justify-between px-2 sm:px-4 bg-card/95 backdrop-blur-sm">
           <button 
             onClick={toggleSidebar}
@@ -110,8 +110,8 @@ const AppLayoutContent = ({
             <NotificationBell />
           </div>
         </header>
-        <main className="flex-1 overflow-auto">
-          <div className="p-2 sm:p-3 md:p-4">
+        <main className="flex-1 overflow-auto min-w-0">
+          <div className="p-2 sm:p-3 md:p-4 max-w-full">
             {showNotificationRequest && <NotificationPermissionRequest />}
             {children}
           </div>
