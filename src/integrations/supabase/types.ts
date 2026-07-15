@@ -170,6 +170,36 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_payments: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          paid: boolean
+          paid_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          paid?: boolean
+          paid_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          paid?: boolean
+          paid_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
