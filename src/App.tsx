@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import ManageSchedules from "./pages/ManageSchedules";
 import ManageClasses from "./pages/ManageClasses";
 import ManagePayments from "./pages/ManagePayments";
+import MyPayments from "./pages/MyPayments";
 import BuySingleClass from "./pages/BuySingleClass";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Terms from "./pages/Terms";
@@ -183,6 +184,14 @@ const App = () => {
               element={
                 <AppLayout>
                   <Profile />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/my-payments"
+              element={
+                <AppLayout>
+                  <MyPayments />
                 </AppLayout>
               }
             />
