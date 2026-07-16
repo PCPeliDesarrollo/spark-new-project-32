@@ -20,6 +20,7 @@ interface ScheduleData {
 }
 
 const DAY_LABELS = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+const DAY_LABELS_SHORT = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 const MONTHS = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -155,9 +156,10 @@ export default function Classes() {
             {daysWithClasses.map((d) => (
               <div
                 key={d}
-                className="bg-secondary text-primary border border-primary/40 font-bebas tracking-wider text-center py-2 sm:py-3 px-0.5 rounded-md text-[9px] sm:text-xs md:text-sm lg:text-base shadow-[0_0_10px_hsl(var(--primary)/0.15)] leading-tight break-words"
+                className="bg-secondary text-primary border border-primary/40 font-bebas tracking-normal sm:tracking-wide text-center py-2 sm:py-3 px-1 rounded-md text-xs sm:text-sm md:text-base lg:text-lg shadow-[0_0_10px_hsl(var(--primary)/0.15)] leading-tight"
               >
-                {DAY_LABELS[d]}
+                <span className="sm:hidden">{DAY_LABELS_SHORT[d]}</span>
+                <span className="hidden sm:inline">{DAY_LABELS[d]}</span>
               </div>
             ))}
           </div>
