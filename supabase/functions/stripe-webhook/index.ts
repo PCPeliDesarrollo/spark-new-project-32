@@ -8,19 +8,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Pool de códigos fijos para entradas diarias (Hikvision)
-const ACCESS_CODE_POOL = [
-  "650539",
-  "149220",
-  "321674",
-  "901243",
-  "784224",
-  "015824",
-  "645901",
-  "306839",
-  "947033",
-  "428181",
-];
+// Pool de códigos fijos para entradas diarias (Hikvision).
+// Los códigos se cargan desde la variable de entorno `ACCESS_CODE_POOL`
+// (JSON array de strings) para no exponerlos en el código fuente.
+const ACCESS_CODE_POOL: string[] = (() => {
+  try {
+    const raw = Deno.env.get("ACCESS_CODE_POOL") || "[]";
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((c) => typeof c === "string") : [];
+  } catch (_e) {
+    console.error("ACCESS_CODE_POOL secret is not valid JSON");
+    return [];
+  }
+})();
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

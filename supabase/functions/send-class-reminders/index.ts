@@ -10,6 +10,14 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
+  const cronSecret = Deno.env.get('CRON_SECRET')
+  if (!cronSecret || req.headers.get('x-cron-secret') !== cronSecret) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
+  }
+
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -25,10 +33,10 @@ Deno.serve(async (req) => {
     
     if (reminderType === 'morning') {
       // Morning reminder: notify about all classes today
-      return await sendMorningReminders(supabase, now)
+      return await sendMorningReminders(supabase, now, cronSecret)
     } else {
       // Hourly reminder: notify 1 hour before class
-      return await sendHourlyReminders(supabase, now)
+      return await sendHourlyReminders(supabase, now, cronSecret)
     }
   } catch (error) {
     console.error('Error in send-class-reminders function:', error)
@@ -43,7 +51,7 @@ Deno.serve(async (req) => {
   }
 })
 
-async function sendMorningReminders(supabase: any, now: Date) {
+async function sendMorningReminders(supabase: any, now: Date, cronSecret: string) {
   console.log('Sending morning reminders for today\'s classes...')
   
   const today = now.toISOString().split('T')[0]
@@ -110,6 +118,7 @@ async function sendMorningReminders(supabase: any, now: Date) {
     
     // Send push notification
     const { error: notifError } = await supabase.functions.invoke('send-push-notification', {
+      headers: { 'x-cron-secret': cronSecret },
       body: {
         user_id: userId,
         title: '🌅 Buenos días, ' + userName,
@@ -150,7 +159,7 @@ async function sendMorningReminders(supabase: any, now: Date) {
   )
 }
 
-async function sendHourlyReminders(supabase: any, now: Date) {
+async function sendHourlyReminders(supabase: any, now: Date, cronSecret: string) {
   console.log('Checking for classes starting in 1 hour...')
   
   const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
@@ -210,6 +219,7 @@ async function sendHourlyReminders(supabase: any, now: Date) {
       
       // Send push notification
       const { error: notifError } = await supabase.functions.invoke('send-push-notification', {
+        headers: { 'x-cron-secret': cronSecret },
         body: {
           user_id: booking.user_id,
           title: '⏰ Clase en 1 hora',

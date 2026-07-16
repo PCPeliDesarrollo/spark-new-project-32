@@ -41,6 +41,43 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require either the shared CRON secret (for internal callers) or an
+    // authenticated admin user. This blocks unauthenticated notification
+    // injection to arbitrary users.
+    const cronSecret = Deno.env.get('CRON_SECRET')
+    const providedCron = req.headers.get('x-cron-secret')
+    let authorized = !!(cronSecret && providedCron && providedCron === cronSecret)
+
+    if (!authorized) {
+      const authHeader = req.headers.get('Authorization') || ''
+      if (authHeader.startsWith('Bearer ')) {
+        const anonClient = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_ANON_KEY')!,
+        )
+        const token = authHeader.replace('Bearer ', '')
+        const { data: userData } = await anonClient.auth.getUser(token)
+        if (userData?.user) {
+          const adminClient = createClient(
+            Deno.env.get('SUPABASE_URL')!,
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+          )
+          const { data: isAdmin } = await adminClient.rpc('has_role', {
+            _user_id: userData.user.id,
+            _role: 'admin',
+          })
+          authorized = !!isAdmin
+        }
+      }
+    }
+
+    if (!authorized) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
