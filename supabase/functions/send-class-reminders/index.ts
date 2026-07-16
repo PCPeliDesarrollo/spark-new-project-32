@@ -159,7 +159,7 @@ async function sendMorningReminders(supabase: any, now: Date, cronSecret: string
   )
 }
 
-async function sendHourlyReminders(supabase: any, now: Date) {
+async function sendHourlyReminders(supabase: any, now: Date, cronSecret: string) {
   console.log('Checking for classes starting in 1 hour...')
   
   const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
