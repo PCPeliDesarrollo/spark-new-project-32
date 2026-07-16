@@ -260,24 +260,20 @@ export default function ClassDetail() {
       
       setSchedules(schedulesData || []);
 
-      // Generate schedule instances for current month (and next month if in last week)
+      // Generate schedule instances for the CURRENT week only (Monday-Sunday).
+      // Users can only book classes for this week; next week's schedule may change.
       const now = new Date();
       const instances: ScheduleInstance[] = [];
-      
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
-      // Calculate month boundaries
-      const currentMonth = today.getMonth();
-      const currentYear = today.getFullYear();
-      const monthEnd = new Date(currentYear, currentMonth + 1, 0); // Last day of current month
-      const daysUntilMonthEnd = Math.ceil((monthEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // If we're in the last 7 days of the month, also show next month
-      const showNextMonth = daysUntilMonthEnd <= 7;
-      const endDate = showNextMonth 
-        ? new Date(currentYear, currentMonth + 2, 0) // Last day of next month
-        : monthEnd;
+
+      // Compute end of current week (Sunday 23:59:59)
+      const dayOfWeek = today.getDay(); // 0=Sun..6=Sat
+      const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+      const endDate = new Date(today);
+      endDate.setDate(today.getDate() + daysUntilSunday);
+      endDate.setHours(23, 59, 59, 999);
       
       for (const schedule of schedulesData || []) {
         // Start from today
