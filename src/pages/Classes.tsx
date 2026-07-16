@@ -204,11 +204,6 @@ export default function Classes() {
             ))}
           </div>
 
-          <p className="text-center text-[11px] sm:text-sm text-muted-foreground mt-4 sm:mt-6 flex items-center justify-center gap-2 flex-wrap px-2">
-            Durante las horas marcadas con
-            <img src={pantheraIcon} alt="" className="inline h-4 w-4 sm:h-5 sm:w-5 object-contain" />
-            habrá un profesor en sala (entrenamiento libre).
-          </p>
         </>
       )}
     </div>
