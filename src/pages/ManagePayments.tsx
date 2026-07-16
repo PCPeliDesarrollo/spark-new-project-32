@@ -8,10 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Ban, CheckCircle, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const MONTHS = [
   "Ene", "Feb", "Mar", "Abr", "May", "Jun",
   "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
+];
+
+const MONTHS_FULL = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
 interface UserRow {
@@ -37,6 +43,7 @@ const ManagePayments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "blocked" | "ok">("all");
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1); // 1-12
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -175,27 +182,25 @@ const ManagePayments = () => {
     }
   };
 
-  // Determine the current "due" month for the selected year.
-  // If viewing current year: due month is the current calendar month once we pass day 5.
-  // Before day 5, users are still within grace period, so the "pending" month is the previous month only if unpaid.
-  const getPendingUsersCount = () => {
+  // Whether the selected month is already "due" (past, or current month past grace day).
+  const isMonthDue = (): boolean => {
     const today = new Date();
-    if (year !== today.getFullYear()) return 0;
-    const currentMonth = today.getMonth() + 1; // 1-12
-    const day = today.getDate();
-    // The month we require paid: current month if past grace day, otherwise no new requirement yet
-    const requiredMonth = day > GRACE_DAY ? currentMonth : null;
-    if (!requiredMonth) return 0;
-    return users.filter((u) => !u.paidMonths.has(requiredMonth) && !u.blocked).length;
+    if (year < today.getFullYear()) return true;
+    if (year > today.getFullYear()) return false;
+    const currentMonth = today.getMonth() + 1;
+    if (selectedMonth < currentMonth) return true;
+    if (selectedMonth > currentMonth) return false;
+    return today.getDate() > GRACE_DAY;
+  };
+
+  const getPendingUsersCount = () => {
+    if (!isMonthDue()) return 0;
+    return users.filter((u) => !u.paidMonths.has(selectedMonth) && !u.blocked).length;
   };
 
   const getUserStatus = (user: UserRow): "blocked" | "pending" | "ok" => {
     if (user.blocked) return "blocked";
-    const today = new Date();
-    if (year !== today.getFullYear()) return "ok";
-    const currentMonth = today.getMonth() + 1;
-    const day = today.getDate();
-    if (day > GRACE_DAY && !user.paidMonths.has(currentMonth)) return "pending";
+    if (isMonthDue() && !user.paidMonths.has(selectedMonth)) return "pending";
     return "ok";
   };
 
@@ -219,14 +224,8 @@ const ManagePayments = () => {
     if (statusFilter === "all") return true;
     if (statusFilter === "blocked") return user.blocked;
     if (statusFilter === "pending") {
-      // Same criteria as pendingCount: unblocked users missing the required month payment
-      const today = new Date();
-      if (year !== today.getFullYear()) return false;
-      const currentMonth = today.getMonth() + 1;
-      const day = today.getDate();
-      const requiredMonth = day > GRACE_DAY ? currentMonth : null;
-      if (!requiredMonth) return false;
-      return !user.paidMonths.has(requiredMonth) && !user.blocked;
+      if (!isMonthDue()) return false;
+      return !user.paidMonths.has(selectedMonth) && !user.blocked;
     }
     if (statusFilter === "ok") return getUserStatus(user) === "ok";
     return true;
@@ -268,6 +267,16 @@ const ManagePayments = () => {
           />
         </div>
         <div className="flex items-center gap-2">
+          <Select value={String(selectedMonth)} onValueChange={(v) => setSelectedMonth(Number(v))}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS_FULL.map((m, i) => (
+                <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button variant="outline" size="icon" onClick={() => setYear((y) => y - 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -299,7 +308,7 @@ const ManagePayments = () => {
           }`}
         >
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Pendiente de pago</CardTitle>
+            <CardTitle className="text-sm font-medium">Pendiente {MONTHS_FULL[selectedMonth - 1]}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{pendingCount}</div>
@@ -325,7 +334,7 @@ const ManagePayments = () => {
           }`}
         >
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Al día</CardTitle>
+            <CardTitle className="text-sm font-medium">Al día {MONTHS_FULL[selectedMonth - 1]}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{okCount}</div>
