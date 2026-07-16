@@ -19,7 +19,7 @@ interface ScheduleData {
   start_time: string;  // "HH:MM:SS"
 }
 
-const DAY_LABELS = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+const DAY_LABELS = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 const MONTHS = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -155,7 +155,7 @@ export default function Classes() {
             {daysWithClasses.map((d) => (
               <div
                 key={d}
-                className="bg-secondary text-primary border border-primary/40 font-bebas tracking-wider text-center py-2 sm:py-3 rounded-md text-xs sm:text-base md:text-lg shadow-[0_0_10px_hsl(var(--primary)/0.15)]"
+                className="bg-secondary text-primary border border-primary/40 font-bebas tracking-wider text-center py-2 sm:py-3 px-0.5 rounded-md text-[9px] sm:text-xs md:text-sm lg:text-base shadow-[0_0_10px_hsl(var(--primary)/0.15)] leading-tight break-words"
               >
                 {DAY_LABELS[d]}
               </div>

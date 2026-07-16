@@ -1,4 +1,4 @@
-import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays, Dumbbell, CreditCard, Wallet } from "lucide-react";
+import { User, Building2, Calendar, LogOut, Users as UsersIcon, Calculator, CalendarDays, Dumbbell, CreditCard, Wallet, Table as TableIcon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logoPanthera from "@/assets/logo-panthera.png";
 import {
@@ -22,6 +22,7 @@ import { NotificationBell } from "./NotificationBell";
 
 const menuItems = [
   { title: "Clases", url: "/classes", icon: Calendar },
+  { title: "Tablas", url: "/tables", icon: TableIcon },
   { title: "Mi Perfil", url: "/profile", icon: User },
   { title: "Mis Cuotas", url: "/my-payments", icon: Wallet },
   { title: "Datos del Centro", url: "/gym-info", icon: Building2 },
