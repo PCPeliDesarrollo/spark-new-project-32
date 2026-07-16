@@ -97,8 +97,7 @@ export default function GymInfo() {
           <CardContent className="px-3 sm:px-4 md:px-6">
             <div className="space-y-1 text-xs sm:text-sm md:text-base text-muted-foreground whitespace-pre-line">
               <p>INVIERNO: L-D de 7:00-22:00h</p>
-              <p>VERANO:&nbsp; &nbsp;L-V de 7:00-23:00h
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;S-D de 7:00-20:00h</p>
+              <p>VERANO:&nbsp; &nbsp;L-V de 7:00-23:00h&nbsp; &nbsp; S-D de 7:00-20:00h</p>
             </div>
           </CardContent>
         </Card>
