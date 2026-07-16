@@ -21,6 +21,31 @@ interface ScheduleData {
 
 const DAY_LABELS = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const MONTHS = [
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+];
+
+function getWeekRangeLabel(now: Date = new Date()) {
+  const day = now.getDay(); // 0=Dom..6=Sab
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diffToMonday);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const sameMonth = monday.getMonth() === sunday.getMonth();
+  const sameYear = monday.getFullYear() === sunday.getFullYear();
+
+  if (sameMonth && sameYear) {
+    return `Semana del ${monday.getDate()} al ${sunday.getDate()} de ${MONTHS[monday.getMonth()]}`;
+  }
+  if (sameYear) {
+    return `Semana del ${monday.getDate()} de ${MONTHS[monday.getMonth()]} al ${sunday.getDate()} de ${MONTHS[sunday.getMonth()]}`;
+  }
+  return `Semana del ${monday.getDate()} de ${MONTHS[monday.getMonth()]} ${monday.getFullYear()} al ${sunday.getDate()} de ${MONTHS[sunday.getMonth()]} ${sunday.getFullYear()}`;
+}
 
 export default function Classes() {
   const navigate = useNavigate();
@@ -28,6 +53,14 @@ export default function Classes() {
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [schedules, setSchedules] = useState<ScheduleData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [weekLabel, setWeekLabel] = useState<string>(() => getWeekRangeLabel());
+
+  useEffect(() => {
+    const update = () => setWeekLabel(getWeekRangeLabel());
+    update();
+    const interval = setInterval(update, 60 * 60 * 1000); // cada hora
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -104,6 +137,10 @@ export default function Classes() {
       <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-wider mb-3 sm:mb-4 md:mb-6 text-primary drop-shadow-[0_0_25px_hsl(var(--primary)/0.6)] text-center">
         HORARIOS GIMNASIO
       </h1>
+
+      <p className="text-center font-bebas tracking-wider text-primary/90 text-sm sm:text-base md:text-xl lg:text-2xl mb-3 sm:mb-4 md:mb-6 capitalize">
+        {weekLabel}
+      </p>
 
       {timeSlots.length === 0 || daysWithClasses.length === 0 ? (
         <div className="text-center text-muted-foreground py-8">
