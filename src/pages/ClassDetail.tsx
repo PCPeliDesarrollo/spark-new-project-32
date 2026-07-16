@@ -698,9 +698,11 @@ export default function ClassDetail() {
                             </div>
                           </div>
 
-                          {selectedSchedule === dateKey && confirmedBookings.length > 0 && (
+                          {(isAdmin || selectedSchedule === dateKey) && (confirmedBookings.length > 0 || waitlistBookings.length > 0) && (
                             <div className="mt-3 pt-3 border-t border-border">
-                              <h4 className="text-sm font-medium mb-2">Confirmados:</h4>
+                              <h4 className="text-sm font-medium mb-2">
+                                Confirmados ({confirmedBookings.length}):
+                              </h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {confirmedBookings.map((booking) => (
                                   <div key={booking.user_id} className="flex items-center gap-2 p-2 bg-accent/30 rounded">
@@ -717,7 +719,9 @@ export default function ClassDetail() {
                               </div>
                               {waitlistBookings.length > 0 && (
                                 <>
-                                  <h4 className="text-sm font-medium mb-2 mt-3">Lista de espera:</h4>
+                                  <h4 className="text-sm font-medium mb-2 mt-3">
+                                    Lista de espera ({waitlistBookings.length}):
+                                  </h4>
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {waitlistBookings.map((booking) => (
                                       <div key={booking.user_id} className="flex items-center gap-2 p-2 bg-accent/20 rounded">
@@ -740,14 +744,16 @@ export default function ClassDetail() {
                             </div>
                           )}
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedSchedule(selectedSchedule === dateKey ? null : dateKey)}
-                            className="text-xs mt-2"
-                          >
-                            {selectedSchedule === dateKey ? "Ocultar" : "Ver"} apuntados ({confirmedCount + waitlistBookings.length})
-                          </Button>
+                          {!isAdmin && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedSchedule(selectedSchedule === dateKey ? null : dateKey)}
+                              className="text-xs mt-2"
+                            >
+                              {selectedSchedule === dateKey ? "Ocultar" : "Ver"} apuntados ({confirmedCount + waitlistBookings.length})
+                            </Button>
+                          )}
                         </div>
                       );
                     })}
