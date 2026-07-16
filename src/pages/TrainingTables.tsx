@@ -34,7 +34,7 @@ import {
   Upload,
   Link as LinkIcon,
   FileText,
-  ExternalLink,
+  PlayCircle,
 } from "lucide-react";
 
 interface TrainingTable {
@@ -48,10 +48,50 @@ interface TrainingTable {
 
 const BUCKET = "training-tables";
 
+// Extract a preview image from common video URLs (YouTube, Vimeo, direct video files, or any image URL).
+function getVideoThumbnail(url: string): string | null {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "");
+
+    // YouTube: youtu.be/<id> | youtube.com/watch?v=<id> | youtube.com/shorts/<id> | youtube.com/embed/<id>
+    if (host === "youtu.be") {
+      const id = u.pathname.slice(1).split("/")[0];
+      if (id) return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+    }
+    if (host.endsWith("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return `https://img.youtube.com/vi/${v}/hqdefault.jpg`;
+      const parts = u.pathname.split("/").filter(Boolean);
+      const idx = parts.findIndex((p) => p === "shorts" || p === "embed");
+      if (idx >= 0 && parts[idx + 1]) {
+        return `https://img.youtube.com/vi/${parts[idx + 1]}/hqdefault.jpg`;
+      }
+    }
+
+    // Vimeo: vimeo.com/<id>
+    if (host.endsWith("vimeo.com")) {
+      const id = u.pathname.split("/").filter(Boolean)[0];
+      if (id && /^\d+$/.test(id)) return `https://vumbnail.com/${id}.jpg`;
+    }
+
+    // Direct image
+    if (/\.(jpg|jpeg|png|gif|webp|avif)$/i.test(u.pathname)) return url;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function isImagePath(path: string) {
+  return /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(path);
+}
+
 const TrainingTables = () => {
   const { isAdmin } = useUserRole();
   const { toast } = useToast();
   const [tables, setTables] = useState<TrainingTable[]>([]);
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -74,7 +114,21 @@ const TrainingTables = () => {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setTables((data as TrainingTable[]) || []);
+      const rows = (data as TrainingTable[]) || [];
+      setTables(rows);
+
+      // Pre-sign image URLs so we can render inline previews for uploaded images.
+      const imagePaths = rows.filter((r) => r.file_url && isImagePath(r.file_url)).map((r) => r.file_url!) as string[];
+      if (imagePaths.length) {
+        const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrls(imagePaths, 60 * 60);
+        const map: Record<string, string> = {};
+        (signed || []).forEach((s) => {
+          if (s.path && s.signedUrl) map[s.path] = s.signedUrl;
+        });
+        setFileUrls(map);
+      } else {
+        setFileUrls({});
+      }
     } catch (err) {
       console.error(err);
       toast({ title: "Error", description: "No se pudieron cargar las tablas", variant: "destructive" });
@@ -325,20 +379,47 @@ const TrainingTables = () => {
                     {t.description}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {t.file_url && (
-                    <Button size="sm" variant="secondary" onClick={() => openFile(t.file_url!)} className="gap-1.5">
-                      <FileText className="h-4 w-4" /> Ver archivo
-                    </Button>
-                  )}
-                  {t.external_url && (
-                    <Button size="sm" variant="secondary" asChild className="gap-1.5">
-                      <a href={t.external_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" /> Abrir enlace
-                      </a>
-                    </Button>
-                  )}
-                </div>
+                {(() => {
+                  const thumb = t.external_url ? getVideoThumbnail(t.external_url) : null;
+                  const imgPreview = t.file_url && isImagePath(t.file_url) ? fileUrls[t.file_url] : null;
+                  return (
+                    <div className="space-y-2 pt-1">
+                      {imgPreview && (
+                        <button
+                          onClick={() => openFile(t.file_url!)}
+                          className="block w-full overflow-hidden rounded-lg border border-primary/20 hover:border-primary/50 transition-colors"
+                        >
+                          <img src={imgPreview} alt={t.title} className="w-full h-auto object-cover" loading="lazy" />
+                        </button>
+                      )}
+                      {t.external_url && (
+                        <a
+                          href={t.external_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="relative group block w-full overflow-hidden rounded-lg border border-primary/20 hover:border-primary/50 transition-colors bg-muted"
+                          aria-label={`Abrir ${t.title}`}
+                        >
+                          {thumb ? (
+                            <img src={thumb} alt={t.title} className="w-full h-auto aspect-video object-cover" loading="lazy" />
+                          ) : (
+                            <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                              <LinkIcon className="h-10 w-10 text-primary/60" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                            <PlayCircle className="h-14 w-14 text-white drop-shadow-lg opacity-90 group-hover:scale-110 transition-transform" />
+                          </div>
+                        </a>
+                      )}
+                      {t.file_url && !isImagePath(t.file_url) && (
+                        <Button size="sm" variant="secondary" onClick={() => openFile(t.file_url!)} className="gap-1.5">
+                          <FileText className="h-4 w-4" /> Ver archivo
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           ))}
