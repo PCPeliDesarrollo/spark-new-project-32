@@ -178,7 +178,7 @@ export default function Classes() {
                       <button
                         key={`${d}-${time}`}
                         onClick={() => navigate(`/classes/${cls.id}`)}
-                        className="bg-primary/90 hover:bg-primary text-primary-foreground rounded-md px-1 py-2 sm:py-3 md:py-4 font-bebas tracking-wide text-[10px] sm:text-sm md:text-lg text-center transition-all hover:scale-[1.03] hover:shadow-[0_0_15px_hsl(var(--primary)/0.6)] active:scale-95 min-h-[44px] flex flex-col items-center justify-center leading-tight gap-0.5"
+                        className="bg-primary/90 hover:bg-primary text-primary-foreground rounded-md px-1 py-2 sm:py-3 md:py-4 font-bebas tracking-normal sm:tracking-wide text-[11px] sm:text-sm md:text-lg text-center transition-all hover:scale-[1.03] hover:shadow-[0_0_15px_hsl(var(--primary)/0.6)] active:scale-95 min-h-[44px] flex flex-col items-center justify-center leading-tight gap-0.5"
                         aria-label={`Ver horarios de ${cls.name}`}
                       >
                         <span className="line-clamp-2 break-words">{cls.name.toUpperCase()}</span>
