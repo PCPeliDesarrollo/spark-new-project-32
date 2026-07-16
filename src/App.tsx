@@ -22,6 +22,7 @@ import ManageSchedules from "./pages/ManageSchedules";
 import ManageClasses from "./pages/ManageClasses";
 import ManagePayments from "./pages/ManagePayments";
 import MyPayments from "./pages/MyPayments";
+import TrainingTables from "./pages/TrainingTables";
 import BuySingleClass from "./pages/BuySingleClass";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Terms from "./pages/Terms";
@@ -192,6 +193,14 @@ const App = () => {
               element={
                 <AppLayout>
                   <MyPayments />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/tables"
+              element={
+                <AppLayout>
+                  <TrainingTables />
                 </AppLayout>
               }
             />
