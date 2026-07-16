@@ -91,13 +91,14 @@ export default function GymInfo() {
           <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
             <CardTitle className="flex items-center gap-2 font-bebas text-base sm:text-lg md:text-xl lg:text-2xl tracking-wider">
               <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-              Horario Provisional
+              Horario&nbsp;
             </CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-4 md:px-6">
-            <div className="space-y-1 text-xs sm:text-sm md:text-base text-muted-foreground">
-              <p>Mañanas: 9:00 - 14:00</p>
-              <p>Tardes: 17:00 - 22:00</p>
+            <div className="space-y-1 text-xs sm:text-sm md:text-base text-muted-foreground whitespace-pre-line">
+              <p>INVIERNO: L-D de 7:00-22:00h</p>
+              <p>VERANO:&nbsp; &nbsp;L-V de 7:00-23:00h
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;S-D de 7:00-20:00h</p>
             </div>
           </CardContent>
         </Card>
