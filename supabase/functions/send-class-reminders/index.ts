@@ -33,10 +33,10 @@ Deno.serve(async (req) => {
     
     if (reminderType === 'morning') {
       // Morning reminder: notify about all classes today
-      return await sendMorningReminders(supabase, now)
+      return await sendMorningReminders(supabase, now, cronSecret)
     } else {
       // Hourly reminder: notify 1 hour before class
-      return await sendHourlyReminders(supabase, now)
+      return await sendHourlyReminders(supabase, now, cronSecret)
     }
   } catch (error) {
     console.error('Error in send-class-reminders function:', error)
@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
   }
 })
 
-async function sendMorningReminders(supabase: any, now: Date) {
+async function sendMorningReminders(supabase: any, now: Date, cronSecret: string) {
   console.log('Sending morning reminders for today\'s classes...')
   
   const today = now.toISOString().split('T')[0]
@@ -118,6 +118,7 @@ async function sendMorningReminders(supabase: any, now: Date) {
     
     // Send push notification
     const { error: notifError } = await supabase.functions.invoke('send-push-notification', {
+      headers: { 'x-cron-secret': cronSecret },
       body: {
         user_id: userId,
         title: '🌅 Buenos días, ' + userName,
@@ -218,6 +219,7 @@ async function sendHourlyReminders(supabase: any, now: Date) {
       
       // Send push notification
       const { error: notifError } = await supabase.functions.invoke('send-push-notification', {
+        headers: { 'x-cron-secret': cronSecret },
         body: {
           user_id: booking.user_id,
           title: '⏰ Clase en 1 hora',

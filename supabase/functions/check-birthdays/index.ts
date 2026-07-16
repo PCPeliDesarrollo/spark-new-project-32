@@ -75,6 +75,7 @@ Deno.serve(async (req) => {
 
         // Enviar notificación push
         await supabase.functions.invoke('send-push-notification', {
+          headers: { 'x-cron-secret': cronSecret },
           body: {
             user_id: profile.id,
             title: '¡Feliz Cumpleaños! 🎉',
