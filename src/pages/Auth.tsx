@@ -37,12 +37,13 @@ export default function Auth() {
       // Only load saved credentials if no active session
       if (mounted && !session) {
         const savedEmail = localStorage.getItem("rememberedEmail");
-        const savedPassword = localStorage.getItem("rememberedPassword");
         const wasRemembered = localStorage.getItem("rememberMe") === "true";
-        
-        if (wasRemembered && savedEmail && savedPassword) {
+
+        // Clean up any legacy plaintext password that may have been saved before.
+        localStorage.removeItem("rememberedPassword");
+
+        if (wasRemembered && savedEmail) {
           setEmail(savedEmail);
-          setPassword(savedPassword);
           setRememberMe(true);
         }
       }
@@ -97,13 +98,13 @@ export default function Auth() {
         // Save credentials if remember me is checked
         if (rememberMe) {
           localStorage.setItem("rememberedEmail", email);
-          localStorage.setItem("rememberedPassword", password);
           localStorage.setItem("rememberMe", "true");
         } else {
           localStorage.removeItem("rememberedEmail");
-          localStorage.removeItem("rememberedPassword");
           localStorage.removeItem("rememberMe");
         }
+        // Never persist the password.
+        localStorage.removeItem("rememberedPassword");
         
         toast({
           title: "¡Éxito!",

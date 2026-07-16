@@ -13,6 +13,21 @@ serve(async (req) => {
   }
 
   try {
+    // Optional device-level shared secret. When the environment variable
+    // `QR_DEVICE_SECRET` is configured, only callers presenting the matching
+    // header may validate codes. If unset, the endpoint stays open for
+    // backwards compatibility with the physical door reader.
+    const deviceSecret = Deno.env.get('QR_DEVICE_SECRET');
+    if (deviceSecret) {
+      const provided = req.headers.get('x-device-secret');
+      if (provided !== deviceSecret) {
+        return new Response(
+          JSON.stringify({ success: false, message: 'No autorizado' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -108,8 +123,7 @@ serve(async (req) => {
         success: true, 
         message: 'Acceso permitido',
         user: {
-          name: `${profile.full_name} ${profile.apellidos || ''}`.trim(),
-          email: profile.email
+          name: `${profile.full_name} ${profile.apellidos || ''}`.trim()
         }
       }),
       { 
