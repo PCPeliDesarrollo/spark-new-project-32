@@ -285,6 +285,19 @@ export default function Profile() {
       passwordSchema.parse(passwordData);
       setChangingPassword(true);
 
+      // Ensure we have a valid session before attempting the update.
+      // On mobile (Capacitor) tokens can expire while the app is backgrounded.
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast({
+          title: "Sesión caducada",
+          description: "Vuelve a iniciar sesión para cambiar la contraseña",
+          variant: "destructive",
+        });
+        setChangingPassword(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword,
       });
@@ -306,9 +319,22 @@ export default function Profile() {
           variant: "destructive",
         });
       } else {
+        const raw = (error as { message?: string })?.message ?? "";
+        let description = "No se pudo cambiar la contraseña";
+        if (/should be different/i.test(raw)) {
+          description = "La nueva contraseña debe ser distinta de la actual";
+        } else if (/pwned|leaked|compromised/i.test(raw)) {
+          description = "Esta contraseña aparece en filtraciones conocidas. Elige otra más segura.";
+        } else if (/at least|weak|password/i.test(raw) && /6|8|character/i.test(raw)) {
+          description = "La contraseña no cumple los requisitos mínimos";
+        } else if (/session|jwt|expired|not.*authenticated/i.test(raw)) {
+          description = "Tu sesión ha caducado. Vuelve a iniciar sesión.";
+        } else if (raw) {
+          description = raw;
+        }
         toast({
           title: "Error",
-          description: "No se pudo cambiar la contraseña",
+          description,
           variant: "destructive",
         });
       }
