@@ -22,29 +22,24 @@ const isAuthSessionError = (error: unknown) => {
 };
 
 const getPasswordErrorMessage = (error: unknown) => {
-  const authError = error as { message?: string; code?: string; status?: number; weak_password?: { reasons?: string[] } };
+  const authError = error as { message?: string; code?: string; status?: number };
   const raw = authError?.message ?? "";
   const code = authError?.code ?? "";
-  const reasons = authError?.weak_password?.reasons?.join(" ") ?? "";
-  const value = `${raw} ${code} ${reasons}`.toLowerCase();
+  const value = `${raw} ${code}`.toLowerCase();
 
   if (/same|different|misma|distinta/.test(value)) {
     return "La nueva contraseña debe ser distinta de la actual.";
   }
 
-  if (/pwned|leaked|compromised|breach|breached|data breach|filtraci|exposed|expuesta|vulnerada/.test(value)) {
-    return "Esa contraseña aparece en filtraciones conocidas. Usa otra más segura, con mayúsculas, minúsculas, números y algún símbolo.";
-  }
-
-  if (/weak|password|contraseña|character|caracter|minimum|mínimo|least|lower|upper|digit|number|symbol|security/.test(value)) {
-    return "La contraseña no cumple los requisitos de seguridad. Usa mínimo 8 caracteres, con mayúsculas, minúsculas, números y algún símbolo.";
+  if (/weak|password|contraseña|character|caracter|minimum|mínimo|least|security/.test(value)) {
+    return "La contraseña debe tener al menos 6 caracteres.";
   }
 
   if (isAuthSessionError(error)) {
     return "Tu sesión ha caducado. Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.";
   }
 
-  return raw || "No se pudo cambiar la contraseña. Prueba con una contraseña más segura: mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolo.";
+  return raw || "No se pudo cambiar la contraseña. Prueba con al menos 6 caracteres.";
 };
 
 export default function Profile() {
@@ -305,7 +300,7 @@ export default function Profile() {
 
     const passwordSchema = z
       .object({
-        newPassword: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+        newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
         confirmPassword: z.string(),
       })
       .refine((data) => data.newPassword === data.confirmPassword, {
