@@ -20,29 +20,24 @@ const isAuthSessionError = (error: unknown) => {
 };
 
 const getPasswordErrorMessage = (error: unknown) => {
-  const authError = error as { message?: string; code?: string; status?: number; weak_password?: { reasons?: string[] } };
+  const authError = error as { message?: string; code?: string; status?: number };
   const raw = authError?.message ?? "";
   const code = authError?.code ?? "";
-  const reasons = authError?.weak_password?.reasons?.join(" ") ?? "";
-  const value = `${raw} ${code} ${reasons}`.toLowerCase();
+  const value = `${raw} ${code}`.toLowerCase();
 
   if (/same|different|misma|distinta/.test(value)) {
     return "La nueva contraseña debe ser distinta de la actual.";
   }
 
-  if (/pwned|leaked|compromised|breach|breached|data breach|filtraci|exposed|expuesta|vulnerada/.test(value)) {
-    return "Esa contraseña aparece en filtraciones conocidas. Usa otra más segura, con mayúsculas, minúsculas, números y algún símbolo.";
-  }
-
-  if (/weak|password|contraseña|character|caracter|minimum|mínimo|least|lower|upper|digit|number|symbol|security/.test(value)) {
-    return "La contraseña no cumple los requisitos de seguridad. Usa mínimo 8 caracteres, con mayúsculas, minúsculas, números y algún símbolo.";
+  if (/weak|password|contraseña|character|caracter|minimum|mínimo|least|security/.test(value)) {
+    return "La contraseña debe tener al menos 6 caracteres.";
   }
 
   if (isAuthSessionError(error)) {
     return "Tu sesión ha caducado. Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.";
   }
 
-  return raw || "No se pudo cambiar la contraseña. Prueba con una contraseña más segura: mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolo.";
+  return raw || "No se pudo cambiar la contraseña. Prueba con al menos 6 caracteres.";
 };
 
 interface ChangePasswordDialogProps {
@@ -73,10 +68,10 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
   };
 
   const handleChangePassword = async () => {
-    if (newPassword.length < 8) {
+    if (newPassword.length < 6) {
       toast({
         title: "Error",
-        description: "La contraseña debe tener al menos 8 caracteres",
+        description: "La contraseña debe tener al menos 6 caracteres",
         variant: "destructive",
       });
       return;
@@ -159,10 +154,10 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
             </div>
           </div>
           <DialogTitle className="text-center text-lg sm:text-xl">
-            Recomendación de seguridad
+            Cambiar contraseña
           </DialogTitle>
           <DialogDescription className="text-center text-sm">
-            Te recomendamos cambiar tu contraseña temporal por una más segura para proteger tu cuenta.
+            Cambia tu contraseña temporal por una que recuerdes fácilmente.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
