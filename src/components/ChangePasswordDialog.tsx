@@ -61,6 +61,17 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
 
     setLoading(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast({
+          title: "Sesión caducada",
+          description: "Vuelve a iniciar sesión para cambiar la contraseña",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       // Update password
       const { error: passwordError } = await supabase.auth.updateUser({
         password: newPassword,
@@ -86,9 +97,20 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
       onClose();
     } catch (error) {
       console.error("Error changing password:", error);
+      const raw = (error as { message?: string })?.message ?? "";
+      let description = "No se pudo cambiar la contraseña";
+      if (/should be different/i.test(raw)) {
+        description = "La nueva contraseña debe ser distinta de la actual";
+      } else if (/pwned|leaked|compromised/i.test(raw)) {
+        description = "Esta contraseña aparece en filtraciones conocidas. Elige otra más segura.";
+      } else if (/session|jwt|expired|not.*authenticated/i.test(raw)) {
+        description = "Tu sesión ha caducado. Vuelve a iniciar sesión.";
+      } else if (raw) {
+        description = raw;
+      }
       toast({
         title: "Error",
-        description: "No se pudo cambiar la contraseña",
+        description,
         variant: "destructive",
       });
     } finally {
