@@ -37,7 +37,11 @@ const getPasswordErrorMessage = (error: unknown) => {
     return "Tu sesión ha caducado. Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.";
   }
 
-  return raw || "No se pudo cambiar la contraseña. Prueba con al menos 6 caracteres.";
+  if (raw) {
+    return raw;
+  }
+
+  return "No se ha podido completar el cambio. Cierra sesión, vuelve a entrar y prueba otra vez con una contraseña de mínimo 6 caracteres.";
 };
 
 interface ChangePasswordDialogProps {
@@ -88,8 +92,15 @@ export function ChangePasswordDialog({ open, onClose, userId }: ChangePasswordDi
 
     setLoading(true);
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession();
-      if (sessionError || !sessionData.session) {
+      const { data: currentSessionData } = await supabase.auth.getSession();
+      let activeSession = currentSessionData.session;
+
+      if (!activeSession) {
+        const { data: refreshedSessionData } = await supabase.auth.refreshSession();
+        activeSession = refreshedSessionData.session;
+      }
+
+      if (!activeSession) {
         toast({
           title: "Sesión caducada",
           description: "Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.",

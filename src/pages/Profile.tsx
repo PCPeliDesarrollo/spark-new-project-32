@@ -39,7 +39,11 @@ const getPasswordErrorMessage = (error: unknown) => {
     return "Tu sesión ha caducado. Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.";
   }
 
-  return raw || "No se pudo cambiar la contraseña. Prueba con al menos 6 caracteres.";
+  if (raw) {
+    return raw;
+  }
+
+  return "No se ha podido completar el cambio. Cierra sesión, vuelve a entrar y prueba otra vez con una contraseña de mínimo 6 caracteres.";
 };
 
 export default function Profile() {
@@ -312,10 +316,15 @@ export default function Profile() {
       passwordSchema.parse(passwordData);
       setChangingPassword(true);
 
-      // Ensure we have a valid, refreshed session before attempting the update.
-      // On mobile (Capacitor) tokens can expire while the app is backgrounded.
-      const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession();
-      if (sessionError || !sessionData.session) {
+      const { data: currentSessionData } = await supabase.auth.getSession();
+      let activeSession = currentSessionData.session;
+
+      if (!activeSession) {
+        const { data: refreshedSessionData } = await supabase.auth.refreshSession();
+        activeSession = refreshedSessionData.session;
+      }
+
+      if (!activeSession) {
         toast({
           title: "Sesión caducada",
           description: "Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.",
