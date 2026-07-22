@@ -15,6 +15,38 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Badge } from "@/components/ui/badge";
 import { Capacitor } from "@capacitor/core";
 
+const isAuthSessionError = (error: unknown) => {
+  const authError = error as { message?: string; code?: string; status?: number };
+  const value = `${authError?.message ?? ""} ${authError?.code ?? ""}`.toLowerCase();
+  return authError?.status === 401 || /session|jwt|expired|not.*authenticated|auth.*missing|invalid.*token/.test(value);
+};
+
+const getPasswordErrorMessage = (error: unknown) => {
+  const authError = error as { message?: string; code?: string; status?: number; weak_password?: { reasons?: string[] } };
+  const raw = authError?.message ?? "";
+  const code = authError?.code ?? "";
+  const reasons = authError?.weak_password?.reasons?.join(" ") ?? "";
+  const value = `${raw} ${code} ${reasons}`.toLowerCase();
+
+  if (/same|different|misma|distinta/.test(value)) {
+    return "La nueva contraseña debe ser distinta de la actual.";
+  }
+
+  if (/pwned|leaked|compromised|breach|breached|data breach|filtraci|exposed|expuesta|vulnerada/.test(value)) {
+    return "Esa contraseña aparece en filtraciones conocidas. Usa otra más segura, con mayúsculas, minúsculas, números y algún símbolo.";
+  }
+
+  if (/weak|password|contraseña|character|caracter|minimum|mínimo|least|lower|upper|digit|number|symbol|security/.test(value)) {
+    return "La contraseña no cumple los requisitos de seguridad. Usa mínimo 8 caracteres, con mayúsculas, minúsculas, números y algún símbolo.";
+  }
+
+  if (isAuthSessionError(error)) {
+    return "Tu sesión ha caducado. Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.";
+  }
+
+  return raw || "No se pudo cambiar la contraseña. Prueba con una contraseña más segura: mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolo.";
+};
+
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -273,7 +305,7 @@ export default function Profile() {
 
     const passwordSchema = z
       .object({
-        newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+        newPassword: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
         confirmPassword: z.string(),
       })
       .refine((data) => data.newPassword === data.confirmPassword, {
@@ -285,22 +317,32 @@ export default function Profile() {
       passwordSchema.parse(passwordData);
       setChangingPassword(true);
 
-      // Ensure we have a valid session before attempting the update.
+      // Ensure we have a valid, refreshed session before attempting the update.
       // On mobile (Capacitor) tokens can expire while the app is backgrounded.
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
+      const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession();
+      if (sessionError || !sessionData.session) {
         toast({
           title: "Sesión caducada",
-          description: "Vuelve a iniciar sesión para cambiar la contraseña",
+          description: "Cierra sesión, vuelve a entrar y cambia la contraseña de nuevo.",
           variant: "destructive",
         });
         setChangingPassword(false);
         return;
       }
 
-      const { error } = await supabase.auth.updateUser({
+      let { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword,
       });
+
+      if (error && isAuthSessionError(error)) {
+        const { data: retrySession } = await supabase.auth.refreshSession();
+        if (retrySession.session) {
+          const retryResult = await supabase.auth.updateUser({
+            password: passwordData.newPassword,
+          });
+          error = retryResult.error;
+        }
+      }
 
       if (error) throw error;
 
@@ -319,22 +361,9 @@ export default function Profile() {
           variant: "destructive",
         });
       } else {
-        const raw = (error as { message?: string })?.message ?? "";
-        let description = "No se pudo cambiar la contraseña";
-        if (/should be different/i.test(raw)) {
-          description = "La nueva contraseña debe ser distinta de la actual";
-        } else if (/pwned|leaked|compromised/i.test(raw)) {
-          description = "Esta contraseña aparece en filtraciones conocidas. Elige otra más segura.";
-        } else if (/at least|weak|password/i.test(raw) && /6|8|character/i.test(raw)) {
-          description = "La contraseña no cumple los requisitos mínimos";
-        } else if (/session|jwt|expired|not.*authenticated/i.test(raw)) {
-          description = "Tu sesión ha caducado. Vuelve a iniciar sesión.";
-        } else if (raw) {
-          description = raw;
-        }
         toast({
           title: "Error",
-          description,
+          description: getPasswordErrorMessage(error),
           variant: "destructive",
         });
       }
